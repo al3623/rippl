@@ -52,3 +52,5 @@ rule token =
             | ' '               { token lexbuf }
             | '\t'              { TAB }
             | '\n'              { NEWLINE }
+            (* COMMENTS *)
+            | "--"              { CDASH }
