@@ -1,0 +1,3 @@
+sudo: false
+
+script: bash -ex test.sh
