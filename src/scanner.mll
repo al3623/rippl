@@ -17,12 +17,12 @@ rule token =
             | ')'               { RPAREN }
             (* MISC *)
             | ','               { COMMA }
-            | ".."
-            | '\\'               { LAMDAB }
+            | ".."              { LRANGE }
+            | '\\'              { LAMDAB }
             | "->"              { RARROW }
             | "<-"              { LARROW }
             (* NUM LITERALS *)
-            | ['0'-'9']+ as lit { LITERAL(int_of_string lit) }
+            | ['0'-'9']+ as lit { INTLIT(int_of_string lit) }
             (* BOOLEAN LITERALS *)
             | "True"            { TLIT }
             | "False"           { FLIT }
@@ -33,6 +33,11 @@ rule token =
             | '-'               { MINUS }
             | '/'               { DIVIDE }
             | '*'               { TIMES }
+            | '%'               { MOD }
+            | "+f"              { FPLUS }
+            | "-f"              { MINUSF }
+            | "/f"              { DIVF }
+            | "*f"              { TIMESF }
             (* BOOLEAN OPERATORS *)
             | "||"              { OR }
             | "&&"              { AND }
@@ -41,11 +46,10 @@ rule token =
             | '<'               { LESSER }
             | '>'               { GREATER }
             | "<="              { LEQ }
-            | ">="              { GREQ }
+            | ">="              { GEQ }
             (* LIST OPERATORS *)
             | ':'               { CONS }
             | "++"              { CONCAT }
-            | "len"             { LEN }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* WHITESPACE *)
@@ -53,4 +57,4 @@ rule token =
             | '\t'              { TAB }
             | '\n'              { NEWLINE }
             (* COMMENTS *)
-            | "--"              { CDASH }
+            | "--"              { COMMENT }
