@@ -52,4 +52,8 @@ julia :: Float -> Float -> [Char]
 julia = \b0 -> \a0 -> iterateComplex b0 a0
 
 main = do
-	putStrLn $ julia 0.26 0
+	putStrLn "Enter a number"
+	a0 <- getLine
+	putStrLn "Enter another number"
+	b0 <- getLine
+	putStrLn $ julia (read a0) (read b0)
