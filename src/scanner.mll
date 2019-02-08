@@ -8,24 +8,22 @@ rule token =
             | "if"              { IF }
             | "then"            { THEN }
             | "else"            { ELSE }
+            | "over"            { OVER }
+            | "fun"             { FUN }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
-            | '{'               { LBRACE }
-            | '}'               { RBRACE }
             | '('               { LPAREN }
             | ')'               { RPAREN }
             (* MISC *)
             | ','               { COMMA }
-            | ".."              { LRANGE }
-            | '\\'              { LAMDAB }
+            | "..."             { LRANGE }
             | "->"              { RARROW }
-            | "<-"              { LARROW }
             (* NUM LITERALS *)
             | ['0'-'9']+ as lit { INTLIT(int_of_string lit) }
             (* BOOLEAN LITERALS *)
-            | "True"            { TLIT }
-            | "False"           { FLIT }
+            | "true"            { TLIT }
+            | "false"           { FLIT }
             (* CHAR LITERALS *)
             (* STRING LITERALS *)
             (* NUM OPERATORS *)
@@ -39,8 +37,9 @@ rule token =
             | "/f"              { DIVF }
             | "*f"              { TIMESF }
             (* BOOLEAN OPERATORS *)
-            | "||"              { OR }
-            | "&&"              { AND }
+            | "or"              { OR }
+            | "and"             { AND }
+            | "not"             { NOT }
             | "=="              { EQ }
             | "!="              { NEQ }
             | '<'               { LESSER }
@@ -48,7 +47,9 @@ rule token =
             | "<="              { LEQ }
             | ">="              { GEQ }
             (* LIST OPERATORS *)
-            | ':'               { CONS }
+            | "pre"             { PRE }
+            | "head"            { HEAD }
+            | "tail"            { TAIL }
             | "++"              { CONCAT }
             (* ASSIGN *)
             | '='               { ASSIGN }
@@ -57,4 +58,5 @@ rule token =
             | '\t'              { TAB }
             | '\n'              { NEWLINE }
             (* COMMENTS *)
+            | "::"              { TYPECOL }
             | "--"              { COMMENT }
