@@ -31,6 +31,7 @@ rule token =
             | '-'               { MINUS }
             | '/'               { DIVIDE }
             | '*'               { TIMES }
+            | '^'               { POW }
             | '%'               { MOD }
             | "+f"              { FPLUS }
             | "-f"              { MINUSF }
