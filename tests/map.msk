@@ -1,5 +1,0 @@
-map :: [a] -> [b] -> [a] -> [b]
-map = \foo -> \list ->
-	if length list == 0
-		then []
-		else foo (head list) : (map f (tail list))

@@ -1,2 +1,0 @@
-mersenne :: Int -> [Int]
-mersenne = \n -> [2^x - 1| x <- [1..n]]

@@ -1,2 +1,0 @@
-nSquares :: Int -> [Int]
-nSquares = \n -> [x*x | x <- [1..n]]

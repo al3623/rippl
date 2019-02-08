@@ -1,2 +1,0 @@
-tupleSquare :: Int -> [(Int, Int)]
-tupleSquare = \n -> [(i,j) | i <- [0..n], j <- [0..n]]
