@@ -1,0 +1,52 @@
+normSquared :: float -> float -> float
+normSquared a b = a^2 + b^2
+
+iterateMandelbrot :: int -> float -> float -> float -> float -> char
+iterateMandelbrot c b_z a_z b a = 
+	if c > 200 
+		then encode c
+		else if normSquared (a_z*a_z - b_z*b_z + a) (2.0*a_z*a_z + b) > 4
+			then encode c
+			else iterateMandelbrot (c+1) (2.0*a_z*b_z + b) (a_z*a_z - b_z*b_z + a) b a
+
+encode :: int -> char
+encode count =
+	if count == 0
+		then 'D'
+		else if count < 10
+			then 'C'
+			else if count < 50
+				then 'B'
+				else if count < 200
+					then 'A'
+					else ' '
+
+-- complex range 	[-1.0, 1.0] y axis
+-- real range 		[-2.0, 1.0] x axis
+
+everyOther :: [a] -> [a]
+everyOther list = if length list == 0 
+					then []
+					else if length list == 1
+						then [head list]
+						else (head list) pre (tail tail list)
+
+
+iterateComplex :: [char]
+iterateComplex =
+	let range = map (/ 100) [-100...100] in
+	let complexRange = everyOther range in
+	let iterComplexRec r =
+		if length r == 0
+			then " "
+			else (iterateReal (head r)) ++ (iterComplexRec (tail r)) in iterComplexRec complexRange
+
+iterateReal :: float -> [char]
+iterateReal b =
+	let range = map (/ 100) [-200...100] in
+	let realRange = everyOther range in
+	let realLine = map (iterateMandelbrot 0 0 0 b) realRange in
+	realLine ++ "\n"
+
+main = do
+	putStrLn iterateComplex
