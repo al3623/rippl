@@ -1,0 +1,4 @@
+map :: [a] -> [b] -> [a] -> [b]
+map foo list =	if length list == 0
+		then []
+		else foo (head list) pre (map f (tail list))
