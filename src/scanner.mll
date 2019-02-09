@@ -33,19 +33,26 @@ rule token =
             | '*'               { TIMES }
             | '^'               { POW }
             | '%'               { MOD }
-            | "+f"              { FPLUS }
-            | "-f"              { MINUSF }
-            | "/f"              { DIVF }
-            | "*f"              { TIMESF }
+            | "+."              { FPLUS }
+            | "-."              { MINUSF }
+            | "/."              { DIVF }
+            | "*."              { TIMESF }
+            | "^."              { POWF }
             (* BOOLEAN OPERATORS *)
             | "or"              { OR }
             | "and"             { AND }
             | "not"             { NOT }
             | "=="              { EQ }
+            | "==."             { EQF}
             | "!="              { NEQ }
+            | "!=."             { NEQF }
             | '<'               { LESSER }
+            | "<."              { LESSERF }
             | '>'               { GREATER }
+            | ">."              { GREATERF }
             | "<="              { LEQ }
+            | "<=."             { LEQF }
+            | ">=."             { GEQF }
             | ">="              { GEQ }
             (* LIST OPERATORS *)
             | "pre"             { PRE }
