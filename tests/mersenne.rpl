@@ -1,2 +1,2 @@
 mersenne :: int -> [int]
-mersenne n = [2^x - 1 | x over [1...n]]
+mersenne n = [2 ^ x - 1 | x over [1...n]]

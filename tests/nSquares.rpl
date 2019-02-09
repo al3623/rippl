@@ -1,2 +1,2 @@
 nSquares :: int -> [int]
-Squares n = [x*x | x over [1...n]]
+Squares n = [x * x | x over [1...n]]
