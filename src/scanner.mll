@@ -61,6 +61,8 @@ rule token =
             | "++"              { CONCAT }
             (* ASSIGN *)
             | '='               { ASSIGN }
+            (* IDENTIFIERS *)
+            | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { ID(id) }
             (* WHITESPACE *)
             | ' '               { token lexbuf }
             | '\t'              { TAB }
