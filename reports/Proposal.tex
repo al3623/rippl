@@ -220,6 +220,16 @@ second element of tuple \\
 \end{multicols}
 
 \section{Sample Programs}
+\subsection{Infinite Sum}
+This program returns the sum of the first $n$ positive integers using an infinite list.
+\begin{lstlisting}[language=rippl]
+inf_sum :: int -> int
+inf_sum n = let infinity = [1...] in
+    let rec_inf_sum x list acc = if x == 0 or (len list) == 0
+        then acc
+        else rec_inf_sum (x-1) (tail list) ((head list) + acc)
+    in rec_inf_sum n infinity 0
+\end{lstlisting}
 \subsection{Mersenne Numbers}
 Mersenne numbers are numbers that are one less than a power of two. The search for large prime Mersenne numbers, called Mersenne Primes, is an ongoing distributed computing project. This small sample program uses a list comprehension to create the first $n$ Mersenne numbers.
 \begin{lstlisting}[language=rippl]
