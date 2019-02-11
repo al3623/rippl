@@ -10,7 +10,8 @@
 \addtolength{\topmargin}{-.5in}
 
 \lstdefinelanguage{rippl}{
-	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, pre, head, tail, int, bool, float, char}
+	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
+	pre, head, tail, int, bool, float, char}
 }
 \lstset{
          numbers=left,
@@ -168,7 +169,8 @@ or \\
 negation \\
 \end{multicols}
 \subsection{Character}
-Character literals are delimited by single quotes and are of type \textit{char}. Strings are constructed and treated as lists of \textit{char}.
+Character literals are delimited by single quotes and are of type \textit{char}. 
+Strings are constructed and treated as lists of \textit{char}.
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} == \\
@@ -180,10 +182,12 @@ $char \ \rightarrow \ char \ \rightarrow \ bool $ \\
 equal \\
 \end{multicols}
 \subsection{Lists}
-A list is a first order type that is parametrically polymorphic in the type of its elements. All elements of a list must be the same type. Lists as well as list types are delimited with brackets (ie. \texttt{[int]}, \texttt{[0,3,1]}).
+A list is a first order type that is parametrically polymorphic in the type of 
+its elements. All elements of a list must be the same type. Lists as well as 
+list types are delimited with brackets (ie. \texttt{[int]}, \texttt{[0,3,1]}).
 \begin{multicols}{3}
 \noindent $Operator$ \\
-\hspace*{5mm} \texttt{pre} \\
+\hspace*{5mm} \texttt{cons} \\
 \hspace*{5mm} \texttt{head} \\
 \hspace*{5mm} \texttt{tail} \\
 \hspace*{5mm} \texttt{len} \\
@@ -204,7 +208,10 @@ length \\
 concatenate \\
 \end{multicols}
 \subsection{Tuples}
-A tuple is a first order type, parametrically polymorphic in the types of its elements. A tuple can contain two elements of any type. Tuples as well as their types will be delimited by parentheses (ie. \texttt{("PLT",4118)}, \texttt{([char],int)}).
+A tuple is a first order type, parametrically polymorphic in the types of its 
+elements. A tuple can contain two elements of any type. Tuples as well as their 
+types will be delimited by parentheses (ie. \texttt{("PLT",4118)}, 
+\texttt{([char],int)}).
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{first} \\
@@ -221,7 +228,8 @@ second element of tuple \\
 
 \section{Sample Programs}
 \subsection{Infinite Sum}
-This program returns the sum of the first $n$ positive integers using an infinite list.
+This program returns the sum of the first $n$ positive integers using an 
+infinite list.
 \begin{lstlisting}[language=rippl]
 inf_sum :: int -> int
 inf_sum n = let infinity = [1...] in
@@ -231,26 +239,36 @@ inf_sum n = let infinity = [1...] in
     in rec_inf_sum n infinity 0
 \end{lstlisting}
 subsection{Collatz Conjecture}
-The Collatz conjecture is a conjecture in mathematics surrounding the iterative function shown below:
+The Collatz conjecture is a conjecture in mathematics surrounding the iterative 
+function shown below:
 $$ \begin{cases} 
       \frac{1}{2}x & x \texttt{ is even} \\
       3x + 1 & x \texttt{ is odd} 
    \end{cases}
 $$
-Lothar Collatz proposed that this sequence will always converge to $1$ starting from an arbitrary positive integer. Given a starting integer, the following program returns a list of iterations that ends in 1. The program hence uses $1$ as its base case even though it hasn't been mathematically proven that all numbers will eventually reach this case, but we believe in Lothar.
+Lothar Collatz proposed that this sequence will always converge to $1$ starting 
+from an arbitrary positive integer. Given a starting integer, the following 
+program returns a list of iterations that ends in 1. The program hence uses $1$ 
+as its base case even though it hasn't been mathematically proven that all 
+numbers will eventually reach this case, but we believe in Lothar.
 \begin{lstlisting}[language=rippl]
 collatz :: int -> [int]
 collatz n =
     let rec_collatz n list =
         if n == 1
-            then 1 pre list
+            then 1 cons list
         else if n % 2 == 0
-            then rec_collatz (n / 2) (n pre list)
-            else rec_collatz (3*n +1) (n pre list)
+            then rec_collatz (n / 2) (n cons list)
+            else rec_collatz (3*n +1) (n cons list)
     in rec_collatz n []
 \end{lstlisting}
 \subsection{Weak Prime Number Theorem}
-Bertrand's Postulate stated in the Weak Prime Number Theorem that there is always a prime number to be found between some $n$ and its double $2n$. This postulate was later proven by Pafnuty Chebyshev and refined by Paul Erd\"{o}s. The following program includes a function that determines the primality of a number and a function that takes a $n$ and returns the first prime between $n$ and $2n$.
+Bertrand's Postulate stated in the Weak Prime Number Theorem that there is 
+always a prime number to be found between some $n$ and its double $2n$. This 
+postulate was later proven by Pafnuty Chebyshev and refined by Paul Erd\"{o}s. 
+The following program includes a function that determines the primality of a 
+number and a function that takes a $n$ and returns the first prime between 
+$n$ and $2n$.
 \begin{lstlisting}[language=rippl]
 is_prime :: int -> bool
 is_prime n =
