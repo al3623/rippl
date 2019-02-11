@@ -230,13 +230,7 @@ inf_sum n = let infinity = [1...] in
         else rec_inf_sum (x-1) (tail list) ((head list) + acc)
     in rec_inf_sum n infinity 0
 \end{lstlisting}
-\subsection{Mersenne Numbers}
-Mersenne numbers are numbers that are one less than a power of two. The search for large prime Mersenne numbers, called Mersenne Primes, is an ongoing distributed computing project. This small sample program uses a list comprehension to create the first $n$ Mersenne numbers.
-\begin{lstlisting}[language=rippl]
-mersenne :: int -> [int]
-mersenne n = [2 ^ x - 1| x over [1...n]]
-\end{lstlisting}
-\subsection{Collatz Conjecture}
+subsection{Collatz Conjecture}
 The Collatz conjecture is a conjecture in mathematics surrounding the iterative function shown below:
 $$ \begin{cases} 
       \frac{1}{2}x & x \texttt{ is even} \\
