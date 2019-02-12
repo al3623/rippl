@@ -31,7 +31,7 @@ everyOther list = if len list == 0
 					then []
 					else if len list == 1
 						then [head list]
-						else (head list) pre (tail tail list)
+						else (head list) cons (tail tail list)
 
 
 iterateComplex :: [char]

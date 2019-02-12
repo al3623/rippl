@@ -4,6 +4,6 @@ collatz x =
 		if n == 1 
 			then 1 pre l
 			else if n % 2 == 0
-				then rec_collatz (n / 2) (n pre l)
-				else rec_collatz (3*n + 1) (n pre l)
+				then rec_collatz (n / 2) (n cons l)
+				else rec_collatz (3*n + 1) (n cons l)
 	in rec_collatz x []
