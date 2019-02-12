@@ -25,7 +25,7 @@
  }
 
 \title{Rippl: Recursively Inferred Pure functional Pythonic Language}
-\author{Da Hua Chen, Hollis Lehv, Amanda Liu, Hans Montero}
+\author{Da Hua Chen (Tester), Hollis Lehv (System Architect),\\Amanda Liu (Language Guru), Hans Montero (Manager)}
 \date{}
 \begin{document}
 
@@ -40,11 +40,15 @@ Functional programming languages generally support powerful and concise language
 \pagebreak
 
 \section{Language Features}
-\subsection{List Comprehensions}
-\subsection{Currying and Partial Application}
-\subsection{Lazy Evaluation}
-\subsection{Immutability}
+Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
+\subsection{Clean Code}
+One of Rippl’s biggest influences is Python for its simple operator syntax. Keywords like \texttt{and}, \texttt{or}, and \texttt{not} make the language natural and thus easier to digest. Rippl extends this user-positive experience to functional operations that in other languages take the form of symbols or strangely abbreviated word, which obfuscates code. Rippl instead offers clean list operators like \texttt{cons} and \texttt{cat} and tuple operators like \texttt{first} and \texttt{sec}. Lastly, list comprehensions receive a fresh look in Rippl, with the introduction of the \texttt{over} keyword and a more familiar mathematical notation, reminiscent of set builders.
 \subsection{Type Inference}
+Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. This means allowing for values with more than one type – which comes in handy for polymorphic functions. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
+\subsection{Higher Order Functions}
+Currying is a cornerstone of any functional programming language and Rippl is no exception. Partial applications tied together with closures will be the common computation sequence in this language.
+\subsection{Lazy Evaluation}
+Rippl supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the possible large sizes of these structures, they are actually lazily evaluated, which means that their evaluation is deferred until the value is needed in some other computation. 
 \pagebreak
 \section{Syntax}
 \begin{multicols}{2}
