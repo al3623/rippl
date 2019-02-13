@@ -1,4 +1,4 @@
-\documentclass[5pt]{article}
+﻿\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage{amsmath}
@@ -32,18 +32,26 @@
 \maketitle
 
 \section{Introduction}
-Functional programming languages generally support powerful and concise language constructs. However, one of the common criticisms users have of functional languages is that their syntax is hard to read and is not friendly to new users. At the same time, others find fault with imperative languages’ lack of safety and potential for error, but appreciate its readable syntax. Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, a strong static type system supporting inference, partial application, and simple syntax, Rippl will hopefully be an appropriate introduction for users without prior functional programming experience, who want to effectively and safely solve complicated mathematical problems.
+Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, a strong static type system implementing Hindley-Milner style inference, higher order functions, and simple syntax, Rippl is a powerful computational language with strong support for list-oriented calculations as well as support for association of items of different types in the form of tuples. Rippl will be an appropriate introduction for users without prior functional programming experience who want to effectively and safely perform complex mathematical calculations.
 
 
 \section{Motivation}
-Rippl is a powerful computational language with strong support for list-oriented calculations as well as support for association of items of different types in the form of tuples. Rippl has many of the paradigmatic features of functional programming, such as higher-order functions, recursion, and lazy evaluation. Additionally, its syntax is intended to make programs written in a functional style more readable and intuitive to users who are more accustomed to other programming paradigms.
+Functional programming languages generally support powerful and concise language constructs such as higher-order functions, partial application, recursion, and immutability, but at the cost of hard-to-read syntax that is not friendly to unfamiliar users. High-level imperative languages like Python support a highly human-readable syntax but allow mutable state which can lead to bugs and a weak, dynamic typing system which pushes errors to runtime. Rippl has many of the paradigmatic features of functional programming, such as higher-order functions, recursion, and lazy evaluation. Its syntax is intended to make programs written in a functional style more readable and intuitive to users who are more accustomed  to other programming paradigms.
 
 \pagebreak
 
 \section{Language Features}
 Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
 \subsection{Clean Code}
-One of Rippl’s biggest influences is Python, for its simple operator syntax. Keywords like `and`, `or`, and `not` make it closer to natural language and therefore more human readable. Rippl extends this user-positive experience to functional operations that in other languages take the form of symbols or strangely abbreviated words, which obfuscates code. Rippl instead offers descriptive yet concise list operators like `cons` and `cat` and tuple operators like `first` and `sec`. Lastly, list comprehensions receive a fresh look in Rippl, with the introduction of the `over` keyword and a more familiar mathematical notation, reminiscent of set builders.
+One of Rippl’s biggest influences is Python, for its simple operator syntax.
+Keywords like \texttt{and}, \texttt{or}, and \texttt{not} make it closer to
+natural language and therefore more human readable. Rippl extends this
+user-positive experience to functional operations that in other languages take
+the form of symbols or strangely abbreviated words, which obfuscates code. Rippl
+instead offers descriptive yet concise list operators like \texttt{cons} and
+\texttt{cat} and tuple operators like \texttt{first} and \texttt{sec}. Lastly,
+list comprehensions receive a fresh look in Rippl, with the introduction of the
+\texttt{over} keyword and a more familiar mathematical notation, reminiscent of set builders.
 \subsection{Type Inference}
 Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. By having language native operators and literals bootstrapped in the typing context with an explicit type, we are able to infer the type of expressions using Hindley-Milner's core syntactic type inference rules.This type system also allows for parametric polymorphism, meaning the type of an expression may be expressed in terms of type variables and will type check with any expression of a concrete type that matches the type schema. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
 \subsection{Higher Order Functions}
@@ -113,12 +121,7 @@ tuple \\
 
 \section{Operators}
 \subsection{Numeric}
-Our numeric or $num$ type represents the typeclass that encompasses $int$ and
-$float$. This use of this typeclass is mainly meant to aid in inference and
-protect the user from explicit typecasting. $int$, $float$, and $num$ types may
-be used explicitly in user annotated types. However, numeric literals are
-inferred to be of type $int$ unless the literal is explicitly written with a "."
-decimal point and inferred to be of type $float$.
+Our numeric or $num$ type represents the typeclass that encompasses $int$ and $float$. This use of this typeclass is mainly meant to aid in inference and protect the user from explicit typecasting.
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} + \\
