@@ -1,4 +1,4 @@
-﻿\documentclass[5pt]{article}
+\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage{amsmath}
@@ -48,17 +48,16 @@ One of Rippl’s biggest influences is Python, for its simple operator syntax.
 Keywords like \texttt{and}, \texttt{or}, and \texttt{not} make it closer to
 natural language and therefore more human readable. Rippl extends this
 user-positive experience to functional operations that in other languages take
-the form of symbols or strangely abbreviated words, which obfuscates code. Rippl
-instead offers descriptive yet concise list operators like \texttt{cons} and
+the form of symbols or strangely abbreviated words, which obfuscates code. Rippl instead offers descriptive yet concise list operators like \texttt{cons} and
 \texttt{cat} and tuple operators like \texttt{first} and \texttt{sec}. Lastly,
 list comprehensions receive a fresh look in Rippl, with the introduction of the
 \texttt{over} keyword and a more familiar mathematical notation, reminiscent of set builders.
 \subsection{Type Inference}
-Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. By having language native operators and literals bootstrapped in the typing context with an explicit type, we are able to infer the type of expressions using Hindley-Milner's core syntactic type inference rules.This type system also allows for parametric polymorphism, meaning the type of an expression may be expressed in terms of type variables and will type check with any expression of a concrete type that matches the type schema. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
-\subsection{Higher Order Functions}
+Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. By having language native operators and literals bootstrapped in the typing context with an explicit type, we are able to infer the type of expressions using Hindley-Milner's core syntactic type inference rules. This type system also allows for parametric polymorphism, meaning the type of an expression may be expressed in terms of type variables and will type check with any expression of a concrete type that matches the type schema. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
+\subsection{First-class Functions}
 The use of first-class functions encompasses many of the core features of the functional programming paradigm. One such feature is higher-order functions where arguments and return values may be other functions. Currying is another feature that allows us to view functions, function compositions, partially applied functions, and return values all as arrow types. Having functions in a curried arrow-type form allows us to employ partial application tied together with closures, as is idiomatic in functional languages.
 \subsection{Lazy Evaluation}
-Rippl supports a Haskell style non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
+Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
 \pagebreak
 \section{Syntax}
 \begin{multicols}{2}
@@ -177,7 +176,7 @@ Boolean values are of type $bool$ and consist of the literals \texttt{true} and 
 \noindent $Type$ \\
 $bool \ \rightarrow \ bool \ \rightarrow \ bool $ \\
 $bool \ \rightarrow \ bool \ \rightarrow \ bool $ \\
-$bool \ \rightarrow \ bool \ \rightarrow \ bool $ \\
+$bool \ \rightarrow \ bool $ \\
 \columnbreak \\
 \noindent $Function$ \\
 and \\
@@ -197,10 +196,11 @@ $char \ \rightarrow \ char \ \rightarrow \ bool $ \\
 \noindent $Function$ \\
 equal \\
 \end{multicols}
+\pagebreak
 \subsection{Lists}
 A list is a first order type that is parametrically polymorphic in the type of 
 its elements. All elements of a list must be the same type. Lists as well as 
-list types are delimited with brackets (ie. \texttt{[int]}, \texttt{[0,3,1]}).
+list types are delimited with brackets (e.g. \texttt{[int]}, \texttt{[0,3,1]}).
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{cons} \\
@@ -217,7 +217,7 @@ $[a] \ \rightarrow \ int $ \\
 $[a] \ \rightarrow \ [a] \ \rightarrow \ [a] $ \\
 \columnbreak \\
 \noindent $Function$ \\
-prepend \\
+construct \\
 head \\
 tail \\
 length \\
@@ -226,7 +226,7 @@ concatenate \\
 \subsection{Tuples}
 A tuple is a first order type, parametrically polymorphic in the types of its 
 elements. A tuple can contain two elements of any type. Tuples as well as their 
-types will be delimited by parentheses (ie. \texttt{("PLT",4118)}, 
+types will be delimited by parentheses (e.g. \texttt{("PLT",4118)}, 
 \texttt{([char],int)}).
 \begin{multicols}{3}
 \noindent $Operator$ \\
