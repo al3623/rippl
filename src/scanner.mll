@@ -23,7 +23,7 @@ rule token =
             | "..."             { LRANGE }
             | "->"              { RARROW }
             (* NUM LITERALS *)
-            | digit+ as lit { INTLIT(int_of_string lit) }
+            | digit+ as lit 	{ INTLIT(int_of_string lit) }
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -38,9 +38,9 @@ rule token =
             | '*'               { TIMES }
             | '^'               { POW }
             | '%'               { MOD }
-            | "+."              { FPLUS }
+            | "+."              { PLUSF }
             | "-."              { MINUSF }
-            | "/."              { DIVF }
+            | "/."              { DIVIDEF }
             | "*."              { TIMESF }
             | "^."              { POWF }
             (* BOOLEAN OPERATORS *)
@@ -51,8 +51,8 @@ rule token =
             | "==."             { EQF}
             | "!="              { NEQ }
             | "!=."             { NEQF }
-            | '<'               { LESSER }
-            | "<."              { LESSERF }
+            | '<'               { LESS }
+            | "<."              { LESSF }
             | '>'               { GREATER }
             | ">."              { GREATERF }
             | "<="              { LEQ }
@@ -63,7 +63,7 @@ rule token =
             | "cons"            { CONS }
             | "head"            { HEAD }
             | "tail"            { TAIL }
-            | "cat"              { CAT }
+            | "cat"             { CAT }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
@@ -86,4 +86,5 @@ rule token =
         parse _ as c            { CHARLIT(c) }
     and end_char_literal =
         parse "/'"              { token lexbuf }
+
 
