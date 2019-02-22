@@ -70,15 +70,15 @@ rule token =
             | (letter | '_') (letter | digit | '_')* as id { ID(id) }
             (* WHITESPACE *)
             | [' ' '\r' '\n' '\t']   { token lexbuf }
-            | "/*"              { comment 0 lexbuf }
-            | "//"              { line_comment lexbuf }
+            | "{-"              { comment 0 lexbuf }
+            | "#"              { line_comment lexbuf }
     and line_comment =
         parse '\n'              { token lexbuf }
             | _                 { line_comment lexbuf }
     and comment [nestCount] = 
-        parse "*/"              { if nestCount = 0 then token lexbuf else
+        parse "-}"              { if nestCount = 0 then token lexbuf else
                                     comment (nestCount - 1) lexbuf}
-            | "/*"              { comment (nestCount + 1) lexbuf }
+            | "{-"              { comment (nestCount + 1) lexbuf }
             | _                 { comment lexbuf }
     and string_literal =
         parse
