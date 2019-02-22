@@ -86,6 +86,7 @@ rule token =
             parse "\\\\"        { CHARLIT('\\') } (* OHGODOHFUCK *)
             | "\\n"             { CHARLIT('\n') }
             | "\\t"             { CHARLIT('\t') }
+            | "\\r"             { CHARLIT('\r') }
             | _ as c             { CHARLIT(c) }
     and end_char_literal =
         parse "/'"              { token lexbuf }
