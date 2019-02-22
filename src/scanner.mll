@@ -30,7 +30,7 @@ rule token =
             (* CHAR LITERALS *)
             | "\'"              { char_literal lexbuf }
             (* STRING LITERALS *)
-            | "\""              { string_literal lexbuf }
+            | "\""              { string_literal "" lexbuf }
             (* NUM OPERATORS *)
             | '+'               { PLUS }
             | '-'               { MINUS }
@@ -75,19 +75,20 @@ rule token =
     and line_comment =
         parse '\n'              { token lexbuf }
             | _                 { line_comment lexbuf }
-    and comment [nestCount] = 
+    and comment nestCount = 
         parse "-}"              { if nestCount = 0 then token lexbuf else
                                     comment (nestCount - 1) lexbuf}
             | "{-"              { comment (nestCount + 1) lexbuf }
             | _                 { comment lexbuf }
-    and string_literal =
-        parse
+    and string_literal str =
+        parse  
+            | "\""              { STRLIT(str) ; token lexbuf }
     and char_literal =
-            parse "\\\\"        { CHARLIT('\\') } (* OHGODOHFUCK *)
-            | "\\n"             { CHARLIT('\n') }
-            | "\\t"             { CHARLIT('\t') }
-            | "\\r"             { CHARLIT('\r') }
-            | _ as c             { CHARLIT(c) }
+            parse "\\\\"        { CHARLIT('\\') ; end_char_literal lexbuf } (* OHGODOHFUCK *)
+            | "\\n"             { CHARLIT('\n') ; end_char_literal lexbufi}
+            | "\\t"             { CHARLIT('\t') ; end_char_literal lexbuf }
+            | "\\r"             { CHARLIT('\r') ; end_char_literal lexbuf }
+            | _ as c            { CHARLIT(c) ; end_char_literal lexbuf }
     and end_char_literal =
         parse "/'"              { token lexbuf }
 
