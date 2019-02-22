@@ -1,5 +1,8 @@
 { open Parser }
 
+let letter = ['a'-'z' 'A'-'Z']
+let digit = ['0'-'9']
+
 rule token =
         parse eof               { EOF }
             (* KEYWORDS *) 
@@ -20,7 +23,7 @@ rule token =
             | "..."             { LRANGE }
             | "->"              { RARROW }
             (* NUM LITERALS *)
-            | ['0'-'9']+ as lit { INTLIT(int_of_string lit) }
+            | digit+ as lit { INTLIT(int_of_string lit) }
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -55,18 +58,23 @@ rule token =
             | ">=."             { GEQF }
             | ">="              { GEQ }
             (* LIST OPERATORS *)
-            | "pre"             { PRE }
+            | "cons"            { CONS }
             | "head"            { HEAD }
             | "tail"            { TAIL }
-            | "++"              { CONCAT }
+            | "cat"              { CAT }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
-            | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id { ID(id) }
+            | letter (letter | digit | '_')* as id { ID(id) }
             (* WHITESPACE *)
-            | ' '               { token lexbuf }
-            | '\t'              { TAB }
-            | '\n'              { NEWLINE }
-            (* COMMENTS *)
-            | "::"              { TYPECOL }
-            | "--"              { COMMENT }
+            | [' ' '\n' '\t']   { token lexbuf }
+            | "/*"              { comment 0 lexbuf }
+
+    and comment [nestCount] = 
+        parse "*/"              { if nestCount = 0 then token lexbuf else
+                                    comment (nestCount - 1) lexbuf}
+            | "/*"              { comment (nestCount + 1) lexbuf }
+            | _                 { comment lexbuf }
+    and string_literal =
+        parse
+
