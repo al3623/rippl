@@ -69,7 +69,7 @@ rule token =
             (* IDENTIFIERS *)
             | (letter | '_') (letter | digit | '_')* as id { ID(id) }
             (* WHITESPACE *)
-            | [' ' '\n' '\t']   { token lexbuf }
+            | [' ' '\r' '\n' '\t']   { token lexbuf }
             | "/*"              { comment 0 lexbuf }
             | "//"              { line_comment lexbuf }
     and line_comment =
