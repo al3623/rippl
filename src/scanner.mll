@@ -28,7 +28,9 @@ rule token =
             | "true"            { TLIT }
             | "false"           { FLIT }
             (* CHAR LITERALS *)
+            | "\'"              { char_literal lexbuf }
             (* STRING LITERALS *)
+            | "\""              { string_literal lexbuf }
             (* NUM OPERATORS *)
             | '+'               { PLUS }
             | '-'               { MINUS }
@@ -77,4 +79,6 @@ rule token =
             | _                 { comment lexbuf }
     and string_literal =
         parse
+    and char_literal =
+        parse _
 
