@@ -90,7 +90,7 @@ rule token =
             | "\\r"             { CHARLIT('\r') ; end_char_literal lexbuf }
             | _ as c            { CHARLIT(c) ; end_char_literal lexbuf }
     and end_char_literal =
-        parse "/'"              { token lexbuf }
+        parse '\''              { token lexbuf }
 
 
 
