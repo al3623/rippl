@@ -29,9 +29,10 @@ rule token =
             | "true"            { TLIT }
             | "false"           { FLIT }
             (* CHAR LITERALS *)
-            | "\'"              { char_literal lexbuf }
+            | "'" ( _ as c) "'" { CHARLIT(c) }
+            | '\'' '\\' 'n' '\''     { CHARLIT('\n') }
             (* STRING LITERALS *)
-            | "\""              { string_literal "" lexbuf }
+            | '"' ([^ '"']* as str) '"'  { STRLIT(str) }
             (* NUM OPERATORS *)
             | '+'               { PLUS }
             | '-'               { MINUS }
@@ -81,6 +82,7 @@ rule token =
                                     comment (nestCount - 1) lexbuf}
             | "{-"              { comment (nestCount + 1) lexbuf }
             | _                 { comment nestCount lexbuf }
+(* STRINGS AND CHAR LITERALS 
     and string_literal str =
         parse  
             | "\""              { STRLIT(str) ; token lexbuf }
@@ -92,6 +94,7 @@ rule token =
             | _ as c            { CHARLIT(c) ; end_char_literal lexbuf }
     and end_char_literal =
         parse '\''              { token lexbuf }
+*)
 
 {
 
@@ -102,12 +105,15 @@ rule token =
                     match token lexbuf with
                     EOF -> l
             | LPAREN -> next ("LPAREN" :: l)
+            | CHARLIT c -> next ("CHAR" :: l)
+            | INTLIT i -> next ("INT" :: l)
+            | FLOATLIT f -> next ("FLOAT" :: l)
             | _ -> next ("TOKEN" :: l)
 
         in
         next []
     in
-    List.iter print_endline (List.rev wordlist)
+    print_string "\n" ; List.iter print_endline (List.rev wordlist)
 
 }
 
