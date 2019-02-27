@@ -80,7 +80,7 @@ rule token =
         parse "-}"              { if nestCount = 0 then token lexbuf else
                                     comment (nestCount - 1) lexbuf}
             | "{-"              { comment (nestCount + 1) lexbuf }
-            | _                 { comment lexbuf }
+            | _                 { comment nestCount lexbuf }
     and string_literal str =
         parse  
             | "\""              { STRLIT(str) ; token lexbuf }
@@ -93,5 +93,21 @@ rule token =
     and end_char_literal =
         parse '\''              { token lexbuf }
 
+{
 
+    let lexbuf = Lexing.from_channel stdin
+    in
+    let wordlist =
+            let rec next l = 
+                    match token lexbuf with
+                    EOF -> l
+            | LPAREN -> next ("LPAREN" :: l)
+            | _ -> next ("TOKEN" :: l)
+
+        in
+        next []
+    in
+    List.iter print_endline (List.rev wordlist)
+
+}
 
