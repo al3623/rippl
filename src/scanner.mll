@@ -105,9 +105,10 @@ rule token =
                     match token lexbuf with
                     EOF -> l
             | LPAREN -> next ("LPAREN" :: l)
-            | CHARLIT c -> next ("CHAR" :: l)
+            | CHARLIT c -> next (("<" ^ (String.make 1 c) ^ ">") :: l)
             | INTLIT i -> next ("INT" :: l)
             | FLOATLIT f -> next ("FLOAT" :: l)
+            | STRLIT str -> next (("<" ^ str ^ ">"):: l)
             | _ -> next ("TOKEN" :: l)
 
         in
