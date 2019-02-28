@@ -1,0 +1,5 @@
+inf_sum n = let infinity = [1...] in
+  let rec_inf_sum x list acc = if x == 0 or (len list) == 0
+    then acc
+    else rec_inf_sum (x-1) (tail list) ((head list) + acc) 
+  in rec_inf_sum n infinity 0

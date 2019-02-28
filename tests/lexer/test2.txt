@@ -1,0 +1,8 @@
+collatz n =
+	let rec_collatz n list = 
+		if n == 1
+			then 1 cons list
+		else if n % 2 == 0
+			then rec_collatz (n / 2) (n cons list)
+			else rec_collatz (3*n +1) (n cons list) 
+	in rec_collatz n []
