@@ -333,26 +333,43 @@ Rippl uses lazy evaluation for list comprehensions. This means that only the hea
 /comments
 
 \begin{lstlisting}[language=ripple]
-[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
+[1, 2, 3, 18, -1]
 \end{lstlisting}
 
 
 ranged list \\
-With ranged lists, we can create a list without specifying every element.
+With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1, and ranges are only allowed for integer lists. 
 
 \begin{lstlisting}[language=ripple]
 [18...24] # [18, 19, 20, 21, 22, 23, 24]
+
+['a'...'z'] # not allowed
+
+[1.2...2.7] # no sir, uncountable number of elements
+\end{lstlisting}
+
+parametric list \\
+Parametric lists allow users to specify a parameter.
+
+\begin{lstlisting}[language=ripple]
+[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
 
 [x | x over [9...12]] # [9, 10, 11, 12]
 \end{lstlisting}
 
 
-
-parametric list \\
-infinite list \\
-Rippl support infinite lists. 
 qualified list \\
+With qualified lists, lists can be filtered by a condition.
+
+\begin{lstlisting}[language=ripple]
+[x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
+\end{lstlisting}
+
+
 parallel list \\
+
+infinite list \\
+Thanks to lazy evaluation, Rippl support infinite lists. 
 
 
 
