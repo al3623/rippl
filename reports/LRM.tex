@@ -367,18 +367,21 @@ With qualified lists, lists can be filtered by a condition.
 
 
 parallel list \\
-Parallel list comprehensions are lists comprehensions with multiple parameters. 
+Parallel list comprehensions are lists comprehensions with multiple parameters.
 
-\\2 parameters
-\\example with 3 parameters
+\begin{lstlisting}[language=rippl]
+[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] # [-7, 7]
+
+[x + y | x over [10, 30, 50], y over [10...12], if x != y] # [41, 62]
+\end{lstlisting}
 
 infinite list \\
-Thanks to lazy evaluation, Rippl support infinite lists. 
+Thanks to lazy evaluation, Rippl supports infinite lists. 
 
+\begin{lstlisting}[language=rippl]
+[3...] # [3, 4, 5, ...] 
 
-
-
-
-
+[2, 22...24, 7...] # [2, 22, 23, 24, 7, 8, ...]
+\end{lstlisting}
 
 \end{document}
