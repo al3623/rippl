@@ -5,6 +5,11 @@ let digit = ['0'-'9']
 
 rule token =
         parse eof               { EOF }
+            (* TYPES *)
+            | "int"             { INTTYPE }
+            | "char"            { CHARTYPE }
+            | "float"           { FLOATTYPE }
+            | "bool"            { BOOLTYPE }
             (* KEYWORDS *) 
             | "let"             { LET }
             | "in"              { IN }
@@ -20,11 +25,13 @@ rule token =
             | ')'               { RPAREN }
             (* MISC *)
             | ','               { COMMA }
+            | "..."             { LRANGE }
+            | "::"              { DOUBLECOL }
             | "->"              { RARROW }
+            | '|'               { BAR }
             (* NUM LITERALS *)
             | ('-' ?)digit+ as lit 	{ INTLIT(int_of_string lit) }
-            | ('-' ?)((digit* '.' digit+)|(digit+ '.' digit*))[^ '.'] as lit     { FLOATLIT(float_of_string lit) }
-            | "..."             {LRANGE}
+            | ('-' ?)((digit+ '.' digit+)) as lit { FLOATLIT(float_of_string lit)}
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -66,15 +73,12 @@ rule token =
             | "head"            { HEAD }
             | "tail"            { TAIL }
             | "cat"             { CAT }
-            | "|"               { BAR }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
             | (letter | '_') (letter | digit | '_')* as id { ID(id) }
             (* WHITESPACE *)
-            | ['\n']            { NEWLINE }
-            | [' ' '\r' '\t']   { token lexbuf }
-            
+            | [' ' '\r' '\n' '\t']   { token lexbuf }
             | "{-"              { comment 0 lexbuf }
             | "#"              { line_comment lexbuf }
     and line_comment =
@@ -85,16 +89,33 @@ rule token =
                                     comment (nestCount - 1) lexbuf}
             | "{-"              { comment (nestCount + 1) lexbuf }
             | _                 { comment nestCount lexbuf }
-
-
+(* STRINGS AND CHAR LITERALS 
+    and string_literal str =
+        parse  
+            | "\""              { STRLIT(str) ; token lexbuf }
+    and char_literal =
+            parse "\\\\"        { CHARLIT('\\') ; end_char_literal lexbuf } (* OHGODOHFUCK *)
+            | "\\n"             { CHARLIT('\n') ; end_char_literal lexbuf }
+            | "\\t"             { CHARLIT('\t') ; end_char_literal lexbuf }
+            | "\\r"             { CHARLIT('\r') ; end_char_literal lexbuf }
+            | _ as c            { CHARLIT(c) ; end_char_literal lexbuf }
+    and end_char_literal =
+        parse '\''              { token lexbuf }
+*)
 
 {
+
     let lexbuf = Lexing.from_channel stdin
     in
     let wordlist =
-            let rec next l = 
+    let rec next l = 
                     match token lexbuf with
                     EOF -> l
+            (* types *)
+            | INTTYPE -> next ("INTTYPE" :: l)
+            | FLOATTYPE -> next ("FLOATTYPE" :: l)
+            | BOOLTYPE -> next ("BOOLTYPE" :: l)
+            | CHARTYPE -> next ("CHARTYPE" :: l)
             (* keywords *)
             | LET -> next ("LET" :: l)
             | IN -> next ("IN" :: l)
@@ -112,6 +133,7 @@ rule token =
             | COMMA -> next ("COMMA" :: l)
             | RARROW -> next ("RARROW" :: l)
             | LRANGE -> next("LRANGE" :: l)
+            | DOUBLECOL -> next ("DOUBLECOL" :: l)
             (* num literals *) 
             | INTLIT i -> next ("INT" :: l)
             | FLOATLIT f -> next ("FLOAT" :: l)
@@ -170,4 +192,7 @@ rule token =
     let print_space str = print_string str; print_string " " in 
 List.iter print_space (List.rev wordlist)
 
+
+
 }
+

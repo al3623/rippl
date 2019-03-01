@@ -1,0 +1,9 @@
+# single line
+{- double line on single line -}
+{- double line
+on 
+three
+lines -}
+# {- single line comment -}
+{- this is a {- comment -} within a {- comment -}-}
+{--}
