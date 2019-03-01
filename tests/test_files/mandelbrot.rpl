@@ -1,5 +1,5 @@
 normSquared :: float -> float -> float
-normSquared a b = a ^. 2. + b ^. 2.
+normSquared a b = a ^. 2.0 + b ^. 2.0
 
 iterateMandelbrot :: int -> float -> float -> float -> float -> char
 iterateMandelbrot c b_z a_z b a = 
@@ -36,7 +36,7 @@ everyOther list = if len list == 0
 
 iterateComplex :: [char]
 iterateComplex =
-	let range = map (/. 100.) [-100...100] in
+	let range = map (/. 100.0) [-100...100] in
 	let complexRange = everyOther range in
 	let iterComplexRec r =
 		if length r == 0

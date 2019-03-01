@@ -1,0 +1,5 @@
+main :: IO(a) -> IO()
+
+main _ = print "Hello, world!"
+
+main input = input + 1

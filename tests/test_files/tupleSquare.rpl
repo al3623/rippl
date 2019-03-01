@@ -1,2 +1,2 @@
 tupleSquare :: int -> [(int, int)]
-tupleSquare n = [(i,j) | i over [0..n], j over [0..n]]
+tupleSquare n = [(i,j) | i over [0...n], j over [0...n]]

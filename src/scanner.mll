@@ -5,6 +5,11 @@ let digit = ['0'-'9']
 
 rule token =
         parse eof               { EOF }
+            (* TYPES *)
+            | "int"             { INTTYPE }
+            | "char"            { CHARTYPE }
+            | "float"           { FLOATTYPE }
+            | "bool"            { BOOLTYPE }
             (* KEYWORDS *) 
             | "let"             { LET }
             | "in"              { IN }
@@ -21,6 +26,7 @@ rule token =
             (* MISC *)
             | ','               { COMMA }
             | "..."             { LRANGE }
+            | "::"              { DOUBLECOL }
             | "->"              { RARROW }
             | '|'               { BAR }
             (* NUM LITERALS *)
@@ -105,6 +111,11 @@ rule token =
     let rec next l = 
                     match token lexbuf with
                     EOF -> l
+            (* types *)
+            | INTTYPE -> next ("INTTYPE" :: l)
+            | FLOATTYPE -> next ("FLOATTYPE" :: l)
+            | BOOLTYPE -> next ("BOOLTYPE" :: l)
+            | CHARTYPE -> next ("CHARTYPE" :: l)
             (* keywords *)
             | LET -> next ("LET" :: l)
             | IN -> next ("IN" :: l)
@@ -122,6 +133,7 @@ rule token =
             | COMMA -> next ("COMMA" :: l)
             | RARROW -> next ("RARROW" :: l)
             | LRANGE -> next("LRANGE" :: l)
+            | DOUBLECOL -> next ("DOUBLECOL" :: l)
             (* num literals *) 
             | INTLIT i -> next ("INT" :: l)
             | FLOATLIT f -> next ("FLOAT" :: l)
