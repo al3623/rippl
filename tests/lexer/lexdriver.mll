@@ -23,8 +23,8 @@ rule token =
             | "->"              { RARROW }
             (* NUM LITERALS *)
             | ('-' ?)digit+ as lit 	{ INTLIT(int_of_string lit) }
-            | ('-' ?)((digit* '.' digit+)|(digit+ '.' digit*)) as lit     { FLOATLIT(float_of_string lit) }
-            | ('[')(_)+"..."(_)*(']') {LRANGE}
+            | ('-' ?)((digit* '.' digit+)|(digit+ '.' digit*))[^ '.'] as lit     { FLOATLIT(float_of_string lit) }
+            | "..."             {LRANGE}
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
