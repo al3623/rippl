@@ -18,6 +18,7 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
+            | "main"			{ MAIN }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
