@@ -85,9 +85,17 @@ Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of
 \hspace*{10mm} $| \quad \texttt{bool}$ \\
 \hspace*{10mm} $| \quad \texttt{char}$ \\
 
-\noindent $\tau \ ::= $ \\
+\noindent $\delta \ ::= $ \\
 \hspace*{10mm} $| \quad \texttt{[]} $ \\
 \hspace*{10mm} $| \quad \texttt{()} $ \\
+
+\noindent $\tau \ ::= $ \\
+\hspace*{10mm} $| \quad \sigma $ \\
+\hspace*{10mm} $| \quad \delta \ \tau $ \\
+\hspace*{10mm} $| \quad \tau \texttt{->} \tau $ \\
+
+\noindent $\theta \ ::= $ \\
+\hspace*{10mm} $| \quad x \ :: \  \tau $ \\
 \columnbreak \\
 $Entrypoint$ \\
 main method \\
@@ -107,9 +115,17 @@ floating point number \\
 boolean \\
 character \\
 
-\noindent $Higher \ Order \ Types$ \\
+\noindent $Higher \ Order \ Type \ Constructors$ \\
 list \\
 tuple \\
+
+\noindent $Types$ \\
+proper type \\
+higher order type \\
+arrow type \\
+
+\noindent $Type \ Annotations$ \\
+type annotations \\
 \end{multicols}
 
 \noindent \texttt{\# Single line comments will be marked by two forward slashes} \\
