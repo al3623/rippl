@@ -101,12 +101,6 @@ let binding \\
 if-then-else \\
 list comprehension \\
 
-\noindent $List \ Comprehensions$ \\
-infinite list \\
-ranged list \\
-parametric list \\
-qualified list \\
-
 \noindent $Proper \ Types$ \\
 integer \\
 floating point number \\
@@ -313,4 +307,41 @@ prime_number_theorem n =
     foldl (fun prev -> fun curr -> if is_prime then prev else curr)
         (head odd_range) odd_range
 \end{lstlisting}
+
+
+
+\noindent $List \ Comprehensions$ \\
+List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map, and filter. \\
+
+Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated only when their value is requested. \\
+/comments
+
+\begin{lstlisting}[language=ripple]
+[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
+\end{lstlisting}
+
+
+ranged list \\
+With ranged lists, we can create a list without specifying every element.
+
+\begin{lstlisting}[language=ripple]
+[18...24] # [18, 19, 20, 21, 22, 23, 24]
+
+[x | x over [9...12]] # [9, 10, 11, 12]
+\end{lstlisting}
+
+
+
+parametric list \\
+infinite list \\
+Rippl support infinite lists. 
+qualified list \\
+parallel list \\
+
+
+
+
+
+
+
 \end{document}
