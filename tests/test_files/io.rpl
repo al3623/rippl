@@ -3,5 +3,5 @@ main _ = "Hello, world!"
 
 (* OR *)
 
-main :: IO(a) -> IO()
+main :: a -> b
 main input = input + 1
