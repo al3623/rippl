@@ -1,5 +1,6 @@
 main :: IO(a) -> IO()
-
 main _ = print "Hello, world!"
 
+(* OR *)
+main :: IO(a) -> IO()
 main input = input + 1
