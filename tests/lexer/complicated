@@ -1,0 +1,17 @@
+# Time to test the lexer!! It's lit :-}
+
+let some_nums = {- This is an infinite list, btw -} [69...420] in
+let anon_func1 = (fun x y z -> if {- suprise comment.. let us = continue -} (x + (-1 * y)) < z then x + y + z else (x + y) - z) in
+
+# So far so good. One might say "epic"! How about some sort of complex list operation?
+
+let m = [(p + 1) % 2 | p over (tail ([1...68] cat some_nums)), not(((p ^ 2) ^ 3) == (3213)) or (p <= 3324523)] in
+
+let dumb_string = "WAAA
+H
+OO
+OOOOO
+OOOOOOOOOOOOO :'-}" in
+
+let dumber_string = "{- ... -} hahahaha <- it looks like a annoyed face" in
+
