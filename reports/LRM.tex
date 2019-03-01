@@ -332,7 +332,7 @@ List comprehensions are an elegant and concise way to define and construct a lis
 Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated only when their value is requested. \\
 /comments
 
-\begin{lstlisting}[language=ripple]
+\begin{lstlisting}[language=rippl]
 [1, 2, 3, 18, -1]
 \end{lstlisting}
 
@@ -340,7 +340,7 @@ Rippl uses lazy evaluation for list comprehensions. This means that only the hea
 ranged list \\
 With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1, and ranges are only allowed for integer lists. 
 
-\begin{lstlisting}[language=ripple]
+\begin{lstlisting}[language=rippl]
 [18...24] # [18, 19, 20, 21, 22, 23, 24]
 
 ['a'...'z'] # not allowed
@@ -351,7 +351,7 @@ With ranged lists, we can create a list without specifying every element. Ranges
 parametric list \\
 Parametric lists allow users to specify a parameter.
 
-\begin{lstlisting}[language=ripple]
+\begin{lstlisting}[language=rippl]
 [x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
 
 [x | x over [9...12]] # [9, 10, 11, 12]
@@ -361,12 +361,16 @@ Parametric lists allow users to specify a parameter.
 qualified list \\
 With qualified lists, lists can be filtered by a condition.
 
-\begin{lstlisting}[language=ripple]
+\begin{lstlisting}[language=rippl]
 [x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
 \end{lstlisting}
 
 
 parallel list \\
+Parallel list comprehensions are lists comprehensions with multiple parameters. 
+
+\\2 parameters
+\\example with 3 parameters
 
 infinite list \\
 Thanks to lazy evaluation, Rippl support infinite lists. 
