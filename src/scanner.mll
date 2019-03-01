@@ -24,7 +24,7 @@ rule token =
             | "->"              { RARROW }
             (* NUM LITERALS *)
             | ('-' ?)digit+ as lit 	{ INTLIT(int_of_string lit) }
-            | ('-' ?)((digit* '.' digit+)|(digit+ '.' digit*)) as lit     { FLOATLIT(float_of_string lit) }
+            | ('-' ?)((digit* '.' digit+)|(digit+ '.' digit*))[^ '.'] as lit     { FLOATLIT(float_of_string lit) }
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -101,20 +101,85 @@ rule token =
     let lexbuf = Lexing.from_channel stdin
     in
     let wordlist =
-            let rec next l = 
+    let rec next l = 
                     match token lexbuf with
                     EOF -> l
+            (* keywords *)
+            | LET -> next ("LET" :: l)
+            | IN -> next ("IN" :: l)
+            | IF -> next ("IF" :: l)
+            | THEN -> next ("THEN" :: l)
+            | ELSE -> next ("ELSE" :: l)
+            | OVER -> next ("OVER" :: l)
+            | FUN -> next ("FUN" :: l)
+            (* braces *)
+            | LBRACK -> next ("LBRACK" :: l)
+            | RBRACK -> next ("RBRACK" :: l)
             | LPAREN -> next ("LPAREN" :: l)
-            | CHARLIT c -> next (("<" ^ (String.make 1 c) ^ ">") :: l)
+            | RPAREN -> next ("RPAREN" :: l)
+            (* miscellaneous *)
+            | COMMA -> next ("COMMA" :: l)
+            | RARROW -> next ("RARROW" :: l)
+            | LRANGE -> next("LRANGE" :: l)
+            (* num literals *) 
             | INTLIT i -> next ("INT" :: l)
             | FLOATLIT f -> next ("FLOAT" :: l)
-            | STRLIT str -> next (("<" ^ str ^ ">"):: l)
-            | _ -> next ("TOKEN" :: l)
+            (* boolean literals *)
+            | TLIT -> next ("TLIT" :: l)
+            | FLIT -> next ("FLIT" :: l)
+            (* char and string literals*)
+            | CHARLIT c -> next (("CHAR " ^ "<" ^ (String.make 1 c) ^ ">") :: l)
+            | STRLIT str -> next (("STRING " ^ "<" ^ str ^ ">"):: l)
+            (* numerical operators *)
+            | PLUS -> next ("PLUS" :: l)
+            | MINUS -> next ("MINUS" :: l)
+            | DIVIDE -> next ("DIVIDE" :: l)
+            | TIMES -> next ("TIMES" :: l)
+            | POW -> next ("POW"::l)
+            | MOD -> next ("MOD" :: l)
+            | PLUSF -> next ("PLUSF" :: l)
+            | MINUSF -> next ("MINUSF" :: l)
+            | DIVIDEF -> next ("DIVIDEF" :: l)
+            | TIMESF -> next ("TIMESF" :: l)
+            | POWF -> next ("POWF" :: l)
+            (* boolean operators *)
+            | OR -> next ("OR" :: l)
+            | AND -> next ("AND" :: l)
+            | NOT -> next ("NOT" :: l)
+            | EQ -> next ("EQ" :: l)
+            | EQF -> next ("EQF" :: l)
+            | NEQ -> next ("NEQ" :: l)
+            | NEQF -> next ("NEQF" :: l)
+            | LESS -> next ("LESS" :: l)
+            | LESSF -> next ("LESSF" :: l)
+            | GREATER -> next ("GREATER" :: l)
+            | GREATERF -> next ("GREATERF" :: l)
+            | LEQ -> next ("LEQ" :: l)
+            | LEQF -> next ("LEQF" :: l)
+            | GEQF -> next ("GEQF" :: l)
+            | GEQ -> next ("GEQ" :: l)
+            (* list operators *)
+            | CONS -> next ("CONS" :: l)
+            | HEAD -> next ("HEAD" :: l)
+            | TAIL -> next ("TAIL" :: l)
+            | CAT -> next ("CAT" :: l)
+            | BAR -> next ("BAR" :: l)
+            (* assignment *)
+            | ASSIGN -> next ("ASSIGN" :: l)
+            (* identifiers *)
+            | ID id -> next ("IDENT" :: l)
 
+            | NEWLINE -> next("\n"::l) 
+            
+            (* | _ -> next ("TOKEN" :: l) *)
         in
         next []
     in
-    print_string "\n" ; List.iter print_endline (List.rev wordlist)
+    print_string "\n";
+    let print_space str = print_string str; print_string " " in 
+List.iter print_space (List.rev wordlist)
+
+
 
 }
 
