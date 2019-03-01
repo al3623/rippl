@@ -1,4 +1,4 @@
-\documentclass[5pt]{article}
+﻿\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage{amsmath}
@@ -26,7 +26,7 @@
  }
 
 \title{Rippl: Recursively Inferred Pure functional Pythonic Language}
-\author{Da Hua Chen (Tester), Hollis Lehv (System Architect),\\Amanda Liu (Language Guru), Hans Montero (Manager)}
+\author{Da Hua Chen (Riddler), Hollis Lehv (System Architect),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister)}
 \date{}
 \begin{document}
 
@@ -61,6 +61,9 @@ Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of
 \pagebreak
 \section{Syntax}
 \begin{multicols}{2}
+\noindent $\mu \ ::= $ \\
+\hspace*{10mm} $| \quad \texttt{main } e = e$ \\
+
 \noindent $e \ ::= $ \\
 \hspace*{10mm} $| \quad c$ \\
 \hspace*{10mm} $| \quad x$ \\
@@ -86,7 +89,10 @@ Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of
 \hspace*{10mm} $| \quad \texttt{[]} $ \\
 \hspace*{10mm} $| \quad \texttt{()} $ \\
 \columnbreak \\
-$Expressions$ \\
+$Entrypoint$ \\
+main method \\
+
+\noindent $Expressions$ \\
 literals \\
 variables \\
 application \\
@@ -112,10 +118,10 @@ list \\
 tuple \\
 \end{multicols}
 
-\noindent \texttt{// Single line comments will be marked by two forward slashes} \\
+\noindent \texttt{\# Single line comments will be marked by two forward slashes} \\
 
-\noindent \texttt{/* Multiline comments will be delimited by slash-stars} \\
-\texttt{ \hspace*{3mm} Similar to a C-like program */} \\
+\noindent \texttt{\{- Multiline comments will be delimited by slash-stars-\} } \\
+\texttt{ \hspace*{3mm} Similar to a Haskell-like program */} \\
 
 \newpage 
 
