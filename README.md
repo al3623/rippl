@@ -37,6 +37,6 @@ TODO:
       - IO
 
 
-2) add main syntax to lexer @Hans (3/1)
+~2) add main syntax to lexer @Hans (3/1)~
 
 3) add main and type annotations to formal grammar @Amanda (3/1)
