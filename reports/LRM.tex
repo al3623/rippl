@@ -327,9 +327,9 @@ prime_number_theorem n =
 
 
 \noindent $List \ Comprehensions$ \\
-List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map, and filter. \\
+List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
 
-Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated only when their value is requested. \\
+Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
 /comments
 
 \begin{lstlisting}[language=rippl]
@@ -338,7 +338,7 @@ Rippl uses lazy evaluation for list comprehensions. This means that only the hea
 
 
 ranged list \\
-With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1, and ranges are only allowed for integer lists. 
+With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
 
 \begin{lstlisting}[language=rippl]
 [18...24] # [18, 19, 20, 21, 22, 23, 24]
@@ -370,9 +370,9 @@ parallel list \\
 Parallel list comprehensions are lists comprehensions with multiple parameters.
 
 \begin{lstlisting}[language=rippl]
-[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] # [-7, 7]
+[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] # [7, 3, 6, 2, -2, -6, -3, -7]
 
-[x + y | x over [10, 30, 50], y over [10...12], if x != y] # [41, 62]
+[x + y | x over [10, 30, 50], y over [10...12], if x != y] # [20, 21, 22, 40, 41, 42, 60, 61, 62]
 \end{lstlisting}
 
 infinite list \\
