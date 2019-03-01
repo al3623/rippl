@@ -1,0 +1,310 @@
+\documentclass[5pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{pxfonts}
+\usepackage{tabto}
+\usepackage{listings}
+\usepackage[margin=1.8in]{geometry}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{0.5in}
+
+\lstdefinelanguage{rippl}{
+	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
+	pre, head, tail, int, bool, float, char}
+}
+\lstset{
+         numbers=left,
+         firstnumber=1,
+  		 numberfirstline=true,
+ 		 xleftmargin=5.0ex,
+         basicstyle=\ttfamily,
+         tabsize=4,
+         commentstyle=\color{mygrey},
+         keywordstyle=\bfseries
+ }
+
+\title{Rippl: Recursively Inferred Pure functional Pythonic Language}
+\author{Da Hua Chen (Tester), Hollis Lehv (System Architect),\\Amanda Liu (Language Guru), Hans Montero (Manager)}
+\date{}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, a strong static type system implementing Hindley-Milner style inference, higher-order functions, and simple syntax, Rippl is a powerful computational language with strong support for list-oriented calculations as well as support for association of items of different types in the form of tuples. Rippl will be an appropriate introduction for users without prior functional programming experience who want to effectively and safely perform complex mathematical calculations.
+
+
+\section{Motivation}
+Functional programming languages generally support powerful and concise language constructs such as higher-order functions, partial application, recursion, and immutability, but at the cost of hard-to-read syntax that is not friendly to unfamiliar users. High-level imperative languages like Python support a highly human-readable syntax but allow mutable state which can lead to bugs and a weak, dynamic typing system which pushes errors to runtime. Rippl has many of the paradigmatic features of functional programming, such as higher-order functions, recursion, and lazy evaluation. Its syntax is intended to make programs written in a functional style more readable and intuitive to users who are more accustomed  to other programming paradigms.
+
+\pagebreak
+
+\section{Language Features}
+Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
+\subsection{Clean Code}
+One of Rippl’s biggest influences is Python, for its simple operator syntax.
+Keywords like \texttt{and}, \texttt{or}, and \texttt{not} make it closer to
+natural language and therefore more human-readable. Rippl extends this
+user-positive experience to functional operations that in other languages take
+the form of symbols or strangely abbreviated words, which obfuscates code. Rippl instead offers descriptive yet concise list operators like \texttt{cons} and
+\texttt{cat} and tuple operators like \texttt{first} and \texttt{sec}. Lastly,
+list comprehensions receive a fresh look in Rippl, with the introduction of the
+\texttt{over} keyword and a more familiar mathematical notation, reminiscent of set builders.
+\subsection{Type Inference}
+Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. By having language-native operators and literals bootstrapped in the typing context with an explicit type, we are able to infer the type of expressions using Hindley-Milner's core syntactic type inference rules. This type system also allows for parametric polymorphism, meaning the type of an expression may be expressed in terms of type variables and will type check with any expression of a concrete type that matches the type schema. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
+\subsection{First-class Functions}
+The use of first-class functions encompasses many of the core features of the functional programming paradigm. One such feature is higher-order functions where arguments and return values may be other functions. Currying is another feature that allows us to view functions, function compositions, partially applied functions, and return values all as arrow types. Having functions in a curried arrow-type form allows us to employ partial application tied together with closures, as is idiomatic in functional languages.
+\subsection{Lazy Evaluation}
+Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
+\pagebreak
+\section{Syntax}
+\begin{multicols}{2}
+\noindent $e \ ::= $ \\
+\hspace*{10mm} $| \quad c$ \\
+\hspace*{10mm} $| \quad x$ \\
+\hspace*{10mm} $| \quad e \ e$ \\
+\hspace*{10mm} $| \quad \texttt{fun } x \texttt{ -> } e$ \\
+\hspace*{10mm} $| \quad \texttt{let }x = e \texttt{ in } e$ \\
+\hspace*{10mm} $| \quad \texttt{if } e \texttt{ then } e \texttt{ else } e$ \\
+\hspace*{10mm} $| \quad \gamma$ \\
+
+\noindent $\gamma \ ::= $ \\
+\hspace*{10mm} $| \quad \texttt{[}e...\texttt{]}$ \\
+\hspace*{10mm} $| \quad \texttt{[}e...e\texttt{]}$ \\
+\hspace*{10mm} $| \quad \texttt{[}e \ | \ x \texttt{ over } \gamma, \texttt{]}$ \\
+\hspace*{10mm} $| \quad \texttt{[}e \ | \ x \texttt{ over } \gamma, e \texttt{]}$ \\
+
+\noindent $\sigma \ ::= $ \\
+\hspace*{10mm} $| \quad \texttt{int}$ \\
+\hspace*{10mm} $| \quad \texttt{float}$ \\
+\hspace*{10mm} $| \quad \texttt{bool}$ \\
+\hspace*{10mm} $| \quad \texttt{char}$ \\
+
+\noindent $\tau \ ::= $ \\
+\hspace*{10mm} $| \quad \texttt{[]} $ \\
+\hspace*{10mm} $| \quad \texttt{()} $ \\
+\columnbreak \\
+$Expressions$ \\
+literals \\
+variables \\
+application \\
+lambda abstraction \\
+let binding \\
+if-then-else \\
+list comprehension \\
+
+\noindent $List \ Comprehensions$ \\
+infinite list \\
+ranged list \\
+parametric list \\
+qualified list \\
+
+\noindent $Proper \ Types$ \\
+integer \\
+floating point number \\
+boolean \\
+character \\
+
+\noindent $Higher \ Order \ Types$ \\
+list \\
+tuple \\
+\end{multicols}
+
+\noindent \texttt{// Single line comments will be marked by two forward slashes} \\
+
+\noindent \texttt{/* Multiline comments will be delimited by slash-stars} \\
+\texttt{ \hspace*{3mm} Similar to a C-like program */} \\
+
+\newpage 
+
+\section{Operators}
+\subsection{Numeric}
+Our numeric or $num$ type represents the typeclass that encompasses $int$ and
+$float$. This use of this typeclass is mainly meant to aid in inference and
+protect the user from explicit typecasting. $int$, $float$, and $num$ types may
+be used explicitly in user-annotated types. However, numeric literals are
+inferred to be of type $int$ unless the literal is explicitly written with a "."
+decimal point and inferred to be of type $float$.
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} + \\
+\hspace*{5mm} - \\
+\hspace*{5mm} * \\
+\hspace*{5mm} / \\
+\hspace*{5mm} \% \\
+\hspace*{5mm} \^ \\
+\hspace*{5mm} $>$ \\
+\hspace*{5mm} $>=$ \\
+\hspace*{5mm} $<$ \\
+\hspace*{5mm} $<=$ \\
+\hspace*{5mm} == \\
+\hspace*{5mm} != \\
+\columnbreak \\
+\noindent $Type$ \\
+$num \ \rightarrow \ num \ \rightarrow \ num $ \\
+$num \ \rightarrow \ num \ \rightarrow \ num $ \\
+$num \ \rightarrow \ num \ \rightarrow \ num $ \\
+$num \ \rightarrow \ num \ \rightarrow \ num $ \\
+$int \quad \rightarrow \ int \quad \rightarrow \ int $ \\
+$num \ \rightarrow \ num \ \rightarrow \ num $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+\columnbreak \\
+$Function$ \\
+addition \\
+subtraction \\
+multiplication \\
+division \\
+modulus \\
+power \\
+greater than \\
+greater than or equal \\
+less than \\
+less than or equal \\
+equal \\
+not equal \\
+\end{multicols}
+\subsection{Boolean}
+Boolean values are of type $bool$ and consist of the literals \texttt{true} and \texttt{false}. 
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} \texttt{and} \\
+\hspace*{5mm} \texttt{or} \\
+\hspace*{5mm} \texttt{not} \\
+\columnbreak \\
+\noindent $Type$ \\
+$bool \ \rightarrow \ bool \ \rightarrow \ bool $ \\
+$bool \ \rightarrow \ bool \ \rightarrow \ bool $ \\
+$bool \ \rightarrow \ bool $ \\
+\columnbreak \\
+\noindent $Function$ \\
+and \\
+or \\
+negation \\
+\end{multicols}
+\subsection{Character}
+Character literals are delimited by single quotes and are of type \textit{char}. 
+Strings are constructed and treated as lists of \textit{char}.
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} == \\
+\columnbreak \\
+\noindent $Type$ \\
+$char \ \rightarrow \ char \ \rightarrow \ bool $ \\
+\columnbreak \\
+\noindent $Function$ \\
+equal \\
+\end{multicols}
+\pagebreak
+\subsection{Lists}
+A list is a first order type that is parametrically polymorphic in the type of 
+its elements. All elements of a list must be the same type. Strings are handled 
+and represented internally as lists of \texttt{char}s, but
+literal strings may be written using double quotes. Lists as well as 
+list types are delimited with brackets (e.g. \texttt{[int]}, \texttt{[0,3,1]}, \texttt{"Hello"}). 
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} \texttt{cons} \\
+\hspace*{5mm} \texttt{head} \\
+\hspace*{5mm} \texttt{tail} \\
+\hspace*{5mm} \texttt{len} \\
+\hspace*{5mm} \texttt{cat} \\
+\columnbreak \\
+\noindent $Type$ \\
+$a \ \rightarrow \ [a] \ \rightarrow \ [a] $ \\
+$[a] \ \rightarrow \ a $ \\
+$[a] \ \rightarrow \ [a] $ \\
+$[a] \ \rightarrow \ int $ \\
+$[a] \ \rightarrow \ [a] \ \rightarrow \ [a] $ \\
+\columnbreak \\
+\noindent $Function$ \\
+construct \\
+head \\
+tail \\
+length \\
+concatenate \\
+\end{multicols}
+\subsection{Tuples}
+A tuple is a first order type, parametrically polymorphic in the types of its 
+elements. A tuple can contain two elements of any type. Tuples as well as their 
+types will be delimited by parentheses (e.g. \texttt{("PLT",4118)}, 
+\texttt{([char],int)}).
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} \texttt{first} \\
+\hspace*{5mm} \texttt{sec} \\
+\columnbreak \\
+\noindent $Type$ \\
+$(a,b) \ \rightarrow \  a$ \\
+$(a,b) \ \rightarrow \  b$ \\
+\columnbreak \\
+\noindent $Function$ \\
+first element of tuple \\
+second element of tuple \\
+\end{multicols}
+
+\section{Sample Programs}
+\subsection{Infinite Sum}
+This program returns the sum of the first $n$ positive integers using an 
+infinite list.
+\begin{lstlisting}[language=rippl]
+inf_sum :: int -> int
+inf_sum n = let infinity = [1...] in
+    let rec_inf_sum x list acc = if x == 0 or (len list) == 0
+        then acc
+        else rec_inf_sum (x-1) (tail list) ((head list) + acc)
+    in rec_inf_sum n infinity 0
+\end{lstlisting}
+\subsection{Collatz Conjecture}
+The Collatz conjecture is a conjecture in mathematics surrounding the iterative 
+function shown below:
+$$ \begin{cases} 
+      \frac{1}{2}x & x \texttt{ is even} \\
+      3x + 1 & x \texttt{ is odd} 
+   \end{cases}
+$$
+Lothar Collatz proposed that this sequence will always converge to $1$ starting 
+from an arbitrary positive integer. Given a starting integer, the following 
+program returns a list of iterations that ends in 1. The program hence uses $1$ 
+as its base case even though it hasn't been mathematically proven that all 
+numbers will eventually reach this case, but we believe in Lothar.
+\begin{lstlisting}[language=rippl]
+collatz :: int -> [int]
+collatz n =
+    let rec_collatz n list =
+        if n == 1
+            then 1 cons list
+        else if n % 2 == 0
+            then rec_collatz (n / 2) (n cons list)
+            else rec_collatz (3*n +1) (n cons list)
+    in rec_collatz n []
+\end{lstlisting}
+\subsection{Weak Prime Number Theorem}
+Bertrand's Postulate stated in the Weak Prime Number Theorem that there is 
+always a prime number to be found between some $n$ and its double $2n$. This 
+postulate was later proven by Pafnuty Chebyshev and refined by Paul Erd\"{o}s. 
+The following program includes a function that determines the primality of a 
+number and a function that takes a $n$ and returns the first prime between 
+$n$ and $2n$.
+\begin{lstlisting}[language=rippl]
+is_prime :: int -> bool
+is_prime n =
+    let max = n / 2 in
+    let range = [2...max] in
+    let divisors = [x | x over range, n % x == 0] in
+    len divisors == 0
+    
+prime_number_theorem :: int -> int
+prime_number_theorem n =
+    let range = [(n+1)...2*n] in
+    let odd_range = [x | x over range, x % 2 != 0 ] in
+    foldl (fun prev -> fun curr -> if is_prime then prev else curr)
+        (head odd_range) odd_range
+\end{lstlisting}
+\end{document}
