@@ -1,6 +1,7 @@
 ﻿\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
+\usepackage[rgb,dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage{pxfonts}
@@ -10,16 +11,19 @@
 \addtolength{\topmargin}{-.5in}
 \addtolength{\textheight}{0.5in}
 
+\definecolor{mygrey}{rgb}{0.5,0.5,0.5}
 \lstdefinelanguage{rippl}{
 	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
-	pre, head, tail, int, bool, float, char}
+	pre, head, tail, int, bool, float, char},
+	language=Python,
 }
 \lstset{
          numbers=left,
          firstnumber=1,
   		 numberfirstline=true,
+  		 numberstyle=\ttfamily\scriptsize,
  		 xleftmargin=5.0ex,
-         basicstyle=\ttfamily,
+         basicstyle=\ttfamily\small,
          tabsize=4,
          commentstyle=\color{mygrey},
          keywordstyle=\bfseries
@@ -370,9 +374,11 @@ parallel list \\
 Parallel list comprehensions are lists comprehensions with multiple parameters.
 
 \begin{lstlisting}[language=rippl]
-[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] # [7, 3, 6, 2, -2, -6, -3, -7]
-
-[x + y | x over [10, 30, 50], y over [10...12], if x != y] # [20, 21, 22, 40, 41, 42, 60, 61, 62]
+[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] 
+    # [7, 3, 6, 2, -2, -6, -3, -7]
+    
+[x + y | x over [10, 30, 50], y over [10...12], x != y]
+    # [20, 21, 22, 40, 41, 42, 60, 61, 62]
 \end{lstlisting}
 
 infinite list \\
