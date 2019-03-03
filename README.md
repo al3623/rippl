@@ -32,9 +32,9 @@ TODO:
   - Mutability @Hans
      - NO!
 
-  - Code Samples @Amanda
-      - Computations
-      - IO
+  - ~Code Samples @Amanda~
+      - ~Computations~
+      - ~IO~
 
 
 ~2) add main syntax to lexer @Hans (3/1)~
