@@ -14,11 +14,12 @@
 \definecolor{mygrey}{rgb}{0.5,0.5,0.5}
 \lstdefinelanguage{rippl}{
 	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
-	pre, head, tail, int, bool, float, char},
+	pre, head, tail, int, bool, float, char, cons},
 	language=Python,
 }
 \lstset{
          numbers=left,
+         showstringspaces=false,
          firstnumber=1,
   		 numberfirstline=true,
   		 numberstyle=\ttfamily\scriptsize,
@@ -55,6 +56,64 @@ Functional programming languages generally support powerful and concise language
 \subsection{Arrow Types}
 
 \subsection{Type Annotations and Inference}
+Rippl supports type inference through an implementation of the Hindley-Milner type inference system over the core syntactic language constructs of lambda abstractions, let-bindings, application, and variable names, as well as the additional language construct of if-then-else expressions. \\
+
+By performing type inference in an environment where literals and language native operators (see section FILLNUMLATER) are bootstrapped  with a particular type, types of expressions can be inferred and checked in a complete and decidable manner. These types signatures may be concrete types like the ones below.
+
+\begin{lstlisting}[language=rippl]
+sum_ints :: int -> int -> int
+\end{lstlisting}
+\begin{lstlisting}[language=rippl]
+count_chars :: [char] -> int
+\end{lstlisting}
+\begin{lstlisting}[language=rippl]
+is_mutually_prime :: int -> int -> bool
+\end{lstlisting}
+
+However, these inferred types may also be parametrically polymorphic. These polymorphic types are represented as type variables like the ones below. \\
+
+\begin{lstlisting}[language=rippl]
+identity :: a -> a
+\end{lstlisting}
+\begin{lstlisting}[language=rippl]
+len :: [a] -> int
+\end{lstlisting}
+\begin{lstlisting}[language=rippl]
+empty_list :: [a]
+\end{lstlisting}
+\begin{lstlisting}[language=rippl]
+map :: a -> b -> [a] -> [b]
+\end{lstlisting}
+
+Rippl also allows programmers to provide their own type annotations for function definitions. This is done using the Haskell-like syntax shown in the previous examples, that involves specifying the variable name followed its full curried type signature, separated by a double colon "\texttt{::}". Type annotations are optional, but when they are provided type-checking is performed to make sure the user-annotated types are at most as generalized as the inferred type. In other words, the type annotation must be a subtype of the inferred type. \\
+
+The following function definition is an example of how an inferred type and annotated type can type-check directly if they are equal. \\
+
+\begin{lstlisting}[language=rippl]
+succ :: int -> int
+succ n = n +1       # inferred type is int -> int
+\end{lstlisting}
+
+The following type annotation would yield a typing error since the inferred type and annotated type contradict each other. This is due to the built in type of the integer addition and division operators and the fact that Rippl doesn't perform any implicit type promotions. \\
+
+\begin{lstlisting}[language=rippl]
+avg :: int -> int -> float
+avg x y = (x + y) / 2   # inferred type is int -> int -> int
+\end{lstlisting}
+
+The following function definition and annotation also type-check correctly since the inferred type that is parametrically polymorphic with type variable \texttt{a} can be properly concretized by substitution \texttt{a} with the concrete type \texttt{int} to match the user-annotated type. \\
+
+\begin{lstlisting}[language=rippl]
+nest_int_list :: [int] -> [[int]]
+nest_int_list l = l cons []     # inferred type is [a] -> [[a]]
+\end{lstlisting}
+
+The following function definition is an example of a type annotation that won't type-check with the inferred type. The inferred type enforces that the return type of \texttt{identity} be the same as its argument, so it's polymorphic in one type variable \texttt{a}. This is a stronger type restriction than the annotated type which states that the function is polymorphic and may return a type different than that of its argument. Since the annotated type must be a subtype of the inferred type, this would yield a type error. \\
+
+\begin{lstlisting}[language=rippl]
+identity :: a -> b
+identity x = x          # inferred type is a -> a
+\end{lstlisting}
 
 \section{Language Features}
 Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
@@ -312,8 +371,8 @@ main _ = ...
 The evaluated value of the body of the main function is printed. The "Hello, world!" program would be written as follows in Rippl.
 
 \begin{lstlisting}[language=rippl]
-# this prints "Hello, world!" to the terminal
-main _ = "Hello, world!"
+# this prints \"Hello, world!\" to the terminal
+main _ = \"Hello, world!\"
 \end{lstlisting}
 
 If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
