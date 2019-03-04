@@ -102,7 +102,7 @@ An arrow type is a sequence of types separated by an arrow (\texttt{->}) and rep
 \subsection{Type Annotations and Inference}
 Rippl supports type inference through an implementation of the Hindley-Milner type inference system over the core syntactic language constructs of lambda abstractions, let-bindings, application, and variable names, as well as the additional language construct of if-then-else expressions. \\
 
-By performing type inference in an environment where literals and language native operators (see section FILLNUMLATER) are bootstrapped  with a particular type, types of expressions can be inferred and checked in a complete and decidable manner. These types signatures may be concrete types like the ones below.
+By performing type inference in an environment where literals and language native operators (see section 3.5) are bootstrapped  with a particular type, types of expressions can be inferred and checked in a complete and decidable manner. These types signatures may be concrete types like the ones below.
 
 \begin{lstlisting}[language=rippl]
 sum_ints :: int -> int -> int
