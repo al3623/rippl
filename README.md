@@ -26,8 +26,8 @@ TODO:
   - ~main (entry point into program; bypassing IO monad) @Amanda~
   
   - ~Lists Comprehension: infinite lists, lazy evaluation (behavior) @Hollis~
-     - only head is fully evaluated until next element is requested~
-     - limitations (no over floats bc UNCOUNTABLY infinite) (2/28)~
+     - ~only head is fully evaluated until next element is requested~
+     - ~limitations (no over floats bc UNCOUNTABLY infinite) (2/28)~
      
   - Mutability @Hans
      - NO!
