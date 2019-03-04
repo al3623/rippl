@@ -371,8 +371,8 @@ main _ = ...
 The evaluated value of the body of the main function is printed. The "Hello, world!" program would be written as follows in Rippl.
 
 \begin{lstlisting}[language=rippl]
-# this prints \"Hello, world!\" to the terminal
-main _ = \"Hello, world!\"
+# this prints "Hello, world!" to the terminal
+main _ = "Hello, world!"
 \end{lstlisting}
 
 If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
