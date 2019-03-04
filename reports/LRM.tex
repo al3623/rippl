@@ -4,6 +4,7 @@
 \usepackage[rgb,dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{siunitx}
+\usepackage{setspace}
 \usepackage{pxfonts}
 \usepackage{tabto}
 \usepackage{listings}
@@ -12,6 +13,10 @@
 \addtolength{\textheight}{0.5in}
 \usepackage{textcomp}
 \newcommand{\sq}{\textquotesingle}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[colorinlistoftodos]{todonotes}
 
 \definecolor{mygrey}{rgb}{0.5,0.5,0.5}
 \lstdefinelanguage{rippl}{
@@ -30,16 +35,47 @@
          basicstyle=\ttfamily\small,
          tabsize=4,
          commentstyle=\color{mygrey},
-         keywordstyle=\bfseries
+         keywordstyle=\bfseries,
+         deletekeywords={map}
  }
 
-\title{Rippl: Recursively Inferred Pure functional Pythonic Language}
-\author{Da Hua Chen (Riddler), Hollis Lehv (Gallbladder),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister)}
-\date{}
 \begin{document}
 
-\maketitle
+
+\begin{titlepage}\centering
+\vspace*{\fill}
+\Huge RIPPL \\
+\LARGE Recursively Inferred Pure functional Pythonic Language \\
+\vspace*{\fill}
+\large Da Hua Chen (Riddler), Hollis Lehv (Gallbladder),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister) \\
 put logo here
+\end{titlepage}
+
+\begin{titlepage}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+\begin{center} 
+ 
+%\includegraphics[scale=.9]{rgu.png}\\[1cm] 
+
+\HRule \\[0.4cm]
+{ \Huge \bfseries Rippl}\\[0.2cm]
+\HRule \\[0.8cm]
+
+\spacing{1.5} \textsc{\LARGE  Recursively Inferred Pure functional \\ Programming Language}\\[1.5cm]
+
+\large \emph{Riddler:}
+Da Hua \textsc{Chen}\\
+\large \emph{Gallbladder:}
+Hollis \textsc{Lehv}\\
+\large \emph{Language Yoda:}
+Amanda \textsc{Liu}\\ 
+\large \emph{Prime Minister:}
+Hans \textsc{Montero}\\
+\vfill % Fill the rest of the page with whitespace
+\end{center} 
+\end{titlepage}
+
+
 \pagebreak
 \tableofcontents
 \pagebreak
@@ -126,7 +162,7 @@ len :: [a] -> int
 empty_list :: [a]
 \end{lstlisting}
 \begin{lstlisting}[language=rippl]
-map :: a -> b -> [a] -> [b]
+list_map :: a -> b -> [a] -> [b]
 \end{lstlisting}
 
 Rippl also allows programmers to provide their own type annotations for function definitions. This is done using the Haskell-like syntax shown in the previous examples, that involves specifying the variable name followed its full curried type signature, separated by a double colon "\texttt{::}". Type annotations are optional, but when they are provided type-checking is performed to make sure the user-annotated types are at most as generalized as the inferred type. In other words, the type annotation must be a subtype of the inferred type. \\
@@ -146,11 +182,11 @@ avg :: int -> int -> float
 avg x y = (x + y) / 2   # inferred type is int -> int -> int
 \end{lstlisting}
 
-The following function definition and annotation also type-check correctly since the inferred type that is parametrically polymorphic with type variable \texttt{a} can be properly concretized by substitution \texttt{a} with the concrete type \texttt{int} to match the user-annotated type. \\
+The following function definition and annotation also type-check correctly since the inferred type that is parametrically polymorphic with type variable \texttt{a} can be properly concretized by substitution \texttt{a} with the concrete type \texttt{[int]} to match the user-annotated type. \\
 
 \begin{lstlisting}[language=rippl]
 nest_int_list :: [int] -> [[int]]
-nest_int_list l = l cons []     # inferred type is [a] -> [[a]]
+nest_int_list l = l cons []     # inferred type is a -> [a]
 \end{lstlisting}
 
 The following function definition is an example of a type annotation that won't type-check with the inferred type. The inferred type enforces that the return type of \texttt{identity} be the same as its argument, so it's polymorphic in one type variable \texttt{a}. This is a stronger type restriction than the annotated type which states that the function is polymorphic and may return a type different than that of its argument. Since the annotated type must be a subtype of the inferred type, this would yield a type error. \\
@@ -432,7 +468,7 @@ second element of tuple \\
 \end{multicols}
 
 \subsection{Let Bindings}
-Given the functional nature of Rippl, there are no assignment statements. Instead, Rippl consists mainly of nested expressions strung together
+Given the functional nature of Rippl, there are no imperative assignment statements. Instead, Rippl consists mainly of nested expressions strung together
 using the let-in construct. This takes the form of \texttt{let identifier = expr1 in expr2}, where \texttt{indentifier} serves as a name binded to the value of \texttt{expr1} to be used in \texttt{expr2}. The value of a let binding chain is the value of the last expression.
 \begin{lstlisting}[language=rippl]
 let x = 1 in 
@@ -482,7 +518,6 @@ add_four 5	# 9
 List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
 
 Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
-/comments
 
 \begin{lstlisting}[language=rippl]
 [1, 2, 3, 18, -1]
@@ -540,9 +575,9 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
 
-Also as a pure functional language, Rippl also guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action that a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
+Also as a pure functional language, Rippl guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action than a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
 
-Pure functional languages like Haskell by giving all the IO function calls a hidden argument and strings them together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
+Pure functional languages like Haskell get around this by giving all the IO function calls a hidden argument and strings each call together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
 
 Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
 
