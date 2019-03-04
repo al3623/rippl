@@ -39,7 +39,6 @@
          commentstyle=\color{mygrey},
          keywordstyle=\bfseries,
          deletekeywords={map}
-         keywordstyle=\bfseries\color{blue}
  }
 
 \begin{document}
@@ -58,7 +57,7 @@ put logo here
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
 \begin{center} 
  
-%\includegraphics[scale=.9]{rgu.png}\\[1cm] 
+\includegraphics[scale=.9]{rgu.png}\\[1cm] 
 
 \HRule \\[0.4cm]
 { \Huge \bfseries Rippl}\\[0.2cm]
@@ -136,7 +135,7 @@ Tuples are also a first-order type, parametrically polymorphic in the types of i
 Hey I just met you and this is crazy. But here's my number, so call me \texttt{maybe}.
 
 \subsection{Arrow Types}
-An arrow type is a sequence of types separated by an arrow (\texttt{->}) and represents the type of a function or operator. The last type in an arrow type is the return type, and the previous types in the sequence are the input types. For example, the integer addition operator $\texttt{(+)}$ takes two integer inputs and returns an integer output, so it has type $\texttt{int -> int -> int}$. Functions, function compositions, and partially applied functions can all be expressed as arrow types.
+An arrow type is a sequence of types separated by an arrow (\texttt{->}) and represents the type of a function or operator. %TODO
 
 \subsection{Type Annotations and Inference}
 Rippl supports type inference through an implementation of the Hindley-Milner type inference system over the core syntactic language constructs of lambda abstractions, let-bindings, application, and variable names, as well as the additional language construct of if-then-else expressions. \\
@@ -482,7 +481,8 @@ x + y + z # 6
 
 \subsection{If-then-else Expressions}
 Like most programming languages, Rippl supports basic control flow through if-then-else expressions in the following form:
-\texttt{if bool then expr else expr}. Although the \texttt{if} and \texttt{then} clauses are mandatory, the \texttt{else} clause is not.
+\texttt{if bool then expr else expr}. %TODO
+
 \begin{lstlisting}[language=rippl]
 let num = 5 in
 let my_string = if num == 5 then "five" 
