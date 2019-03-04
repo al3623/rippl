@@ -6,22 +6,22 @@ TODO:
 1) LRM: drafts (Sun 3/3, final Wed 3/6)
   - Overview @Hans
   
-  - Type System @Da
-    - proper types (what literals look like)
-    - arrow types
-    - higher order types (what these look like)
+  - ~Type System @Da~
+    - ~proper types (what literals look like)~
+    - ~arrow types~
+    - ~higher order types (what these look like)~
     - ~type annotations & inference @Amanda~
     
   - Syntax & Grammar (definitions and appearance) @Hans
-    - keywords
-    - variables
-    - operators
-    - lambda extractions (syntactic sugar with functions)
+    - ~keywords~
+    - ~variables~
+    - ~operators~
+    - lambda abstractions (syntactic sugar with functions)
       - curriness
     - let binding
     - if-then-else
     - list comp.
-    - comments
+    -~ comments~
     
   - ~main (entry point into program; bypassing IO monad) @Amanda~
   
