@@ -18,6 +18,8 @@
     language=Python,
 	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
 	head, tail, int, bool, float, char, cons, first, sec, len, cat, main},
+	morecomment = [l]{\#},
+	morecomment = [n]{\{\-}{\-\}},
 }
 \lstset{
          numbers=left,
@@ -30,11 +32,11 @@
          basicstyle=\ttfamily\small,
          tabsize=4,
          commentstyle=\color{mygrey},
-         keywordstyle=\bfseries
+         keywordstyle=\bfseries\color{blue}
  }
 
 \title{Rippl: Recursively Inferred Pure functional Pythonic Language}
-\author{Da Hua Chen (Riddler), Hollis Lehv (Gallbladder),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister)}
+\author{Da Hua Chen (Test Monkey), Hollis Lehv (Gallbladder),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister)}
 \date{}
 \begin{document}
 
@@ -51,14 +53,14 @@ Rippl has proper (primitive) types, higher-order types, and arrow types.
 
 \subsection{Proper Types}
 The proper types in Rippl are $\texttt{int}$, $\texttt{float}$, $\texttt{bool}$, and $\texttt{char}$.
-\subsubsection*{Integers}
+\subsubsection{Integers}
 \texttt{int} is the signed integer type. An integer literal may be preceded by a unary minus (\texttt{-}) to denote a negative integer. Unary plus (\texttt{+}) is not supported. Integers are written in base 10 (decimal) and cannot be written in other bases (e.g. binary, octal, hexadecimal).
 
-\subsubsection*{Floating-point Numbers}
+\subsubsection{Floating-point Numbers}
 \texttt{float} is the floating-point numerical type. Float literals must be written with a decimal point and at least one digit to the left and right of the decimal point (e.g. \texttt{-4.2}, \texttt{10.0}). This format was chosen to avoid ambiguity with integer literals when used with the list range operator (\dots). Numbers not written in this format, e.g. \texttt{6.}, \texttt{.53}, and \texttt{-.0}, are not valid floats. Floating-point numbers written in scientific notation, e.g. \texttt{1.37e15}, are also not supported.
-\subsubsection*{Booleans}
+\subsubsection{Booleans}
 \texttt{bool} is the Boolean type. There are two Boolean literals, \texttt{true} and \texttt{false}.
-\subsubsection*{Characters}
+\subsubsection{Characters}
 \texttt{char} is the character type. A character literal is written as a single character in single quotes e.g. \texttt{\sq A\sq}, \texttt{\sq !\sq}, \texttt{\sq+\sq}. Special characters, such as the newline character \sq\texttt{\string\n}\sq, are escaped with a backslash ($\backslash$).
 
 \subsubsection{Summary of Proper Types}
@@ -214,7 +216,7 @@ if-then-else \\
 list comprehension \\
 
 \noindent $List \ Comprehensions$ \\
-infinte list \\
+infinite list \\
 ranged list \\
 parametric list \\
 qualified list \\
@@ -278,7 +280,7 @@ _my_other_indentifier456  		# Also valid!
 \subsection{Operators}
 The following subsections detail the various operators associated with each type in Rippl. It is worth noting that arithmetic expressions are evaluated using a mathematical
 order of precedence with left associativity. That is, expressions are evaluated using the following rules in order of decreasing precedence: parentheses, exponents, unary operators, multiplication/division/modulus, addition/subtraction. 
-\subsubsection{Integers}
+\subsubsection{Integer Operators}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} + \\
@@ -322,7 +324,7 @@ less than or equal \\
 equal \\
 not equal \\
 \end{multicols}
-\subsubsection{Floating-point Numbers}
+\subsubsection{Floating-point Operators}
 Note that float operators differ from integer operators in that they require an additional '.' to aid in type inference.
 \begin{multicols}{3}
 \noindent $Operator$ \\
@@ -365,7 +367,7 @@ equal \\
 not equal \\
 \end{multicols}
 \newpage
-\subsubsection{Boolean}
+\subsubsection{Boolean Operators}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{and} \\
@@ -382,7 +384,7 @@ and \\
 or \\
 negation \\
 \end{multicols}
-\subsubsection{Character}
+\subsubsection{Character Operators}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} == \\
@@ -393,7 +395,7 @@ $char \ \rightarrow \ char \ \rightarrow \ bool $ \\
 \noindent $Function$ \\
 equal \\
 \end{multicols}
-\subsubsection{Lists}
+\subsubsection{List Operators}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{cons} \\
@@ -416,7 +418,7 @@ tail \\
 length \\
 concatenate \\
 \end{multicols}
-\subsubsection{Tuples}
+\subsubsection{Tuple Operators}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{first} \\
