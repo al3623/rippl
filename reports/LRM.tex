@@ -43,16 +43,6 @@
 
 \begin{document}
 
-
-\begin{titlepage}\centering
-\vspace*{\fill}
-\Huge RIPPL \\
-\LARGE Recursively Inferred Pure functional Pythonic Language \\
-\vspace*{\fill}
-\large Da Hua Chen (Riddler), Hollis Lehv (Gallbladder),\\Amanda Liu (Language Yoda), Hans Montero (Prime Minister) \\
-put logo here
-\end{titlepage}
-
 \begin{titlepage}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
 \begin{center} 
@@ -75,6 +65,7 @@ Amanda \textsc{Liu}\\
 Hans \textsc{Montero}\\
 \vfill % Fill the rest of the page with whitespace
 \end{center} 
+
 \end{titlepage}
 
 
@@ -522,7 +513,7 @@ add_four 5  # 9
 \subsection{List Comprehensions}
 List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
 
-Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
+\noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
 
 \begin{lstlisting}[language=rippl]
 [1, 2, 3, 18, -1]
@@ -580,11 +571,11 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
 
-Also as a pure functional language, Rippl guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action than a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
+\noindent Also as a pure functional language, Rippl guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action than a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
 
-Pure functional languages like Haskell get around this by giving all the IO function calls a hidden argument and strings each call together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
+\noindent Pure functional languages like Haskell get around this by giving all the IO function calls a hidden argument and strings each call together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
 
-Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
+\noindent Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
 
 User input is represented as the argument to the main function. It can be bound as a named argument that is then used for evaluation of the body of the main function if it requires user input. \\
 
