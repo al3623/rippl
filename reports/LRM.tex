@@ -39,30 +39,24 @@
 \begin{document}
 
 \maketitle
-\section{Overview}
-
-\subsection{Introduction}
-Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, a strong static type system implementing Hindley-Milner style inference, higher-order functions, and simple syntax, Rippl is a powerful computational language with strong support for list-oriented calculations as well as support for association of items of different types in the form of tuples. Rippl will be an appropriate introduction for users without prior functional programming experience who want to effectively and safely perform complex mathematical calculations.
-
-
-\subsection{Motivation}
-Functional programming languages generally support powerful and concise language constructs such as higher-order functions, partial application, recursion, and immutability, but at the cost of hard-to-read syntax that is not friendly to unfamiliar users. High-level imperative languages like Python support a highly human-readable syntax but allow mutable state which can lead to bugs and a weak, dynamic typing system which pushes errors to runtime. Rippl has many of the paradigmatic features of functional programming, such as higher-order functions, recursion, and lazy evaluation. Its syntax is intended to make programs written in a functional style more readable and intuitive to users who are more accustomed  to other programming paradigms.
-
+put logo here
 \pagebreak
+\section{Overview}
+Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, lazily evaluated infinite lists, a strong static type system implementing Hindley-Milner style inference, higher-order functions, and simple syntax, Rippl sets out to provide a clean and intuitive functional programming experience like no other language can.
 
 \section{Type System}
 Rippl has proper (primitive) types, higher-order types, and arrow types.
 
 \subsection{Proper Types}
 The proper types in Rippl are $\texttt{int}$, $\texttt{float}$, $\texttt{bool}$, and $\texttt{char}$.
-\subsubsection*{\texttt{int} --- Integers}
+\subsubsection*{Integers}
 \texttt{int} is the signed integer type. An integer literal may be preceded by a unary minus (\texttt{-}) to denote a negative integer. Unary plus (\texttt{+}) is not supported. Integers are written in base 10 (decimal) and cannot be written in other bases (e.g. binary, octal, hexadecimal).
 
-\subsubsection*{\texttt{float} --- Floating-point Numbers}
+\subsubsection*{Floating-point Numbers}
 \texttt{float} is the floating-point numerical type. Float literals must be written with a decimal point and at least one digit to the left and right of the decimal point (e.g. \texttt{-4.2}, \texttt{10.0}). This format was chosen to avoid ambiguity with integer literals when used with the list range operator (\dots). Numbers not written in this format, e.g. \texttt{6.}, \texttt{.53}, and \texttt{-.0}, are not valid floats. Floating-point numbers written in scientific notation, e.g. \texttt{1.37e15}, are also not supported.
-\subsubsection*{\texttt{bool} --- Booleans}
+\subsubsection*{Booleans}
 \texttt{bool} is the Boolean type. There are two Boolean literals, \texttt{true} and \texttt{false}.
-\subsubsection*{\texttt{char} --- Characters}
+\subsubsection*{Characters}
 \texttt{char} is the character type. A character literal is written as a single character in single quotes e.g. \texttt{\sq A\sq}, \texttt{\sq !\sq}, \texttt{\sq+\sq}. Special characters, such as the newline character \sq\texttt{\string\n}\sq, are escaped with a backslash ($\backslash$).
 
 \subsubsection{Summary of Proper Types}
@@ -141,6 +135,7 @@ The following function definition is an example of how an inferred type and anno
 succ :: int -> int
 succ n = n +1       # inferred type is int -> int
 \end{lstlisting}
+\pagebreak
 
 The following type annotation would yield a typing error since the inferred type and annotated type contradict each other. This is due to the built in type of the integer addition and division operators and the fact that Rippl doesn't perform any implicit type promotions. \\
 
@@ -162,27 +157,10 @@ The following function definition is an example of a type annotation that won't 
 identity :: a -> b
 identity x = x          # inferred type is a -> a
 \end{lstlisting}
-
-\section{Language Features}
-Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
-\subsection{Clean Code}
-One of Rippl’s biggest influences is Python, for its simple operator syntax.
-Keywords like \texttt{and}, \texttt{or}, and \texttt{not} make it closer to
-natural language and therefore more human-readable. Rippl extends this
-user-positive experience to functional operations that in other languages take
-the form of symbols or strangely abbreviated words, which obfuscates code. Rippl instead offers descriptive yet concise list operators like \texttt{cons} and
-\texttt{cat} and tuple operators like \texttt{first} and \texttt{sec}. Lastly,
-list comprehensions receive a fresh look in Rippl, with the introduction of the
-\texttt{over} keyword and a more familiar mathematical notation, reminiscent of set builders.
-\subsection{Type Inference}
-Since Rippl is a statically typed language, it can take advantage of an inferenced type system. Specifically, Rippl implements the Hindley-Milner system, which is the basis for Haskell’s type system. By having language-native operators and literals bootstrapped in the typing context with an explicit type, we are able to infer the type of expressions using Hindley-Milner's core syntactic type inference rules. This type system also allows for parametric polymorphism, meaning the type of an expression may be expressed in terms of type variables and will type check with any expression of a concrete type that matches the type schema. Also like Haskell, Rippl will not require type annotations, but will allow them for type-checking and documentation purposes.
-\subsection{First-class Functions}
-The use of first-class functions encompasses many of the core features of the functional programming paradigm. One such feature is higher-order functions where arguments and return values may be other functions. Currying is another feature that allows us to view functions, function compositions, partially applied functions, and return values all as arrow types. Having functions in a curried arrow-type form allows us to employ partial application tied together with closures, as is idiomatic in functional languages.
-\subsection{Lazy Evaluation}
-Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
 \pagebreak
+
 \section{Grammar and Syntax}
-\subsection{Informal Grammar}
+\subsection{Semantics}
 The following grammar represents a high-level overview of Rippl semantics.
 \begin{multicols}{2}
 \noindent $\mu \ ::= $ \\
@@ -342,7 +320,7 @@ less than or equal \\
 equal \\
 not equal \\
 \end{multicols}
-\subsubsection{Floating Point Numbers}
+\subsubsection{Floating-point Numbers}
 Note that float operators differ from integer operators in that they require an additional '.' to aid in type inference.
 \begin{multicols}{3}
 \noindent $Operator$ \\
@@ -414,11 +392,6 @@ $char \ \rightarrow \ char \ \rightarrow \ bool $ \\
 equal \\
 \end{multicols}
 \subsubsection{Lists}
-A list is a first order type that is parametrically polymorphic in the type of 
-its elements. All elements of a list must be the same type. Strings are handled 
-and represented internally as lists of \texttt{char}s, but
-literal strings may be written using double quotes. Lists as well as 
-list types are delimited with brackets (e.g. \texttt{[int]}, \texttt{[0,3,1]}, \texttt{"Hello"}). 
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{cons} \\
@@ -442,10 +415,6 @@ length \\
 concatenate \\
 \end{multicols}
 \subsubsection{Tuples}
-A tuple is a first order type, parametrically polymorphic in the types of its 
-elements. A tuple can contain two elements of any type. Tuples as well as their 
-types will be delimited by parentheses (e.g. \texttt{("PLT",4118)}, 
-\texttt{([char],int)}).
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{first} \\
@@ -460,6 +429,112 @@ first element of tuple \\
 second element of tuple \\
 \end{multicols}
 
+\subsection{Let Bindings}
+Given the functional nature of Rippl, there are no assignment statements. Instead, Rippl consists mainly of nested expressions strung together
+using the let-in construct. This takes the form of \texttt{let identifier = expr1 in expr2}, where \texttt{indentifier} serves as a name binded to the value of \texttt{expr1} to be used in \texttt{expr2}. The value of a let binding chain is the value of the last expression.
+\begin{lstlisting}[language=rippl]
+let x = 1 in 
+let y = 2 in 
+let y = 3 in
+x + y + z # 6
+\end{lstlisting}
+
+\subsection{If-then-else Expressions}
+Like most programming languages, Rippl supports basic control flow through if-then-else expressions in the following form:
+\texttt{if bool then expr else expr}. Although the \texttt{if} and \texttt{then} clauses are mandatory, the \texttt{else} clause is not.
+\begin{lstlisting}[language=rippl]
+let num = 5 in
+let my_string = if num == 5 then "five" 
+				else "not five" # five
+\end{lstlisting}
+
+\subsection{Lambda Abstractions}
+One cornerstone of Rippl is to permit computations that require higher order functions, which is made possible by lambda abstractions. These anonymous functions are written using the \texttt{fun} keyword are \texttt{arrow type} expressions.
+\begin{lstlisting}[language=rippl]
+fun x -> x + 1 # int -> int
+(fun x -> x + 1) 9 # 10 - application with an anonymous function
+\end{lstlisting}
+We can also bind these lambda abstractions to identifiers using a \texttt{let} expression. 
+\begin{lstlisting}[language=rippl]
+let add_one = fun x -> x + 1 in
+add_one 9 # 10
+\end{lstlisting}
+Hope you have a sweet tooth! Rippl provides some syntactic sugar when it comes to name binding functions! The following expressions (after de-sugaring the syntax) are equivalent.
+\begin{lstlisting}[language=rippl]
+let add_one = fun x -> x + 1 # add_one :: int -> int
+let cooler_add_one x = x + 1 # cooler_add_one :: int -> int
+\end{lstlisting}
+To top it all off, Rippl embraces the Haskell paradigm that all functions are curried. In other words, all functions in Rippl actually take just one parameter, either in arrow type form or proper/higher order type. This allows a Rippler to employ partial application on functions!
+\begin{lstlisting}[language=rippl]
+let sum_three x y z = x + y + z in
+# sum_three :: int -> int -> int -> int
+let sum_two_add_one = sum_three 1 in
+#sum_two_add_one :: int -> int -> int
+let add_four = sum_two_add_one 3 in 
+# add_four :: int -> int
+add_four 5	# 9
+\end{lstlisting}
+\pagebreak
+
+\subsection{List Comprehensions}
+List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
+
+Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
+/comments
+
+\begin{lstlisting}[language=rippl]
+[1, 2, 3, 18, -1]
+\end{lstlisting}
+
+
+\subsubsection{Ranged List}
+With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
+
+\begin{lstlisting}[language=rippl]
+[18...24] # [18, 19, 20, 21, 22, 23, 24]
+
+['a'...'z'] # not allowed
+
+[1.2...2.7] # no sir, uncountable number of elements
+\end{lstlisting}
+
+\subsubsection{Parametric list}
+Parametric lists allow users to specify a parameter.
+
+\begin{lstlisting}[language=rippl]
+[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
+
+[x | x over [9...12]] # [9, 10, 11, 12]
+\end{lstlisting}
+
+
+\subsubsection{Qualified List}
+With qualified lists, lists can be filtered by a condition.
+
+\begin{lstlisting}[language=rippl]
+[x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
+\end{lstlisting}
+
+
+\subsubsection{Parallel List}
+Parallel list comprehensions are lists comprehensions with multiple parameters.
+
+\begin{lstlisting}[language=rippl]
+[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] 
+    # [7, 3, 6, 2, -2, -6, -3, -7]
+    
+[x + y | x over [10, 30, 50], y over [10...12], x != y]
+    # [20, 21, 22, 40, 41, 42, 60, 61, 62]
+\end{lstlisting}
+
+\subsubsection{Infinite List}
+Thanks to lazy evaluation, Rippl supports infinite lists. 
+
+\begin{lstlisting}[language=rippl]
+[3...] # [3, 4, 5, ...] 
+
+[2, 22...24, 7...] # [2, 22, 23, 24, 7, 8, ...]
+\end{lstlisting}
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
 
@@ -497,67 +572,6 @@ main :: a -> b
 \end{lstlisting}
 
 It might be noted that this construct of IO in a language doesn't allow for a function no to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
-
-\section{List Comprehensions} 
-List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
-
-Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
-/comments
-
-\begin{lstlisting}[language=rippl]
-[1, 2, 3, 18, -1]
-\end{lstlisting}
-
-
-ranged list \\
-With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
-
-\begin{lstlisting}[language=rippl]
-[18...24] # [18, 19, 20, 21, 22, 23, 24]
-
-['a'...'z'] # not allowed
-
-[1.2...2.7] # no sir, uncountable number of elements
-\end{lstlisting}
-
-parametric list \\
-Parametric lists allow users to specify a parameter.
-
-\begin{lstlisting}[language=rippl]
-[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
-
-[x | x over [9...12]] # [9, 10, 11, 12]
-\end{lstlisting}
-
-
-qualified list \\
-With qualified lists, lists can be filtered by a condition.
-
-\begin{lstlisting}[language=rippl]
-[x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
-\end{lstlisting}
-
-
-parallel list \\
-Parallel list comprehensions are lists comprehensions with multiple parameters.
-
-\begin{lstlisting}[language=rippl]
-[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] 
-    # [7, 3, 6, 2, -2, -6, -3, -7]
-    
-[x + y | x over [10, 30, 50], y over [10...12], x != y]
-    # [20, 21, 22, 40, 41, 42, 60, 61, 62]
-\end{lstlisting}
-
-infinite list \\
-Thanks to lazy evaluation, Rippl supports infinite lists. 
-
-\begin{lstlisting}[language=rippl]
-[3...] # [3, 4, 5, ...] 
-
-[2, 22...24, 7...] # [2, 22, 23, 24, 7, 8, ...]
-\end{lstlisting}
-
 \section{Sample Programs}
 \subsection{Infinite Sum}
 This program returns the sum of the first $n$ positive integers using an 
