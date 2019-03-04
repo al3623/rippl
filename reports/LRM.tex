@@ -41,6 +41,8 @@
 \maketitle
 put logo here
 \pagebreak
+\tableofcontents
+\pagebreak
 \section{Overview}
 Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, lazily evaluated infinite lists, a strong static type system implementing Hindley-Milner style inference, higher-order functions, and simple syntax, Rippl sets out to provide a clean and intuitive functional programming experience like no other language can.
 
@@ -571,7 +573,7 @@ If the right-hand side of the main method were a more complex computation expres
 main :: a -> b
 \end{lstlisting}
 
-It might be noted that this construct of IO in a language doesn't allow for a function no to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
+It might be noted that this construct of IO in a language doesn't allow for a function not to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
 \section{Sample Programs}
 \subsection{Infinite Sum}
 This program returns the sum of the first $n$ positive integers using an 
