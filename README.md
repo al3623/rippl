@@ -10,7 +10,7 @@ TODO:
     - proper types (what literals look like)
     - arrow types
     - higher order types (what these look like)
-    - type annotations & inference @Amanda
+    - ~type annotations & inference @Amanda~
     
   - Syntax & Grammar (definitions and appearance) @Hans
     - keywords
