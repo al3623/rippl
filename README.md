@@ -23,7 +23,7 @@ TODO:
     - list comp.
     - comments
     
-  - main (entry point into program; bypassing IO monad) @Amanda
+  - ~main (entry point into program; bypassing IO monad) @Amanda~
   
   ~- Lists Comprehension: infinite lists, lazy evaluation (behavior) @Hollis
      - only head is fully evaluated until next element is requested
@@ -32,9 +32,9 @@ TODO:
   - Mutability @Hans
      - NO!
 
-  - Code Samples @Amanda
-      - Computations
-      - IO
+  - ~Code Samples @Amanda~
+      - ~Computations~
+      - ~IO~
 
 
 ~2) add main syntax to lexer @Hans (3/1)~

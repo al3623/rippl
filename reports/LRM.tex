@@ -1,6 +1,7 @@
 ﻿\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
+\usepackage[rgb,dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage{pxfonts}
@@ -10,16 +11,19 @@
 \addtolength{\topmargin}{-.5in}
 \addtolength{\textheight}{0.5in}
 
+\definecolor{mygrey}{rgb}{0.5,0.5,0.5}
 \lstdefinelanguage{rippl}{
 	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
-	pre, head, tail, int, bool, float, char}
+	pre, head, tail, int, bool, float, char},
+	language=Python,
 }
 \lstset{
          numbers=left,
          firstnumber=1,
   		 numberfirstline=true,
+  		 numberstyle=\ttfamily\scriptsize,
  		 xleftmargin=5.0ex,
-         basicstyle=\ttfamily,
+         basicstyle=\ttfamily\small,
          tabsize=4,
          commentstyle=\color{mygrey},
          keywordstyle=\bfseries
@@ -31,15 +35,26 @@
 \begin{document}
 
 \maketitle
+\section{Overview}
 
-\section{Introduction}
+\subsection{Introduction}
 Rippl is a functional language that leverages the safety and elegance of pure languages like Haskell with the intuitive syntax of Python. With list comprehensions, a strong static type system implementing Hindley-Milner style inference, higher-order functions, and simple syntax, Rippl is a powerful computational language with strong support for list-oriented calculations as well as support for association of items of different types in the form of tuples. Rippl will be an appropriate introduction for users without prior functional programming experience who want to effectively and safely perform complex mathematical calculations.
 
 
-\section{Motivation}
+\subsection{Motivation}
 Functional programming languages generally support powerful and concise language constructs such as higher-order functions, partial application, recursion, and immutability, but at the cost of hard-to-read syntax that is not friendly to unfamiliar users. High-level imperative languages like Python support a highly human-readable syntax but allow mutable state which can lead to bugs and a weak, dynamic typing system which pushes errors to runtime. Rippl has many of the paradigmatic features of functional programming, such as higher-order functions, recursion, and lazy evaluation. Its syntax is intended to make programs written in a functional style more readable and intuitive to users who are more accustomed  to other programming paradigms.
 
 \pagebreak
+
+\section{Type System}
+
+\subsection{Proper Types}
+
+\subsection{Higher-Order Types}
+
+\subsection{Arrow Types}
+
+\subsection{Type Annotations and Inference}
 
 \section{Language Features}
 Rippl sets out to provide a clean and intuitive functional programming experience like no other language can. As such, it is inspired by some of the best features of some of the best languages out there.
@@ -59,7 +74,7 @@ The use of first-class functions encompasses many of the core features of the fu
 \subsection{Lazy Evaluation}
 Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
 \pagebreak
-\section{Syntax}
+\section{Grammar and Syntax}
 \begin{multicols}{2}
 \noindent $\mu \ ::= $ \\
 \hspace*{10mm} $| \quad \texttt{main } e = e$ \\
@@ -109,6 +124,12 @@ let binding \\
 if-then-else \\
 list comprehension \\
 
+\noindent $List \ Comprehensions$ \\
+infinte list \\
+ranged list \\
+parametric list \\
+qualified list \\
+
 \noindent $Proper \ Types$ \\
 integer \\
 floating point number \\
@@ -128,10 +149,10 @@ arrow type \\
 type annotations \\
 \end{multicols}
 
-\noindent \texttt{\# Single line comments will be marked by two forward slashes} \\
+\noindent \texttt{\# Single line comments will be marked by a pound sign} \\
 
-\noindent \texttt{\{- Multiline comments will be delimited by slash-stars-\} } \\
-\texttt{ \hspace*{3mm} Similar to a Haskell-like program */} \\
+\noindent \texttt{\{- Multiline comments will be delimited by curly braces and dashes. } \\
+\texttt{ \hspace*{3mm} Much like in a Haskell-like program -\}} \\
 
 \newpage 
 
@@ -265,6 +286,100 @@ first element of tuple \\
 second element of tuple \\
 \end{multicols}
 
+\section{Entrypoints and IO}
+Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
+
+Also as a pure functional language, Rippl also guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action that a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
+
+Pure functional languages like Haskell by giving all the IO function calls a hidden argument and strings them together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
+
+Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
+
+User input is represented as the argument to the main function. It can be bound as a named argument that is then used for evaluation of the body of the main function if it requires user input. \\
+
+\begin{lstlisting}[language=rippl]
+# this main method takes user input and stores it in `arg`
+main arg = ... 
+\end{lstlisting}
+
+Otherwise, to signify that nothing is to be read from user input, an underscore takes the place of the first argument (much like the wildcard in Haskell). \\
+
+\begin{lstlisting}[language=rippl]
+# this main method takes no user input
+main _ = ...    
+\end{lstlisting}
+
+The evaluated value of the body of the main function is printed. The "Hello, world!" program would be written as follows in Rippl.
+
+\begin{lstlisting}[language=rippl]
+# this prints "Hello, world!" to the terminal
+main _ = "Hello, world!"
+\end{lstlisting}
+
+If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. \\
+
+It might be noted that this construct of IO in a language doesn't allow for a function no to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
+
+\section{List Comprehensions} 
+List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
+
+Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
+/comments
+
+\begin{lstlisting}[language=rippl]
+[1, 2, 3, 18, -1]
+\end{lstlisting}
+
+
+ranged list \\
+With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
+
+\begin{lstlisting}[language=rippl]
+[18...24] # [18, 19, 20, 21, 22, 23, 24]
+
+['a'...'z'] # not allowed
+
+[1.2...2.7] # no sir, uncountable number of elements
+\end{lstlisting}
+
+parametric list \\
+Parametric lists allow users to specify a parameter.
+
+\begin{lstlisting}[language=rippl]
+[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
+
+[x | x over [9...12]] # [9, 10, 11, 12]
+\end{lstlisting}
+
+
+qualified list \\
+With qualified lists, lists can be filtered by a condition.
+
+\begin{lstlisting}[language=rippl]
+[x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
+\end{lstlisting}
+
+
+parallel list \\
+Parallel list comprehensions are lists comprehensions with multiple parameters.
+
+\begin{lstlisting}[language=rippl]
+[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] 
+    # [7, 3, 6, 2, -2, -6, -3, -7]
+    
+[x + y | x over [10, 30, 50], y over [10...12], x != y]
+    # [20, 21, 22, 40, 41, 42, 60, 61, 62]
+\end{lstlisting}
+
+infinite list \\
+Thanks to lazy evaluation, Rippl supports infinite lists. 
+
+\begin{lstlisting}[language=rippl]
+[3...] # [3, 4, 5, ...] 
+
+[2, 22...24, 7...] # [2, 22, 23, 24, 7, 8, ...]
+\end{lstlisting}
+
 \section{Sample Programs}
 \subsection{Infinite Sum}
 This program returns the sum of the first $n$ positive integers using an 
@@ -323,65 +438,10 @@ prime_number_theorem n =
     foldl (fun prev -> fun curr -> if is_prime then prev else curr)
         (head odd_range) odd_range
 \end{lstlisting}
-
-
-
-\noindent $List \ Comprehensions$ \\
-List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
-
-Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
-/comments
-
+\subsection{Entrypoint and IO}
+This program demonstrates how a main method would be written to take in a user-inputted number and print out the full list of iterations generated by the formula in the Collatz Conjecture.
 \begin{lstlisting}[language=rippl]
-[1, 2, 3, 18, -1]
+main :: int -> [int]
+main n = collatz n      # 10 -> [10,5,16,8,4,2,1]
 \end{lstlisting}
-
-
-ranged list \\
-With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
-
-\begin{lstlisting}[language=rippl]
-[18...24] # [18, 19, 20, 21, 22, 23, 24]
-
-['a'...'z'] # not allowed
-
-[1.2...2.7] # no sir, uncountable number of elements
-\end{lstlisting}
-
-parametric list \\
-Parametric lists allow users to specify a parameter.
-
-\begin{lstlisting}[language=rippl]
-[x * 2 | x over [3, 1, 4]] # [6, 2, 8] 
-
-[x | x over [9...12]] # [9, 10, 11, 12]
-\end{lstlisting}
-
-
-qualified list \\
-With qualified lists, lists can be filtered by a condition.
-
-\begin{lstlisting}[language=rippl]
-[x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
-\end{lstlisting}
-
-
-parallel list \\
-Parallel list comprehensions are lists comprehensions with multiple parameters.
-
-\begin{lstlisting}[language=rippl]
-[x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] # [7, 3, 6, 2, -2, -6, -3, -7]
-
-[x + y | x over [10, 30, 50], y over [10...12], if x != y] # [20, 21, 22, 40, 41, 42, 60, 61, 62]
-\end{lstlisting}
-
-infinite list \\
-Thanks to lazy evaluation, Rippl supports infinite lists. 
-
-\begin{lstlisting}[language=rippl]
-[3...] # [3, 4, 5, ...] 
-
-[2, 22...24, 7...] # [2, 22, 23, 24, 7, 8, ...]
-\end{lstlisting}
-
 \end{document}
