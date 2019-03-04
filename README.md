@@ -23,7 +23,7 @@ TODO:
     - list comp.
     - comments
     
-  - main (entry point into program; bypassing IO monad) @Amanda
+  - ~main (entry point into program; bypassing IO monad) @Amanda~
   
   - Lists Comprehension: infinite lists, lazy evaluation (behavior) @Hollis
      - only head is fully evaluated until next element is requested
