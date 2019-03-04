@@ -1,4 +1,4 @@
-﻿\documentclass[5pt]{article}
+\documentclass[5pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage[rgb,dvipsnames]{xcolor}
@@ -15,7 +15,7 @@
 \lstdefinelanguage{rippl}{
     language=Python,
 	keywords={ over, let, in, fun, if, then, else, and, or, not, true, false, 
-	pre, head, tail, int, bool, float, char, cons},
+	head, tail, int, bool, float, char, cons, first, sec, len, cat, main},
 }
 \lstset{
          numbers=left,
@@ -135,6 +135,8 @@ The use of first-class functions encompasses many of the core features of the fu
 Rippl supports a Haskell-style, non-strict lazy evaluation in which the value of expressions isn’t fully evaluated until it is needed in another expression. This is particularly useful in that Rippl also supports immense list constructions like infinite lists and cycles, which are native to Haskell. Given the infinitely self-referential definition of these structures, they are kept unevaluated until an element is needed for further computation.
 \pagebreak
 \section{Grammar and Syntax}
+\subsection{Informal Grammar}
+The following grammar represents a high-level overview of Rippl semantics.
 \begin{multicols}{2}
 \noindent $\mu \ ::= $ \\
 \hspace*{10mm} $| \quad \texttt{main } e = e$ \\
@@ -209,21 +211,47 @@ arrow type \\
 type annotations \\
 \end{multicols}
 
-\noindent \texttt{\# Single line comments will be marked by a pound sign} \\
-
-\noindent \texttt{\{- Multiline comments will be delimited by curly braces and dashes. } \\
-\texttt{ \hspace*{3mm} Much like in a Haskell-like program -\}} \\
-
 \newpage 
+\subsection{Comments}
+Comments in Rippl draw from Python and Haskell. Single line comments are marked by one pound sign, while multiline comments are delimited by curly braces and dashes. Both forms of commenting support nested comments.
+\begin{lstlisting}[language=rippl]
+{- The following code will first declare a variable with value 2
+   After that, it will be raised to the power of 5 -}
+   
+let x = 2 in
+2 ^ 5 # 32... what a #cool operation!
 
-\section{Operators}
-\subsection{Numeric}
-Our numeric or $num$ type represents the typeclass that encompasses $int$ and
-$float$. This use of this typeclass is mainly meant to aid in inference and
-protect the user from explicit typecasting. $int$, $float$, and $num$ types may
-be used explicitly in user-annotated types. However, numeric literals are
-inferred to be of type $int$ unless the literal is explicitly written with a "."
-decimal point and inferred to be of type $float$.
+{- All programmers eventually fall victim to writing 
+silly  {- superfluous -} comments, so it is important to 
+learn how to write {- concise -} documentation! -}
+\end{lstlisting}
+\subsection{Keywords}
+There are several keywords that are reserved in Rippl and thus not available for use as identifiers.
+\begin{lstlisting}[language=rippl]
+{- Data Types -}
+# int, float, bool, char
+
+{- Boolean Logic -}
+# and, or, not, true, false
+
+{- Program Structure -}
+# over, let, in, fun, if, then, else, main
+
+{- Higher Order Type Operators -}
+# head, tail, cons, cat, len, first, sec
+\end{lstlisting}
+\subsection{Identifiers}
+Identifiers can be any sequence of characters that start with either a letter or an underscore followed by any assortment of letters, numbers, and underscores.
+\begin{lstlisting}[language=rippl]
+my_identifier123 				# Valid!
+_my_other_indentifier456  		# Also valid!
+1_crazy_name					# What the heck? NO!
+\end{lstlisting}
+\newpage
+\subsection{Operators}
+The following subsections detail the various operators associated with each type in Rippl. It is worth noting that arithmetic expressions are evaluated using a mathematical
+order of precedence with left associativity. That is, expressions are evaluated using the following rules in order of decreasing precedence: parentheses, exponents, unary operators, multiplication/division/modulus, addition/subtraction. 
+\subsubsection{Integers}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} + \\
@@ -240,18 +268,18 @@ decimal point and inferred to be of type $float$.
 \hspace*{5mm} != \\
 \columnbreak \\
 \noindent $Type$ \\
-$num \ \rightarrow \ num \ \rightarrow \ num $ \\
-$num \ \rightarrow \ num \ \rightarrow \ num $ \\
-$num \ \rightarrow \ num \ \rightarrow \ num $ \\
-$num \ \rightarrow \ num \ \rightarrow \ num $ \\
-$int \quad \rightarrow \ int \quad \rightarrow \ int $ \\
-$num \ \rightarrow \ num \ \rightarrow \ num $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
-$num \ \rightarrow \ num \ \rightarrow \ bool $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
+$int \ \rightarrow \ int \ \rightarrow \ int $ \\
 \columnbreak \\
 $Function$ \\
 addition \\
@@ -267,8 +295,50 @@ less than or equal \\
 equal \\
 not equal \\
 \end{multicols}
-\subsection{Boolean}
-Boolean values are of type $bool$ and consist of the literals \texttt{true} and \texttt{false}. 
+\subsubsection{Floating Point Numbers}
+Note that float operators differ from integer operators in that they require an additional '.' to aid in type inference.
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} +. \\
+\hspace*{5mm} -. \\
+\hspace*{5mm} *. \\
+\hspace*{5mm} /. \\
+\hspace*{5mm} \^{}. \\
+\hspace*{5mm} $>$. \\
+\hspace*{5mm} $>=$. \\
+\hspace*{5mm} $<$. \\
+\hspace*{5mm} $<=$. \\
+\hspace*{5mm} ==. \\
+\hspace*{5mm} !=. \\
+\columnbreak \\
+\noindent $Type$ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+$float \ \rightarrow \ float \ \rightarrow \ float $ \\
+\columnbreak \\
+$Function$ \\
+addition \\
+subtraction \\
+multiplication \\
+division \\
+power \\
+greater than \\
+greater than or equal \\
+less than \\
+less than or equal \\
+equal \\
+not equal \\
+\end{multicols}
+\newpage
+\subsubsection{Boolean}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} \texttt{and} \\
@@ -285,9 +355,7 @@ and \\
 or \\
 negation \\
 \end{multicols}
-\subsection{Character}
-Character literals are delimited by single quotes and are of type \textit{char}. 
-Strings are constructed and treated as lists of \textit{char}.
+\subsubsection{Character}
 \begin{multicols}{3}
 \noindent $Operator$ \\
 \hspace*{5mm} == \\
@@ -298,8 +366,7 @@ $char \ \rightarrow \ char \ \rightarrow \ bool $ \\
 \noindent $Function$ \\
 equal \\
 \end{multicols}
-\pagebreak
-\subsection{Lists}
+\subsubsection{Lists}
 A list is a first order type that is parametrically polymorphic in the type of 
 its elements. All elements of a list must be the same type. Strings are handled 
 and represented internally as lists of \texttt{char}s, but
@@ -327,7 +394,7 @@ tail \\
 length \\
 concatenate \\
 \end{multicols}
-\subsection{Tuples}
+\subsubsection{Tuples}
 A tuple is a first order type, parametrically polymorphic in the types of its 
 elements. A tuple can contain two elements of any type. Tuples as well as their 
 types will be delimited by parentheses (e.g. \texttt{("PLT",4118)}, 
