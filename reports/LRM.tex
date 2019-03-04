@@ -316,7 +316,11 @@ The evaluated value of the body of the main function is printed. The "Hello, wor
 main _ = "Hello, world!"
 \end{lstlisting}
 
-If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. \\
+If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
+
+\begin{lstlisting}[language=rippl]
+main :: a -> b
+\end{lstlisting}
 
 It might be noted that this construct of IO in a language doesn't allow for a function no to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
 
