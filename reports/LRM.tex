@@ -303,9 +303,9 @@ There are several keywords that are reserved in Rippl and thus not available for
 \subsection{Identifiers}
 Identifiers can be any sequence of characters that start with either a letter or an underscore followed by any assortment of letters, numbers, and underscores.
 \begin{lstlisting}[language=rippl]
-my_identifier123        # Valid!
-_my_other_indentifier456      # Also valid!
-1_crazy_name          # What the heck? NO!
+my_identifier123             # Valid!
+_my_other_indentifier456     # Also valid!
+1_crazy_name                 # What the heck? NO!
 \end{lstlisting}
 \newpage
 \subsection{Operators}
@@ -463,6 +463,22 @@ $(a,b) \ \rightarrow \  b$ \\
 first element of tuple \\
 second element of tuple \\
 \end{multicols}
+\subsubsection{Maybe Operators}
+\begin{multicols}{3}
+\noindent $Operator$ \\
+\hspace*{5mm} \texttt{is\_nothing} \\
+\hspace*{5mm} \texttt{from\_just} \\
+\columnbreak \\
+\noindent $Type$ \\
+$maybe \ a \ \rightarrow \  bool$ \\
+$maybe \ a \ \rightarrow \  a$ \\
+\columnbreak \\
+\noindent $Function$ \\
+return true if none \\
+extract element \\
+\end{multicols}
+\pagebreak
+
 
 \subsection{Let Bindings}
 Given the functional nature of Rippl, there are no imperative assignment statements. Instead, Rippl consists mainly of nested expressions strung together
@@ -476,7 +492,7 @@ x + y + z # 6
 
 \subsection{If-then-else Expressions}
 Like most programming languages, Rippl supports basic control flow through if-then-else expressions in the following form:
-\texttt{if bool then expr else expr}. %TODO
+\texttt{if bool then expr else expr}.
 
 \begin{lstlisting}[language=rippl]
 let num = 5 in
