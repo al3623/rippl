@@ -125,6 +125,7 @@ rule token =
             | ELSE -> next ("ELSE" :: l)
             | OVER -> next ("OVER" :: l)
             | FUN -> next ("FUN" :: l)
+	    | MAIN -> next ("MAIN" :: l)
             (* braces *)
             | LBRACK -> next ("LBRACK" :: l)
             | RBRACK -> next ("RBRACK" :: l)
