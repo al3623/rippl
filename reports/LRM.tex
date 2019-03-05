@@ -560,7 +560,7 @@ Parametric lists allow users to specify a parameter.
 
 
 \subsubsection{Qualified List}
-With qualified lists, lists can be filtered by a condition.
+With qualified lists, lists can be filtered by one or more conditions represented as computations on the bound list parameters that return a boolean value.
 
 \begin{lstlisting}[language=rippl]
 [x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
@@ -584,12 +584,14 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 \begin{lstlisting}[language=rippl]
 [3...] # [3, 4, 5, ...]
 
-let funky_list = [1/(x-1) | x over [0...]] {- won't throw an error, 
-even though when x = 1, there will be a problem -}
-head funky_list # -1 - only evaluates the first element of the list
+let funky_list = [1/(x-1) | x over [0...]] # no error
+    #even though when x = 1, there will be a problem
+head funky_list # -1 
+    # only evaluates the first element of the list
 \end{lstlisting}
 
-In the cases above, only the first element of the list is evaluated. This means that although the second element of funky\_list will have an error from dividing by 0, the code above will run error free. An error will becoming apparent upon evaluating the second element of the list. 
+In the cases above, only the first element of the list is evaluated. This means that although the second element of \texttt{funky\_list} will have an error from dividing by 0, the code above will run error free. An error will becoming apparent upon evaluating the second element of the list. \\
+
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
 
