@@ -7,3 +7,11 @@ type ty = Int | Bool | Float | Char
     | TconList of ty
     | TconTuple of ty
     | Tforall of ty
+
+type expr =
+    | Var of string
+    | Let of (expr * expr)
+    | Lambda of (expr * expr)
+    | App of (expr * expr)
+    | Ite of (expr * expr * expr)
+    | Literal of 
