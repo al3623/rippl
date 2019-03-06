@@ -289,7 +289,7 @@ learn how to write {- concise -} documentation! -}
 There are several keywords that are reserved in Rippl and thus not available for use as identifiers.
 \begin{lstlisting}[language=rippl]
 {- Data Types -}
-# int, float, bool, char
+# int, float, bool, char, maybe, just, none
 
 {- Boolean Logic -}
 # and, or, not, true, false
@@ -592,6 +592,37 @@ tail funky_list # causes an error
 \end{lstlisting}
 
 We can see that when only the first element of the list is evaluated, there is no error. Although the second element of \texttt{funky\_list} will have an error from dividing by 0, this element is not evaluated until we get the tail of the list. When we do get the tail and thus evaluate the second element of the list, there will be an error. \\
+
+\section{Immutability}
+As a pure functional language, Rippl enforces immutable semantics. This means that once an expression has been assigned to a variable name, the value can\'t be changed later on in the program (inducing a change in state). Rather than performing actions actions on objects and altering them, Rippl performs computations that return new values. This protects programs from side effects that may occur from having having multiple operations computing and mutating the same data. \\
+
+Take for example the Rippl code snippet below. The use of the \texttt{cons} operator returns a new list with a first element of \texttt{0} rather than changing the value of \texttt{natural\_nums}. \\
+
+\begin{lstlisting}[language=rippl]
+num_set :: bool
+num_set = let natural_nums = [1...] in
+let whole_nums = 0 cons natural_nums in
+(head natural_nums) == (head whole_nums)    #false
+\end{lstlisting}
+
+By nature of being a functional language, Rippl has no constructs supporting reassignment of variables. However, in the case of nested let bindings, the program semantics may resemble mutability in variable reassignment. The program shown below for a definition of \texttt{change\_a} is an example of such a case. Nevertheless, it\'s important to note that this is not a case of mutability, but a case a variable shadowing. The \texttt{a} in the final expression binds more tightly to the \texttt{a} assigned in inner let binding so the final value returned is that of the second \texttt{a}. \\
+
+\begin{lstlisting}[language=rippl]
+change_a :: int
+change_a =  let a = 1 in
+            let a = 2 in
+            a       # 2
+\end{lstlisting}
+
+For a more concrete example of how this semantically differs from mutability, consider the modified definition of\texttt{change\_a} below. By the second let-binding in the, the local definition of \texttt{a} binds more tightly than the higher level binding for \texttt{a} and instead becomes a recursive definition. This will result in a program error in both Rippl and Haskell. \\
+
+\begin{lstlisting}[language=rippl]
+change_a2 :: int
+change_a2 = let a = 1 in
+            let a = a + 1 in
+            a       # 2
+\end{lstlisting}
+
 
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
