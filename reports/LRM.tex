@@ -531,12 +531,6 @@ add_four 5  # 9
 \subsection{List Comprehensions}
 List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
 
-\noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. \\
-
-\begin{lstlisting}[language=rippl]
-[1, 2, 3, 18, -1]
-\end{lstlisting}
-
 
 \subsubsection{Ranged List}
 With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
@@ -583,14 +577,21 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 
 \begin{lstlisting}[language=rippl]
 [3...] # [3, 4, 5, ...]
-
-let funky_list = [1/(x-1) | x over [0...]] # no error
-    #even though when x = 1, there will be a problem
-head funky_list # -1 
-    # only evaluates the first element of the list
 \end{lstlisting}
 
-In the cases above, only the first element of the list is evaluated. This means that although the second element of \texttt{funky\_list} will have an error from dividing by 0, the code above will run error free. An error will becoming apparent upon evaluating the second element of the list. \\
+\subsubsection{Lazy Evaluation}
+\noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. We can see the consequences of lazy evaluation in the example below: \\
+
+\begin{lstlisting}[language=rippl]
+let funky_list = [1/(x-1) | x over [0...]] # no error
+    # even though when x = 1, there will be a problem
+head funky_list # -1 
+    # only evaluates the first element of the list
+tail funky_list # causes an error
+    # will evaluate the second element, which divides by 0
+\end{lstlisting}
+
+We can see that when only the first element of the list is evaluated, there is no error. Although the second element of \texttt{funky\_list} will have an error from dividing by 0, this element is not evaluated until we get the tail of the list. When we do get the tail and thus evaluate the second element of the list, there will be an error. \\
 
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
