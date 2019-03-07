@@ -120,7 +120,7 @@ Higher-order types are represented as type constructors that are parametrically 
 \subsubsection{Lists}
 Lists are a first-order type and all elements of a list must have the same type. This means that a function that acts on lists need not concern itself with the type of the elements of the list. Such a function is said to be parameterized by the type of the elements in the list. All list operators in Rippl (see section 3.5.5) act on lists of arbitrary type. \\\\
 Strings are handled and represented internally as lists of \texttt{char}, but
-string literals may be written in the usual sugared representation with double quotes e.g. \texttt{"Hello, World!"}.\\\\
+string literals may be written in the usual sugared representation with double quotes (e.g. \texttt{"Hello, World!"}).\\\\
 Lists as well as list types are delimited by brackets, and list elements are separated by commas (e.g. $\texttt{[0,3,1]}$, which has type \texttt{[int]}, $\texttt{[\sq R\sq,\sq i\sq,\sq p\sq,\sq p\sq,\sq l\sq]}\Leftrightarrow \texttt{"Rippl"}$, which has type $\texttt{[char]}$).
 
 \subsubsection{Tuples}
@@ -196,9 +196,9 @@ identity x = x          # inferred type is a -> a
 \end{lstlisting}
 \pagebreak
 
-\section{Grammar and Syntax}
-\subsection{Semantics}
-The following grammar represents a high-level overview of Rippl semantics.
+\section{Syntax and Grammar}
+\subsection{Syntax}
+The following grammar represents a high-level overview of Rippl syntax.
 \begin{multicols}{2}
 \noindent $\mu \ ::= $ \\
 \hspace*{10mm} $| \quad \texttt{main } e = e$ \\
@@ -283,7 +283,7 @@ Comments in Rippl draw from Python and Haskell. Single line comments are marked 
    After that, it will be raised to the power of 5 -}
    
 let x = 2 in
-2 ^ 5 # 32... what a #cool operation!
+x ^ 5 # 32... what a #cool operation!
 
 {- All programmers eventually fall victim to writing 
 silly  {- superfluous -} comments, so it is important to 
@@ -570,10 +570,10 @@ Parallel list comprehensions are lists comprehensions with multiple parameters.
 
 \begin{lstlisting}[language=rippl]
 [x - y - z | x over [10, 1], y over [2, 3], z over [1, 5]] 
-    # [7, 3, 6, 2, -2, -6, -3, -7]
+# [7, 3, 6, 2, -2, -6, -3, -7]
     
 [x + y | x over [10, 30, 50], y over [10...12], x != y]
-    # [20, 21, 22, 40, 41, 42, 60, 61, 62]
+# [20, 21, 22, 40, 41, 42, 60, 61, 62]
 \end{lstlisting}
 
 \subsubsection{Infinite List}
