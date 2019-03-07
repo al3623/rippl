@@ -585,7 +585,6 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 
 \subsubsection{Lazy Evaluation}
 \noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and all other elements are evaluated when their value is requested. We can see the consequences of lazy evaluation in the example below: \\
-
 \begin{lstlisting}[language=rippl]
 let funky_list = [1/(x-1) | x over [0...]] # no error
     # even though when x == 1, 1/(x-1) is undefined
@@ -595,12 +594,11 @@ tail funky_list # causes an error
     # will evaluate the second element, which divides by 0
 \end{lstlisting}
 
-We can see that when only the first element of the list is evaluated, there is no error. Although the second element of \texttt{funky\_list} will have an error from dividing by 0, this element is not evaluated until we get the tail of the list. When we do get the tail and thus evaluate the second element of the list, there will be an error. \\
-
+\noindent We can see that when only the first element of the list is evaluated, there is no error. Although the second element of \texttt{funky\_list} will have an error from dividing by 0, this element is not evaluated until we get the tail of the list. When we do get the tail and thus evaluate the second element of the list, there will be an error. \\
 \section{Immutability}
 As a pure functional language, Rippl enforces immutable semantics. This means that once an expression has been assigned to a variable name, the value can't be changed later on in the program (inducing a change in state). Rather than performing actions on objects and altering them, Rippl performs computations that return new values. This protects programs from side effects that may occur from having having multiple operations computing and mutating the same data. \\
 
-Take for example the code snippet below. The use of the \texttt{cons} operator returns a new list with a first element of \texttt{0} rather than changing the value of \texttt{natural\_nums}. \\
+\noindent Take for example the code snippet below. The use of the \texttt{cons} operator returns a new list with a first element of \texttt{0} rather than changing the value of \texttt{natural\_nums}. \\
 
 \begin{lstlisting}[language=rippl]
 num_set :: bool
@@ -608,7 +606,7 @@ num_set = let natural_nums = [1...] in
 let whole_nums = 0 cons natural_nums in
 (head natural_nums) == (head whole_nums)    # false
 \end{lstlisting}
-By nature of being a functional language, Rippl has no constructs supporting reassignment of variables. However, in the case of nested let bindings, the program semantics may resemble mutability in variable reassignment. The program shown below for a definition of \texttt{change\_a} is an example of such a case. Nevertheless, it's important to note that this is not a case of mutability, but a case of variable shadowing. The \texttt{a} in the final expression binds more tightly to the \texttt{a} assigned in inner let binding so the final value returned is that of the second \texttt{a}. \\
+\noindent By nature of being a functional language, Rippl has no constructs supporting reassignment of variables. However, in the case of nested let bindings, the program semantics may resemble mutability in variable reassignment. The program shown below for a definition of \texttt{change\_a} is an example of such a case. Nevertheless, it's important to note that this is not a case of mutability, but a case of variable shadowing. The \texttt{a} in the final expression binds more tightly to the \texttt{a} assigned in inner let binding so the final value returned is that of the second \texttt{a}. \\
 
 \begin{lstlisting}[language=rippl]
 change_a :: int
@@ -616,7 +614,8 @@ change_a =  let a = 1 in
             let a = 2 in
             a       # 2
 \end{lstlisting}
-For a more concrete example of how this semantically differs from mutability, consider the modified definition of \texttt{change\_a} below. By the second let-binding, the local definition of \texttt{a} binds more tightly than the higher-level binding for \texttt{a} and instead becomes a recursive definition. This results in a program error in both Rippl and Haskell. \\
+
+\noindent For a more concrete example of how this semantically differs from mutability, consider the modified definition of \texttt{change\_a} below. By the second let-binding, the local definition of \texttt{a} binds more tightly than the higher-level binding for \texttt{a} and instead becomes a recursive definition. This results in a program error in both Rippl and Haskell. \\
 
 \begin{lstlisting}[language=rippl]
 change_a2 :: int
@@ -633,33 +632,35 @@ Like all pure functional languages, Rippl ensures that the evaluation of all exp
 
 \noindent Pure functional languages like Haskell get around this by giving all the IO function calls a hidden argument and strings each call together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
 
-\noindent Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\\\
-User input is represented as the argument to the main function. It can be bound as a named argument that is then used for evaluation of the body of the main function if it requires user input. \\
+\noindent Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
+
+\noindent User input is represented as the argument to the main function. It can be bound as a named argument that is then used for evaluation of the body of the main function if it requires user input. \\
 \begin{lstlisting}[language=rippl]
 # this main method takes user input and stores it in `arg`
 main arg = ... 
 \end{lstlisting}
-Otherwise, to signify that nothing is to be read from user input, an underscore takes the place of the first argument (much like the wildcard in Haskell). \\
+
+\noindent Otherwise, to signify that nothing is to be read from user input, an underscore takes the place of the first argument (much like the wildcard in Haskell). \\
 
 \begin{lstlisting}[language=rippl]
 # this main method takes no user input
 main _ = ...    
 \end{lstlisting}
 
-The evaluated value of the body of the main function is printed. The "Hello, world!" program is written as follows in Rippl.
+\noindent The evaluated value of the body of the main function is printed. The "Hello, world!" program is written as follows in Rippl.
 
 \begin{lstlisting}[language=rippl]
 # this prints "Hello, world!" to the terminal
 main _ = "Hello, world!"
 \end{lstlisting}
 
-If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, then the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
+\noindent If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, then the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
 
 \begin{lstlisting}[language=rippl]
 main :: a -> b
 \end{lstlisting}
 
-It might be noted that this construct of IO in a language doesn't allow for a function not to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
+\noindent It might be noted that this construct of IO in a language doesn't allow for a function not to have output (Rippl doesn't have a \texttt{void} value representing a bottom type). However, this design should be reasonable since Rippl currently supports no other output operations so programs would be moot otherwise. \\
 \pagebreak
 \section{Sample Programs}
 \subsection{Infinite Sum}
