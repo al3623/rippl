@@ -44,10 +44,9 @@
 \begin{document}
 
 \begin{titlepage}
+\begin{center}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
-\begin{center} 
- 
-\includegraphics[scale=.5]{rippl.png}\\ 
+\includegraphics[scale=.3]{rippl.png}\\
 
 \HRule \\[0.4cm]
 { \Huge \bfseries Rippl}\\[0.2cm]
@@ -63,11 +62,11 @@ Hollis \textsc{Lehv}\\
 Amanda \textsc{Liu}\\ 
 \large \emph{Prime Minister:}
 Hans \textsc{Montero}\\
+\end{center}
+
+\texttt{\\\\\\\{dc2802, hml2138, al3623, hjm2133\}@columbia.edu}
 \vfill % Fill the rest of the page with whitespace
-\end{center} 
-
 \end{titlepage}
-
 
 \pagebreak
 \tableofcontents
@@ -89,7 +88,7 @@ The primitive types in Rippl are $\texttt{int}$, $\texttt{float}$, $\texttt{bool
 \texttt{bool} is the Boolean type. There are two Boolean literals, \texttt{true} and \texttt{false}.
 \subsubsection{Characters}
 \texttt{char} is the character type. A character literal is written as a single character in single quotes e.g. \texttt{\sq A\sq}, \texttt{\sq !\sq}, \texttt{\sq+\sq}. Special characters, such as the newline character \sq\texttt{\string\n}\sq, are escaped with a backslash ($\backslash$).
-
+\pagebreak
 \subsubsection{Summary of Primitive Types}
 \begin{multicols}{3}
 $Type$ \\
@@ -123,7 +122,7 @@ Lists as well as list types are delimited by brackets, and list elements are sep
 Tuples are also a first-order type, parametrically polymorphic in the types of its elements. A tuple must contain exactly two elements, but each of them can be of any type. Tuples as well as their types are delimited by parentheses, and elements are separated by commas (e.g. \texttt{("PLT",4118)}, which has type \texttt{([char],int)}).
 
 \subsubsection{\texttt{maybe} Type}
-The \texttt{maybe} type offers a tool to handle errors without side effects by representing an optional value. In the case that a computation cannot return a valid value, it may return the \texttt{none} constructor of the \texttt{maybe} type. Otherwise, it can return a proper value wrapped in the \texttt{just} constructor. Since the \texttt{just} can wrap any type, the \texttt{maybe} is polymorphic.
+The \texttt{maybe} type is a tool to handle errors without side effects by representing an optional value. In the case that a computation cannot return a valid value, it may return the \texttt{none} constructor of the \texttt{maybe} type. Otherwise, it can return a proper value wrapped in the \texttt{just} constructor. Because \texttt{just} can wrap any type, \texttt{maybe} is polymorphic.
 
 \subsection{Arrow Types}
 An arrow type is a sequence of types separated by an arrow (\texttt{->}) and represents the type of a function or operator. %TODO
@@ -134,12 +133,12 @@ sum_tup tup = (first tup) + (sec tup)
 apply_sec tup f = f (sec tup)
 # apply_sec :: (a, b) -> b -> c -> c
 \end{lstlisting}
-The definition of the \texttt{sum\_tup} function performs a established computation on its argument, which has a value. On the other hand, the \texttt{apply\_sec} function takes in an arrow type argument, which means it can be applied to its other argument.
+The definition of the \texttt{sum\_tup} function performs a established computation on its argument, which has a value. On the other hand, the \texttt{apply\_sec} function takes in an arrow type argument, which means this argument can be applied to its other argument.
 
 \subsection{Type Annotations and Inference}
 Rippl supports type inference through an implementation of the Hindley-Milner type inference system over the core syntactic language constructs of lambda abstractions, let-bindings, application, and variable names, as well as the additional language construct of if-then-else expressions. \\
 
-\noindent By performing type inference in an environment where literals and language native operators (see section 3.5) are bootstrapped  with a particular type, types of expressions can be inferred and checked in a complete and decidable manner. These types signatures may be concrete types like the ones below.
+\noindent By performing type inference in an environment where literals and language native operators (see section 3.5) are bootstrapped  with a particular type, types of expressions can be inferred and checked in a complete and decidable manner. These type signatures may be concrete types like the ones below.
 
 \begin{lstlisting}[language=rippl]
 sum_ints :: int -> int -> int
@@ -161,7 +160,7 @@ empty_list :: [a]
 list_map :: a -> b -> [a] -> [b]
 \end{lstlisting}
 
-\noindent Rippl also allows programmers to provide their own type annotations for function definitions. This is done using the Haskell-like syntax shown in the previous examples, that involves specifying the variable name followed by its full curried type signature, separated by a double colon "\texttt{::}". Type annotations are optional, but when they are provided, type-checking is performed to make sure the user-annotated types are at most as generalized as the inferred type. In other words, the type annotation must be a subtype of the inferred type. \\
+\noindent Rippl also allows programmers to provide their own type annotations for function definitions. This is done using the Haskell-like syntax shown in the previous examples, which involves specifying the variable name followed by its full curried type signature, separated by a double colon "\texttt{::}". Type annotations are optional, but when they are provided, type-checking is performed to make sure the user-annotated types are at most as general as the inferred type. In other words, the type annotation must be a subtype of the inferred type. \\
 
 \noindent The following function definition is an example of how an inferred type and annotated type can type-check directly if they are equal. \\
 
@@ -170,21 +169,21 @@ succ :: int -> int
 succ n = n + 1       # inferred type is int -> int
 \end{lstlisting}
 
-\noindent The following type annotation would yield a typing error since the inferred type and annotated type contradict each other. This is due to the built in type of the integer addition and division operators and the fact that Rippl doesn't perform any implicit type promotions. \\
+\noindent The following type annotation yields a typing error, since the inferred type and annotated type contradict each other. This is due to the built-in type of the integer addition and division operators and the fact that Rippl doesn't perform any implicit type promotions. \\
 
 \begin{lstlisting}[language=rippl]
 avg :: int -> int -> float
 avg x y = (x + y) / 2   # inferred type is int -> int -> int
 \end{lstlisting}
 
-\noindent The following function definition and annotation also type-check correctly since the inferred type that is parametrically polymorphic with type variable \texttt{a} can be properly concretized by substituting \texttt{a} with the concrete type \texttt{[int]} to match the user-annotated type. \\
+\noindent The following function definition and annotation type-check correctly because the inferred type, which is parametrically polymorphic with type variable \texttt{a}, can be properly concretized by substituting \texttt{a} with the concrete type \texttt{[int]} to match the user-annotated type. \\
 
 \begin{lstlisting}[language=rippl]
 nest_int_list :: [int] -> [[int]]
 nest_int_list l = l cons []     # inferred type is a -> [a]
 \end{lstlisting}
 
-\noindent The following function definition is an example of a type annotation that won't type-check with the inferred type. The inferred type enforces that the return type of \texttt{identity} be the same as its argument, so it's polymorphic in one type variable \texttt{a}. This is a stronger type restriction than the annotated type which states that the function is polymorphic and may return a type different than that of its argument. Since the annotated type must be a subtype of the inferred type, this would yield a type error. \\
+\noindent The following function definition is an example of a type annotation that doesn't type-check with the inferred type. The inferred type enforces that the return type of \texttt{identity} be the same as its argument, so it's polymorphic in a single type variable \texttt{a}. This is a stronger type restriction than the annotated type which states that the function is polymorphic and may return a type different than that of its argument. Since the annotated type must be a subtype of the inferred type, this yields a type error. \\
 
 \begin{lstlisting}[language=rippl]
 identity :: a -> b
@@ -251,20 +250,20 @@ ranged list \\
 parametric list \\
 qualified list \\
 
-\noindent $Proper \ Types$ \\
+\noindent $Primitive \ Types$ \\
 integer \\
 floating point number \\
 boolean \\
 character \\
 
-\noindent $Higher \ Order \ Type \ Constructors$ \\
+\noindent $Higher\text{-}Order \ Type \ Constructors$ \\
 list \\
 tuple \\
 maybe \\
 
 \noindent $Types$ \\
 proper type \\
-higher order type \\
+higher-order type \\
 arrow type \\
 
 \noindent $Type \ Annotations$ \\
@@ -273,7 +272,7 @@ type annotations \\
 
 \newpage 
 \subsection{Comments}
-Comments in Rippl draw from Python and Haskell. Single line comments are marked by one pound sign, while multiline comments are delimited by curly braces and dashes. Both forms of commenting support nested comments.
+Comments in Rippl draw from Python and Haskell. Single line comments are marked by a pound sign, while multiline comments are delimited by curly braces and dashes. Both forms of commenting support nested comments.
 \begin{lstlisting}[language=rippl]
 {- The following code will first declare a variable with value 2
    After that, it will be raised to the power of 5 -}
@@ -297,11 +296,11 @@ There are several keywords that are reserved in Rippl and thus not available for
 {- Program Structure -}
 # over, let, in, fun, if, then, else, main
 
-{- Higher Order Type Operators -}
+{- Higher-Order Type Operators -}
 # head, tail, cons, cat, len, first, sec
 \end{lstlisting}
 \subsection{Identifiers}
-Identifiers can be any sequence of characters that start with either a letter or an underscore followed by any assortment of letters, numbers, and underscores.
+Identifiers can be any sequence of characters that start with either a letter or an underscore followed by any combination of letters, numbers, and underscores.
 \begin{lstlisting}[language=rippl]
 my_identifier123             # Valid!
 _my_other_indentifier456     # Also valid!
@@ -474,15 +473,15 @@ $maybe \ a \ \rightarrow \  bool$ \\
 $maybe \ a \ \rightarrow \  a$ \\
 \columnbreak \\
 \noindent $Function$ \\
-return true if none \\
+return \texttt{true} if none \\
 extract element \\
 \end{multicols}
-%\pagebreak
+\pagebreak
 
 
 \subsection{Let Bindings}
 Given the functional nature of Rippl, there are no imperative assignment statements. Instead, Rippl consists mainly of nested expressions strung together
-using the let-in construct. This takes the form of \texttt{let identifier = expr1 in expr2}, where \texttt{indentifier} serves as a name binded to the value of \texttt{expr1} to be used in \texttt{expr2}. The value of a let binding chain is the value of the last expression.
+using the let-in construct. This takes the form of \texttt{let identifier = expr1 in expr2}, where \texttt{identifier} serves as a name binded to the value of \texttt{expr1} to be used in \texttt{expr2}. The value of a let binding chain is the value of the last expression in the chain.
 \begin{lstlisting}[language=rippl]
 let x = 1 in 
 let y = 2 in 
@@ -497,11 +496,11 @@ Like most programming languages, Rippl supports basic control flow through if-th
 \begin{lstlisting}[language=rippl]
 let num = 5 in
 let my_string = if num == 5 then "five" 
-        else "not five" # five
+        else "not five" # "five"
 \end{lstlisting}
 
 \subsection{Lambda Abstractions}
-One cornerstone of Rippl is to permit computations that require higher order functions, which is made possible by lambda abstractions. These anonymous functions are written using the \texttt{fun} keyword are \texttt{arrow type} expressions.
+One cornerstone of Rippl is to permit computations that require higher-order functions, which is made possible by lambda abstractions. These anonymous functions are written using the \texttt{fun} keyword and are arrow type expressions.
 \begin{lstlisting}[language=rippl]
 fun x -> x + 1 # int -> int
 (fun x -> x + 1) 9 # 10 - application with an anonymous function
@@ -511,12 +510,12 @@ We can also bind these lambda abstractions to identifiers using a \texttt{let} e
 let add_one = fun x -> x + 1 in
 add_one 9 # 10
 \end{lstlisting}
-Hope you have a sweet tooth! Rippl provides some syntactic sugar when it comes to name binding functions! The following expressions (after de-sugaring the syntax) are equivalent.
+Hope you have a sweet tooth! Rippl provides some syntactic sugar when it comes to name-binding functions. The following expressions (after de-sugaring the syntax) are equivalent.
 \begin{lstlisting}[language=rippl]
 let add_one = fun x -> x + 1 # add_one :: int -> int
 let cooler_add_one x = x + 1 # cooler_add_one :: int -> int
 \end{lstlisting}
-To top it all off, Rippl embraces the Haskell paradigm that all functions are curried. In other words, all functions in Rippl actually take just one parameter, either in arrow type form or proper/higher order type. This allows a Rippler to employ partial application on functions!
+To top it all off, Rippl embraces the Haskell paradigm that all functions are curried. In other words, all functions in Rippl actually take just one parameter, either in arrow type form or proper/higher-order type form. This allows a Rippl user to employ partial application on functions!
 \begin{lstlisting}[language=rippl]
 let sum_three x y z = x + y + z in
 # sum_three :: int -> int -> int -> int
@@ -526,14 +525,14 @@ let add_four = sum_two_add_one 3 in
 # add_four :: int -> int
 add_four 5  # 9
 \end{lstlisting}
-\pagebreak
+%\pagebreak
 
 \subsection{List Comprehensions}
 List comprehensions are an elegant and concise way to define and construct a list. They use a well-known mathematical notation to substitute complex list operations like map and filter. \\
 
 
 \subsubsection{Ranged List}
-With ranged lists, we can create a list without specifying every element. Ranges will always have an interval of + 1 and are only allowed for integer lists. 
+With ranged lists, we can create a list without specifying every element. Ranges will always have an interval step of +1 and are only allowed for integer lists. 
 
 \begin{lstlisting}[language=rippl]
 [18...24] # [18, 19, 20, 21, 22, 23, 24]
@@ -554,7 +553,7 @@ Parametric lists allow users to specify a parameter.
 
 
 \subsubsection{Qualified List}
-With qualified lists, lists can be filtered by one or more conditions represented as computations on the bound list parameters that return a boolean value.
+With qualified lists, lists can be filtered by one or more conditions that are represented as computations on the bound list parameters and return a boolean value.
 
 \begin{lstlisting}[language=rippl]
 [x ^ 2 | x over [1...10], x % 2 == 0] # [4, 16, 36, 64, 100]
@@ -580,11 +579,11 @@ Thanks to lazy evaluation, Rippl supports infinite lists.
 \end{lstlisting}
 
 \subsubsection{Lazy Evaluation}
-\noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and other elements are evaluated when their value is requested. We can see the consequences of lazy evaluation in the example below: \\
+\noindent Rippl uses lazy evaluation for list comprehensions. This means that only the head of the list is initially fully evaluated and all other elements are evaluated when their value is requested. We can see the consequences of lazy evaluation in the example below: \\
 
 \begin{lstlisting}[language=rippl]
 let funky_list = [1/(x-1) | x over [0...]] # no error
-    # even though when x = 1, there will be a problem
+    # even though when x == 1, 1/(x-1) is undefined
 head funky_list # -1 
     # only evaluates the first element of the list
 tail funky_list # causes an error
@@ -594,17 +593,16 @@ tail funky_list # causes an error
 We can see that when only the first element of the list is evaluated, there is no error. Although the second element of \texttt{funky\_list} will have an error from dividing by 0, this element is not evaluated until we get the tail of the list. When we do get the tail and thus evaluate the second element of the list, there will be an error. \\
 
 \section{Immutability}
-As a pure functional language, Rippl enforces immutable semantics. This means that once an expression has been assigned to a variable name, the value can't be changed later on in the program (inducing a change in state). Rather than performing actions actions on objects and altering them, Rippl performs computations that return new values. This protects programs from side effects that may occur from having having multiple operations computing and mutating the same data. \\
+As a pure functional language, Rippl enforces immutable semantics. This means that once an expression has been assigned to a variable name, the value can't be changed later on in the program (inducing a change in state). Rather than performing actions on objects and altering them, Rippl performs computations that return new values. This protects programs from side effects that may occur from having having multiple operations computing and mutating the same data. \\
 
-Take for example the Rippl code snippet below. The use of the \texttt{cons} operator returns a new list with a first element of \texttt{0} rather than changing the value of \texttt{natural\_nums}. \\
+Take for example the code snippet below. The use of the \texttt{cons} operator returns a new list with a first element of \texttt{0} rather than changing the value of \texttt{natural\_nums}. \\
 
 \begin{lstlisting}[language=rippl]
 num_set :: bool
 num_set = let natural_nums = [1...] in
 let whole_nums = 0 cons natural_nums in
-(head natural_nums) == (head whole_nums)    #false
+(head natural_nums) == (head whole_nums)    # false
 \end{lstlisting}
-
 By nature of being a functional language, Rippl has no constructs supporting reassignment of variables. However, in the case of nested let bindings, the program semantics may resemble mutability in variable reassignment. The program shown below for a definition of \texttt{change\_a} is an example of such a case. Nevertheless, it's important to note that this is not a case of mutability, but a case of variable shadowing. The \texttt{a} in the final expression binds more tightly to the \texttt{a} assigned in inner let binding so the final value returned is that of the second \texttt{a}. \\
 
 \begin{lstlisting}[language=rippl]
@@ -613,8 +611,7 @@ change_a =  let a = 1 in
             let a = 2 in
             a       # 2
 \end{lstlisting}
-
-For a more concrete example of how this semantically differs from mutability, consider the modified definition of \texttt{change\_a} below. By the second let-binding, the local definition of \texttt{a} binds more tightly than the higher level binding for \texttt{a} and instead becomes a recursive definition. This results in a program error in both Rippl and Haskell. \\
+For a more concrete example of how this semantically differs from mutability, consider the modified definition of \texttt{change\_a} below. By the second let-binding, the local definition of \texttt{a} binds more tightly than the higher-level binding for \texttt{a} and instead becomes a recursive definition. This results in a program error in both Rippl and Haskell. \\
 
 \begin{lstlisting}[language=rippl]
 change_a2 :: int
@@ -627,19 +624,16 @@ change_a2 = let a = 1 in
 \section{Entrypoints and IO}
 Like all pure functional languages, Rippl ensures that the evaluation of all expressions is free of side effects, or stateful interactions with the outside world. This prohibits the insertion of print statements inside functions that execute as they are evaluated. \\
 
-\noindent Also as a pure functional language, Rippl guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action than a true argument). With no varying argument, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
+\noindent Also as a pure functional language, Rippl guarantees that any computation given an argument will always return the same output. This means there can be no assumption of order of evaluation in a program as there is in the imperative paradigm. This prohibits the use of language constructs like \texttt{input} or \texttt{scanf} that read and return a value read from the user with no arguments (save the format-friendly strings present; this is more like a separate print/IO action than a true argument). With no varying arguments, the function call in a pure language should return the same value each time which should not be the behavior of an IO operation. \\
 
 \noindent Pure functional languages like Haskell get around this by giving all the IO function calls a hidden argument and strings each call together as arguments and dependencies to create a proper ordering by using an IO monad. This operation is sugared up into an imperative-looking \texttt{do} construct in their main methods. \\
 
-\noindent Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\
-
+\noindent Like in Haskell, the main method in Rippl is the top-level entrypoint into a program. In order to avoid the use of higher-kinded types like in Haskell, the main method is used such that there is only one input operation allowed and one output operation allowed, strictly evaluated in that order.  \\\\
 User input is represented as the argument to the main function. It can be bound as a named argument that is then used for evaluation of the body of the main function if it requires user input. \\
-
 \begin{lstlisting}[language=rippl]
 # this main method takes user input and stores it in `arg`
 main arg = ... 
 \end{lstlisting}
-
 Otherwise, to signify that nothing is to be read from user input, an underscore takes the place of the first argument (much like the wildcard in Haskell). \\
 
 \begin{lstlisting}[language=rippl]
@@ -647,14 +641,14 @@ Otherwise, to signify that nothing is to be read from user input, an underscore 
 main _ = ...    
 \end{lstlisting}
 
-The evaluated value of the body of the main function is printed. The "Hello, world!" program would be written as follows in Rippl.
+The evaluated value of the body of the main function is printed. The "Hello, world!" program is written as follows in Rippl.
 
 \begin{lstlisting}[language=rippl]
 # this prints "Hello, world!" to the terminal
 main _ = "Hello, world!"
 \end{lstlisting}
 
-If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
+If the right-hand side of the main method were a more complex computation expressed in terms of other function definitions provided in the file, then the full expression would be evaluated and printed. This means that the main function is also fully polymorphic in terms of its input and output. \\
 
 \begin{lstlisting}[language=rippl]
 main :: a -> b
