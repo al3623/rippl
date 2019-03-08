@@ -13,6 +13,7 @@
 %token <string> STRLIT
 %token <float> FLOATLIT
 %token <string> ID
+%nonassoc UMINUS
 
 %start expr
 %type <int> expr
@@ -20,3 +21,4 @@
 %%
 
 expr: PLUS      { 1 }
+    | MINUS expr %prec UMINUS { - $2 }
