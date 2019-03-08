@@ -1,4 +1,4 @@
-%{  %}
+%{ open Ast %}
 
 %token EOF LET IN IF THEN ELSE OVER FUN MAIN LBRACK RBRACK LPAREN RPAREN COMMA
 %token LRANGE RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
@@ -30,5 +30,5 @@
 
 %%
 
-expr: PLUS      { 1 }
-    | MINUS expr %prec UMINUS { - $2 }
+expr:
+    | MINUS expr %prec UMINUS { App(Neq, $2) }
