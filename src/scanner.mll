@@ -18,7 +18,10 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
-            | "main"			{ MAIN }
+            | "main"		{ MAIN }
+            | "maybe"           { MAYBE }
+            | "just"            { JUST }
+            | "none"            { NONE }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
@@ -74,6 +77,7 @@ rule token =
             | "head"            { HEAD }
             | "tail"            { TAIL }
             | "cat"             { CAT }
+            | "len"             { LEN }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
