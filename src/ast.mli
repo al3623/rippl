@@ -19,6 +19,7 @@ type expr =
     | Lambda of (expr * expr)
     | App of (expr * expr)
     | Ite of (expr * expr * expr)
+    | Assign of (expr * expr)
 
 type annot  = 
     | Annot of (string * ty) 
