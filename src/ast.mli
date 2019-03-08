@@ -11,7 +11,7 @@ type expr =
     | Add | Sub | Mult | Div | Mod | Pow
     | AddF | SubF | MultF | DivF | PowF
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
-    | And | Or 
+    | And | Or | Not 
     | Cons | Cat | Len | Head | Tail
     | Var of string
     | Let of (expr * expr)
