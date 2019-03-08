@@ -5,7 +5,7 @@ type ty = Int | Bool | Float | Char
     | Tvar of string
     | Arrow of (ty * ty)
     | TconList of ty
-    | TconTuple of ty
+    | TconTuple of (ty * ty)
     | Tforall of ty
 
 type expr =
