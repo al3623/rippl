@@ -18,7 +18,7 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
-            | "main"			{ MAIN }
+            | "main"		{ MAIN }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
@@ -31,8 +31,8 @@ rule token =
             | "->"              { RARROW }
             | '|'               { BAR }
             (* NUM LITERALS *)
-            | ('-' ?)digit+ as lit 	{ INTLIT(int_of_string lit) }
-            | ('-' ?)((digit+ '.' digit+)) as lit { FLOATLIT(float_of_string lit)}
+            | digit+ as lit 	{ INTLIT(int_of_string lit) }
+            | ((digit+ '.' digit+)) as lit { FLOATLIT(float_of_string lit)}
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -132,6 +132,9 @@ rule token =
             | LPAREN -> next ("LPAREN" :: l)
             | RPAREN -> next ("RPAREN" :: l)
             (* miscellaneous *)
+            | MAYBE -> next ("MAYBE" ::l)
+            | JUST -> next ("JUST" ::l)
+            | NONE -> next ("NONE" ::l)
             | COMMA -> next ("COMMA" :: l)
             | RARROW -> next ("RARROW" :: l)
             | LRANGE -> next("LRANGE" :: l)
@@ -179,6 +182,7 @@ rule token =
             | TAIL -> next ("TAIL" :: l)
             | CAT -> next ("CAT" :: l)
             | BAR -> next ("BAR" :: l)
+            | LEN -> next ("LEN" :: l)
             (* assignment *)
             | ASSIGN -> next ("ASSIGN" :: l)
             (* identifiers *)

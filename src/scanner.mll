@@ -18,7 +18,10 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
-            | "main"			{ MAIN }
+            | "main"		{ MAIN }
+            | "maybe"           { MAYBE }
+            | "just"            { JUST }
+            | "none"            { NONE }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
@@ -31,8 +34,8 @@ rule token =
             | "->"              { RARROW }
             | '|'               { BAR }
             (* NUM LITERALS *)
-            | ('-' ?)digit+ as lit 	{ INTLIT(int_of_string lit) }
-            | ('-' ?)((digit+ '.' digit+)) as lit { FLOATLIT(float_of_string lit)}
+            | digit+ as lit 	{ INTLIT(int_of_string lit) }
+            | ((digit+ '.' digit+)) as lit { FLOATLIT(float_of_string lit)}
             (* BOOLEAN LITERALS *)
             | "true"            { TLIT }
             | "false"           { FLIT }
@@ -74,6 +77,7 @@ rule token =
             | "head"            { HEAD }
             | "tail"            { TAIL }
             | "cat"             { CAT }
+            | "len"             { LEN }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
