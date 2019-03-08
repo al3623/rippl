@@ -30,7 +30,6 @@
 
 %%
 expr:
-    | expr ASSIGN expr { App (App (Assign, $1), $3) }
     | expr OR expr { App (App(Or, $1), $3) }
     | expr AND expr { App (App(And, $1), $3) }
     | NOT expr { App(Not, $2) }
