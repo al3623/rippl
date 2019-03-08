@@ -14,7 +14,6 @@
 %token <float> FLOATLIT
 %token <string> ID
 
-##exponents more tightly than unary, pow below unary, mult div, mod, addition, subtraction (less obv). comparison operators least precedence, float operators same thing. 
 
 
 %left ASSIGN
