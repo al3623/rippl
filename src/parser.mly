@@ -30,6 +30,37 @@
 
 %%
 expr:
+    | expr ASSIGN expr { App (App (Assign, $1), $3) }
+    | expr OR expr { App (App(Or, $1), $3) }
+    | expr AND expr { App (App(And, $1), $3) }
+    | NOT expr { App(Not, $2) }
+    | expr EQ expr { App (App(Eq, $1), $3) }
+    | expr EQF expr { App (App(EqF, $1), $3) }
+    | expr NEQ expr { App (App(Neq, $1), $3) }
+    | expr NEQF expr { App (App(NeqF, $1), $3) }
+    | expr LESS expr { App (App(Add, $1), $3) }
+    | expr LESSF expr { App (App(Add, $1), $3) }
+    | expr GREATER expr { App (App(Add, $1), $3) }
+    | expr GREATERF expr { App (App(Add, $1), $3) }
+    | expr LEQ expr { App (App(Leq, $1), $3) }
+    | expr LEQF expr { App (App(LeqF, $1), $3) }
+    | expr GEQ expr { App (App(Geq, $1), $3) }
+    | expr GEQF expr { App (App(GeqF, $1), $3) }
+    | expr PLUS expr { App (App(Add, $1), $3) }
+    | expr MINUS expr { App (App (Sub, $1), $3) }
+    | expr TIMES expr { App (App (Mult, $1), $3) }
+    | expr DIVIDE expr { App (App(Div, $1), $3) }
+    | expr PLUSF expr{ App (App(AddF, $1), $3) }
+    | expr MINUSF expr { App (App(SubF, $1), $3) }
+    | expr TIMESF expr{ App (App(MultF, $1), $3) }
+    | expr DIVIDEF expr { App (App(DivF, $1), $3) }
+    | expr POW expr { App (App(Pow, $1), $3) }
+    | expr POWF expr { App (App(PowF, $1), $3) }
+    | expr CONS expr { App (App(Cons, $1), $3) }
+    | HEAD expr { App(Head, $2) }
+    | TAIL expr { App (Tail, $2) }
+    | expr CAT expr { App (App(Cat, $1), $3)}
+    | LEN expr { App (Len, $2)}
     | MINUS expr %prec UMINUS { App(Neq, $2) }
     
 entry:
