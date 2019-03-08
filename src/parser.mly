@@ -1,23 +1,4 @@
-%{  type ty = Int | Bool | Float | Char
-    | Tvar of string
-    | Arrow of (ty * ty)
-    | TconList of ty
-    | TconTuple of ty
-    | Tforall of ty
-
-type expr =
-    | IntLit of int | FloatLit of float
-    | CharLit of char | StrLit of string
-    | Add | Sub | Mult | Div | Mod | Pow
-    | AddF | SubF | MultF | DivF | PowF
-    | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
-    | And | Or 
-    | Cons | Cat | Len | Head | Tail
-    | Var of string
-    | Let of (expr * expr)
-    | Lambda of (expr * expr)
-    | App of (expr * expr)
-    | Ite of (expr * expr * expr) %}
+%{ open Ast %}
 
 %token EOF LET IN IF THEN ELSE OVER FUN MAIN LBRACK RBRACK LPAREN RPAREN COMMA
 %token LRANGE RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
@@ -45,7 +26,7 @@ type expr =
 %left CONS HEAD TAIL CAT LEN
 
 %start entry
-%type <expr> entry
+%type <Ast.expr> entry
 
 %%
 expr:
