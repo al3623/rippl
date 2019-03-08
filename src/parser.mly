@@ -13,7 +13,18 @@
 %token <string> STRLIT
 %token <float> FLOATLIT
 %token <string> ID
+
+##exponents more tightly than unary, pow below unary, mult div, mod, addition, subtraction (less obv). comparison operators least precedence, float operators same thing. 
+
+
+%left ASSIGN
+%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
+%left PLUS MINUS PLUSF MINUSF
+%left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
+%left POW
+$left POWF
+%left CONS HEAD TAIL CAT LEN
 
 %start expr
 %type <int> expr
