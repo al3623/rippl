@@ -6,7 +6,7 @@ type ty = Int | Bool | Float | Char
     | Tforall of ty
 
 type expr =
-    | IntLit of int | FloatLit of float | TLit of bool | FLit of bool 
+    | IntLit of int | FloatLit of float | BoolLit of bool 
     | CharLit of char | StrLit of string
     | Add | Sub | Mult | Div | Mod | Pow
     | AddF | SubF | MultF | DivF | PowF
