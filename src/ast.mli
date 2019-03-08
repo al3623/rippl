@@ -11,7 +11,6 @@ type expr =
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
     | And | Or 
     | Cons | Cat | Len | Head | Tail
-    | Neq
     | Var of string
     | Let of (expr * expr)
     | Lambda of (expr * expr)
