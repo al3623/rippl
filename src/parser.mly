@@ -22,7 +22,7 @@
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
 %left POW
-$left POWF
+%left POWF
 %left CONS HEAD TAIL CAT LEN
 
 %start expr
