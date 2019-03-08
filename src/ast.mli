@@ -17,4 +17,7 @@ type expr =
     | Let of (expr * expr)
     | Lambda of (expr * expr)
     | App of (expr * expr)
-    | Ite of (expr * expr * expr) 
+    | Ite of (expr * expr * expr)
+
+type annot  = 
+    | Annot of (string * ty) 
