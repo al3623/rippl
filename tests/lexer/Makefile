@@ -5,8 +5,10 @@ lexdriver.native: ../../src/scanner.mll epilogue
 
 .PHONY: clean
 clean:
+	ocamlbuild -clean 2>/dev/null
 	rm -f lexdriver.native
 	rm -rf _build
+	rm lexdriver.mll
 
 .PHONY: all
 all: clean lexdriver.native
