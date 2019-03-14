@@ -1,0 +1,10 @@
+%%
+
+let ast_to_string _ = "TEST"
+
+let _ =
+	let lexbuf = Lexing.from_channel stdin in
+	let expr = Parser.entry Scanner.token lexbuf in
+	let ast_string = ast_to_string expr in
+	print_endline ast_string
+
