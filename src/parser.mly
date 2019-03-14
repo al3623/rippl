@@ -14,7 +14,9 @@
 %token <float> FLOATLIT
 %token <string> ID
 
-
+%left IN
+%left RARROW
+%left ELSE
 
 %left ASSIGN
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
@@ -29,15 +31,21 @@
 %type <Ast.expr> entry
 
 %%
-expr:/* PRIMITIVE LITERALS */
-    | FLIT                  { BoolLit(false) }
-    | TLIT                  { BoolLit(true) }
-    | CHARLIT               { CharLit($1) } 
-    | STRLIT                { StrLit($1) } /*REVISIT*/
-    | INTLIT                { IntLit($1) }
-    | FLOATLIT              { FloatLit($1) }
+
+expr:
+    /* SYNTACTIC EXPRESSIONS */
+    /*
+    | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
+    | LET expr IN expr            { Let($2,$4) }
+    | FUN expr RARROW expr        { Lambda($2,$4) }
+    | expr expr                   { App($1,$2) }
+    | ID                          { Var($1) }
+    */
+
+
     /* ASSIGNMENT */
     | expr ASSIGN expr      { Assign($1, $3) }
+
     /* BOOLEAN OPERATIONS */
     | expr OR expr          { App (App(Or, $1), $3) }
     | expr AND expr         { App (App(And, $1), $3) }
@@ -54,6 +62,7 @@ expr:/* PRIMITIVE LITERALS */
     | expr LEQF expr        { App (App(LeqF, $1), $3) }
     | expr GEQ expr         { App (App(Geq, $1), $3) }
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
+
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
     | expr MINUS expr       { App (App (Sub, $1), $3) }
@@ -66,14 +75,31 @@ expr:/* PRIMITIVE LITERALS */
     | expr POW expr         { App (App(Pow, $1), $3) }
     | expr POWF expr        { App (App(PowF, $1), $3) }
     | MINUS expr %prec UMINUS { App(Neq, $2) }
+
     /* LIST OPERATIONS */
     | expr CONS expr        { App (App(Cons, $1), $3) }
     | HEAD expr             { App(Head, $2) }
     | TAIL expr             { App (Tail, $2) }
     | expr CAT expr         { App (App(Cat, $1), $3)}
     | LEN expr              { App (Len, $2)}
+
+    /* LITERALS */
+    | literals              { $1 }
     
 entry:
-    | expr EOF                { $1 }
+    | expr EOF              { $1 }
 
+literals:
+    /* PRIMITIVE LITERALS */
+    | FLIT                  { BoolLit(false) }
+    | TLIT                  { BoolLit(true) }
+    | CHARLIT               { CharLit($1) } 
+    | STRLIT                { StrLit($1) } /*REVISIT*/
+    | INTLIT                { IntLit($1) }
+    | FLOATLIT              { FloatLit($1) }
+    | LBRACK prim_list RBRACK    { ListLit($2) }
+
+prim_list:
+    | expr                  { [$1] }
+    | prim_list COMMA expr  { $3 :: $1 }
 
