@@ -80,7 +80,7 @@
             (* assignment *)
             | ASSIGN -> next ("ASSIGN" :: l)
             (* identifiers *)
-            | ID id -> next ("IDENT" :: l)
+            | IDENT id -> next ("IDENT" :: l)
 
             | NEWLINE -> next("\n"::l) 
             

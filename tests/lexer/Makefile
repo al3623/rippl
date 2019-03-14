@@ -1,14 +1,13 @@
 lexdriver.native: ../../src/scanner.mll epilogue
-	cat ../../src/scanner.mll > lexdriver.mll
-	cat epilogue >> lexdriver.mll
-	ocamlbuild lexdriver.native
+	cat ../../src/scanner.mll > driver.mll
+	cat epilogue >> driver.mll
+	ocamlbuild driver.native
 
 .PHONY: clean
 clean:
 	ocamlbuild -clean 2>/dev/null
-	rm -f lexdriver.native
+	rm -f driver.native
 	rm -rf _build
-	rm -rf lexdriver.mll
+	rm -rf driver.mll
 
 .PHONY: all
-all: clean lexdriver.native

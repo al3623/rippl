@@ -8,5 +8,5 @@ fi
 
 for var in "$@"
 do
-    cat $var | ./lexdriver.native | tee "$var.out"
+    cat $var | ./driver.native | tee "$var.out"
 done
