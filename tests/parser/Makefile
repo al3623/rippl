@@ -1,14 +1,14 @@
 parserdriver.native: ../../src/parser.mly epilogue
-	cat ../../src/parser.mly > parserdriver.mly
-	cat epilogue >> parserdriver.mly
-	ocamlbuild parserdriver.native
+	cat ../../src/parser.mly > driver.mly
+	cat epilogue >> driver.mly
+	ocamlbuild driver.native
 
 .PHONY: clean
 clean:
 	ocamlbuild -clean 2>/dev/null
-	rm -f parserdriver.native
+	rm -f driver.native
 	rm -rf _build
-	rm parserdriver.mly
+	rm -rf driver.mly
 
 .PHONY: all
-all: clean parser.native
+all: clean driver.native
