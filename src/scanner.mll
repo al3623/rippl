@@ -81,7 +81,7 @@ rule token =
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* IDENTIFIERS *)
-            | (letter | '_') (letter | digit | '_')* as id { ID(id) }
+            | (letter | '_') (letter | digit | '_')* as id { IDENT(id) }
             (* WHITESPACE *)
             | [' ' '\r' '\n' '\t']   { token lexbuf }
             | "{-"              { comment 0 lexbuf }

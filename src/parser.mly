@@ -22,7 +22,7 @@
 %token <int> INTLIT
 %token <string> STRLIT
 %token <float> FLOATLIT
-%token <string> ID
+%token <string> IDENT
 
 %left IN
 %left RARROW
@@ -49,7 +49,7 @@ expr:
     | LET expr IN expr            { Let($2,$4) }
     | FUN expr RARROW expr        { Lambda($2,$4) }
     | expr expr                   { App($1,$2) }
-    | ID                          { Var($1) }
+    | IDENT                       { Var($1) }
     */
 
 
