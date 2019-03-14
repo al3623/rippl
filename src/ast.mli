@@ -7,7 +7,7 @@ type ty = Int | Bool | Float | Char
 
 type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
-    | CharLit of char | StrLit of string | ListLit of expr list
+    | CharLit of char | ListLit of expr list
     | Add | Sub | Mult | Div | Mod | Pow
     | AddF | SubF | MultF | DivF | PowF
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF

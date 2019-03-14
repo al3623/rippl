@@ -1,4 +1,14 @@
-%{ open Ast %}
+%{ open Ast
+   open String
+   open List
+
+   let to_char_lit c = Ast.CharLit c
+   let explode s =
+        let rec exp i l =
+            if i < 0 then l else exp (i - 1) (s.[i] :: l) in
+        exp (String.length s - 1) []
+   let char_lit_list str = List.map to_char_lit (explode str)
+%}
 
 %token EOF LET IN IF THEN ELSE OVER FUN MAIN LBRACK RBRACK LPAREN RPAREN COMMA
 %token LRANGE RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
@@ -94,7 +104,7 @@ literals:
     | FLIT                  { BoolLit(false) }
     | TLIT                  { BoolLit(true) }
     | CHARLIT               { CharLit($1) } 
-    | STRLIT                { StrLit($1) } /*REVISIT*/
+    | STRLIT                { ListLit((char_lit_list $1)) }
     | INTLIT                { IntLit($1) }
     | FLOATLIT              { FloatLit($1) }
     | LBRACK prim_list RBRACK    { ListLit($2) }
