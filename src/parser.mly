@@ -113,3 +113,15 @@ prim_list:
     | expr                  { [$1] }
     | prim_list COMMA expr  { $3 :: $1 }
 
+list_comp:
+	| expr BAR clauses		{ $1 }
+
+clauses:
+	| clause				{ $1 }
+	| clauses COMMA clause	{ $3 }
+
+clause:
+    | expr { $1 } /*boolean filter for list comp*/
+    | expr OVER lists { $1 } /*variable binding for list comp*/
+
+
