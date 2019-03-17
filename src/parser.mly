@@ -113,17 +113,17 @@ lists:
 	| LBRACK prim_list RBRACK { $2 }
 	| LBRACK list_range RBRACK { $2 }
 	| LBRACK inf_list RBRACK { $2 }
-	| LBRACK list_comp RBRACK { $3 }
+	| LBRACK list_comp RBRACK { $2 }
 
 prim_list:
     | expr                  { [$1] }
     | prim_list COMMA expr  { $3 :: $1 }
 
 list_range:
-	| expr LRANGE expr 		{ $1 }
+	| expr LRANGE expr 		{ ListRange($1,$3) }
 
 inf_list:
-	| expr LRANGE			{ $1 }
+	| expr LRANGE			{ InfList($1) }
 
 list_comp:
 	| expr BAR clauses		{ ListComp($1,$3) }

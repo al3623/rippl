@@ -22,10 +22,12 @@ type expr =
     | Assign of (expr * expr)
 
 type clause = 
-	| ListVBind of (expr * expr)
+	| ListVBind of (expr * lists)
 	| Filter of expr
-
-type listcomp = ListComp of (expr * clause list)
+and lists = 
+	| ListComp of (expr * clause list)
+	| ListRange of (expr * expr)
+	| InfList of expr
 
 type annot  = 
     | Annot of (string * ty) 
