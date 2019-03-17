@@ -109,19 +109,31 @@ literals:
     | FLOATLIT              { FloatLit($1) }
     | LBRACK prim_list RBRACK    { ListLit($2) }
 
+lists:
+	| LBRACK prim_list RBRACK { $2 }
+	| LBRACK list_range RBRACK { $2 }
+	| LBRACK inf_list RBRACK { $2 }
+	| LBRACK list_comp RBRACK { $3 }
+
 prim_list:
     | expr                  { [$1] }
     | prim_list COMMA expr  { $3 :: $1 }
 
+list_range:
+	| expr LRANGE expr 		{ $1 }
+
+inf_list:
+	| expr LRANGE			{ $1 }
+
 list_comp:
-	| expr BAR clauses		{ $1 }
+	| expr BAR clauses		{ ListComp($1,$3) }
 
 clauses:
-	| clause				{ $1 }
-	| clauses COMMA clause	{ $3 }
+	| clause				{ [$1] }
+	| clauses COMMA clause	{ $3 :: $1 }
 
 clause:
-    | expr { $1 } /*boolean filter for list comp*/
-    | expr OVER lists { $1 } /*variable binding for list comp*/
+    | expr { Filter($1) } /*boolean filter for list comp*/
+    | expr OVER lists { ListVBind($1,$3) } /*variable binding for list comp*/
 
 

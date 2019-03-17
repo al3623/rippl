@@ -21,5 +21,11 @@ type expr =
     | Ite of (expr * expr * expr)
     | Assign of (expr * expr)
 
+type clause = 
+	| ListVBind of (expr * expr)
+	| Filter of expr
+
+type listcomp = ListComp of (expr * clause list)
+
 type annot  = 
     | Annot of (string * ty) 
