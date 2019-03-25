@@ -51,7 +51,7 @@ expr:
     | expr expr                   { App($1,$2) } */
     | IDENT                       { Var($1) }
     
-
+    | lists                         { $1 }
 
     /* ASSIGNMENT */
     | expr ASSIGN expr      { Assign($1, $3) }
@@ -107,10 +107,9 @@ literals:
     | STRLIT                { ListLit((char_lit_list $1)) }
     | INTLIT                { IntLit($1) }
     | FLOATLIT              { FloatLit($1) }
-    | LBRACK prim_list RBRACK    { ListLit($2) }
 
 lists:
-	| LBRACK prim_list RBRACK { $2 }
+	| LBRACK prim_list RBRACK { ListLit($2) }
 	| LBRACK list_range RBRACK { $2 }
 	| LBRACK inf_list RBRACK { $2 }
 	| LBRACK list_comp RBRACK { $2 }

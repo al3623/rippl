@@ -7,7 +7,7 @@ type ty = Int | Bool | Float | Char
 
 type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
-    | CharLit of char | ListLit of expr list
+    | CharLit of char
     | Add | Sub | Mult | Div | Mod | Pow
     | AddF | SubF | MultF | DivF | PowF
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
@@ -20,14 +20,13 @@ type expr =
     | App of (expr * expr)
     | Ite of (expr * expr * expr)
     | Assign of (expr * expr)
-
-type clause = 
-	| ListVBind of (expr * lists)
-	| Filter of expr
-and lists = 
 	| ListComp of (expr * clause list)
 	| ListRange of (expr * expr)
 	| InfList of expr
+    | ListLit of expr list
+and clause = 
+	| ListVBind of (expr * expr)
+	| Filter of expr
 
 type annot  = 
     | Annot of (string * ty) 
