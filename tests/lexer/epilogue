@@ -79,6 +79,8 @@
             | LEN -> next ("LEN" :: l)
             (* assignment *)
             | ASSIGN -> next ("ASSIGN" :: l)
+            (* application *)
+            | APP -> next ("APP" :: l)
             (* identifiers *)
             | IDENT id -> next ("IDENT" :: l)
 
