@@ -49,7 +49,7 @@ expr:
     | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
     | LET expr IN expr            { Let($2,$4) }
     | FUN expr RARROW expr        { Lambda($2,$4) }
-    /* | expr expr                { App($1,$2) }
+    /* | expr expr                { App($1,$2) } */
     | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
     
