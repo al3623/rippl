@@ -34,8 +34,7 @@
 %left PLUS MINUS PLUSF MINUSF
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
-%left POW
-%left POWF
+%left POW POWF
 %left CONS HEAD TAIL CAT LEN
 
 %start entry
@@ -97,6 +96,9 @@ expr:
 
     /* LITERALS */
     | literals              { $1 }
+
+    /* PARENTHESIZED EXPRESSIONS */
+    | LPAREN expr RPAREN %prec HEAD {$2}
     
 entry:
     | expr EOF              { $1 }
