@@ -24,8 +24,8 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
-%left APP
 %left IN
+%left APP
 %left RARROW
 %left ELSE
 
