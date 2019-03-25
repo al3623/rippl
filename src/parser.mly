@@ -27,6 +27,7 @@
 %left IN
 %left APP
 %left RARROW
+%left MAYBE
 %left ELSE
 
 %left ASSIGN
@@ -37,12 +38,38 @@
 %left POW POWF
 %left CONS HEAD TAIL CAT LEN
 
-%start entry
-%type <Ast.expr> entry
+%start program
+%type <Ast.program> program
 
 %%
 
+program:
+    | decl EOF                       { [$1] }
+    | decl program             { $1 :: $2 }
+
+decl:
+    | vdef                          { $1 }
+    | annotation                    { $1 }
+
+vdef:
+    | IDENT EQ expr                 { Vdef($1,$3) }
+
+ty:
+    | BOOLTYPE                      { Bool }
+    | INTTYPE                       { Int }
+    | CHARTYPE                      { Char }
+    | FLOATTYPE                     { Float }
+    | LBRACK ty RBRACK              { TconList($2) }
+    | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
+    | MAYBE ty                      { Tmaybe($2) }
+    | IDENT                         { Tvar($1) }
+    | ty RARROW ty                  { Arrow($1,$3) }
+
+annotation:
+    | IDENT DOUBLECOL ty            { Annot($1,$3) }
+
 expr:
+        
     /* SYNTACTIC EXPRESSIONS */
     
     | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
@@ -100,9 +127,6 @@ expr:
     /* PARENTHESIZED EXPRESSIONS */
     | LPAREN expr RPAREN %prec HEAD {$2}
     
-entry:
-    | expr EOF              { $1 }
-
 literals:
     /* PRIMITIVE LITERALS */
     | FLIT                  { BoolLit(false) }

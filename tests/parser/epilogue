@@ -38,7 +38,6 @@ let op_to_str s =
     | Len -> "len"
     | _ -> "other"
 
-
 let char_list_to_str cl =
     match cl with
     | [] -> ""
