@@ -9,7 +9,7 @@ type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
     | CharLit of char
     | Add | Sub | Mult | Div | Mod | Pow
-    | AddF | SubF | MultF | DivF | PowF
+    | AddF | SubF | MultF | DivF | PowF | Neg
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
     | Less | LessF | Greater | GreaterF
     | And | Or | Not 
