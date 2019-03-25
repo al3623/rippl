@@ -80,6 +80,8 @@ rule token =
             | "len"             { LEN }
             (* ASSIGN *)
             | '='               { ASSIGN }
+            (* APPLICATION *)
+            | '.'               { APP }
             (* IDENTIFIERS *)
             | (letter | '_') (letter | digit | '_')* as id { IDENT(id) }
             (* WHITESPACE *)
