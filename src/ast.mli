@@ -1,10 +1,3 @@
-type ty = Int | Bool | Float | Char
-    | Tvar of string
-    | Arrow of (ty * ty)
-    | TconList of ty
-    | TconTuple of ty
-    | Tforall of ty
-
 type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
     | CharLit of char
@@ -28,5 +21,15 @@ and clause =
 	| ListVBind of (expr * expr)
 	| Filter of expr
 
-type annot  = 
-    | Annot of (string * ty) 
+type decl =
+    | Annot of (string * ty)
+    | Vdef of (string * expr)
+and ty = Int | Bool | Float | Char
+    | Tvar of string
+    | Arrow of (ty * ty)
+    | TconList of ty
+    | TconTuple of (ty * ty)
+    | Tforall of ty
+    | Tmaybe of ty
+
+type program = decl list
