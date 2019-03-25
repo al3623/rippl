@@ -3,6 +3,11 @@
 
 TODO:
 
-1) Compiler updates by 3/8:
-  - ~Add maybe type keywords to lexer and parser, update lexer epilogue~ @Da
-  - ~Remove unary minus from lexing with constants and add operator to parser, update lexer epilogue~ @Hollis
+Compiler passes:
+  * Semantic checks
+    - check that clauses in list comprehensions make sense
+    - type checking
+  * AST transformations
+    - closures of lambdas (no unbound variables)
+    - lambda lifting (no more anonymous functions)
+    - type inference
