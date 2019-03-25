@@ -15,7 +15,7 @@
 %token DIVIDEF TIMESF POWF OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER 
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
-%token MAYBE JUST NONE
+%token MAYBE JUST NONE APP
 
 
 %token <char> CHARLIT
@@ -24,6 +24,7 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
+%left APP
 %left IN
 %left RARROW
 %left ELSE
@@ -48,7 +49,8 @@ expr:
     | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
     | LET expr IN expr            { Let($2,$4) }
     | FUN expr RARROW expr        { Lambda($2,$4) }
-    /* | expr expr                   { App($1,$2) } */
+    /* | expr expr                { App($1,$2) }
+    | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
     
     | lists                         { $1 }
@@ -134,5 +136,3 @@ clauses:
 clause:
     | expr { Filter($1) } /*boolean filter for list comp*/
     | expr OVER lists { ListVBind($1,$3) } /*variable binding for list comp*/
-
-
