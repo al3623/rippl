@@ -1,7 +1,6 @@
 # rippl
 
-
-TODO:
+NOTES: Current parsing only supports desugared syntax (no proper function definitions; only lambdas)
 
 Compiler passes:
   * Semantic checks
