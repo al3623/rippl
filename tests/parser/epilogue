@@ -49,19 +49,19 @@ let char_list_to_str cl =
 
 let rec ast_to_str exp =
     match exp with
-    | Ite(e1,e2,e3) -> "IF " ^ (ast_to_str e1) ^ " THEN " ^ (ast_to_str e2) ^ " ELSE " ^ (ast_to_str e3)
-    | Let(e1,e2) -> "LET " ^ (ast_to_str e1) ^ " IN " ^ (ast_to_str e2)
-    | Lambda(e1,e2) -> "LAMBDA " ^ (ast_to_str e1) ^ " -> " ^ (ast_to_str e2)
-    | App( App(op, arg1), arg2) -> "App( App( " ^ op_to_str op ^ " , " ^ (ast_to_str arg1) ^ " ) , " ^ (ast_to_str arg2) ^ " )"
-    | App(op, e) -> "App( " ^ (op_to_str op) ^ " , " ^ (ast_to_str e) ^ " )"
-    | Var(s) -> s
+    | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
+    | Let(e1,e2) -> "Let(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | Lambda(e1,e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | App( App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
+    | App(op, e) -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
+    | Var(s) -> "Var(" ^ s ^ ")"
 
     (* Lists skipped for now *)
 
-    | Assign(e1, e2) -> "Assign( " ^ (ast_to_str e1) ^ " , " ^ (ast_to_str e2) ^ " )"
+    | Assign(e1, e2) -> "Assign(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
-    | ListLit(char_list) -> char_list_to_str char_list
+    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
     | _ -> ""
@@ -69,6 +69,10 @@ let rec ast_to_str exp =
 
 let _ =
     let lexbuf = Lexing.from_channel stdin in
-    let expr = Parser.entry Scanner.token lexbuf in
-    let ast_str = ast_to_str expr in
-    print_endline ast_str
+    let decl = Parser.program Scanner.token lexbuf in
+    let ast_str =
+    match decl with
+        | [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
+        | h::t -> "not implemented"
+        | [] -> "not implemented"
+    in print_endline ast_str

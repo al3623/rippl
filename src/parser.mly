@@ -52,7 +52,7 @@ decl:
     | annotation                    { $1 }
 
 vdef:
-    | IDENT EQ expr                 { Vdef($1,$3) }
+    | IDENT ASSIGN expr                 { Vdef($1,$3)}
 
 ty:
     | BOOLTYPE                      { Bool }
