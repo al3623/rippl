@@ -37,6 +37,7 @@
 %nonassoc UMINUS
 %left POW POWF
 %left CONS HEAD TAIL CAT LEN
+%nonassoc PAREN
 
 %start program
 %type <Ast.program> program
@@ -125,7 +126,7 @@ expr:
     | literals              { $1 }
 
     /* PARENTHESIZED EXPRESSIONS */
-    | LPAREN expr RPAREN %prec HEAD {$2}
+    | LPAREN expr RPAREN %prec PAREN {$2}
     
 literals:
     /* PRIMITIVE LITERALS */
