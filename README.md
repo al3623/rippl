@@ -8,6 +8,7 @@ Questions for Ryan:
 Parsing Updates:
  - make test script read in entire file to test (not line by line)
  - make epilogue process multiple vdefs/annotations in a row
+ - make more parsing test cases
 
 Compiler passes:
   * Semantic checks
