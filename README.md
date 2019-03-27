@@ -18,4 +18,5 @@ Compiler passes:
   * AST transformations
     - closures of lambdas (no unbound variables)
     - lambda lifting (no more anonymous functions)
+    - lift local function definitions to global definitions
     - type inference
