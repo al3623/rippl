@@ -14,4 +14,4 @@ let _ =
                             find_main xs
             )
             | [] -> "NAY"
-       in find_main program
+       in print_endline (find_main program)
