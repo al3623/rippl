@@ -78,13 +78,14 @@ let rec find_main prog =
             )
             | [] -> "NAY"
 
+let rec parse dec =
+    	match dec with
+        	| [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
+        	| h::t -> (parse [h]) ^ parse t  
+        	| [] -> ""
+
 let _ =
     let lexbuf = Lexing.from_channel stdin in
     let decl = Parser.program Scanner.token lexbuf in
-    let ast_str =
-    	match decl with
-        	| [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
-        	| h::t -> "not implemented"
-        	| [] -> "not implemented"
-    in let result = find_main decl 
-	in print_endline (ast_str ^ result)
+    let ast_str = parse decl in let result = find_main decl in
+        print_endline (ast_str ^ result)
