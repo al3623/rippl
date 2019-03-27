@@ -2,10 +2,7 @@ open Ast
 open Scanner
 open Parser
 
-let _ =
-        let lexbuf = Lexing.from_channel stdin in
-        let program = Parser.program Scanner.token lexbuf in
-        let rec find_main prog =
+let rec find_main prog =
         match prog with
             | x :: xs -> (
                 match x with 
@@ -14,4 +11,3 @@ let _ =
                             find_main xs
             )
             | [] -> "NAY"
-       in print_endline (find_main program)
