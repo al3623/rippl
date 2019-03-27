@@ -2,6 +2,9 @@
 
 NOTES: Current parsing only supports desugared syntax (no proper function definitions; only lambdas)
 
+Questions for Ryan:
+ - associativity of the application operator
+
 Parsing Updates:
  - make test script read in entire file to test (not line by line)
  - make epilogue process multiple vdefs/annotations in a row
