@@ -4,6 +4,7 @@ NOTES: Current parsing only supports desugared syntax (no proper function defini
 
 Parsing Updates:
  - make test script read in entire file to test (not line by line)
+ - make epilogue process multiple vdefs/annotations in a row
 
 Compiler passes:
   * Semantic checks
