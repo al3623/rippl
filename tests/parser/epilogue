@@ -86,4 +86,4 @@ let _ =
         	| h::t -> "not implemented"
         	| [] -> "not implemented"
     in let result = find_main decl 
-	in print_endline ast_str ^ result
+	in print_endline (ast_str ^ result)
