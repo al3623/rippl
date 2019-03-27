@@ -64,6 +64,7 @@ let rec ast_to_str exp =
     | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
+    | WildCard -> "_"
     | _ -> ""
 
 

@@ -32,6 +32,7 @@
             | RARROW -> next ("RARROW" :: l)
             | LRANGE -> next("LRANGE" :: l)
             | DOUBLECOL -> next ("DOUBLECOL" :: l)
+            | WILDCARD -> next ("WILDCARD" :: l)
             (* num literals *) 
             | INTLIT i -> next ("INT" :: l)
             | FLOATLIT f -> next ("FLOAT" :: l)

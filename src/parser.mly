@@ -11,7 +11,7 @@
 %}
 
 %token EOF LET IN IF THEN ELSE OVER FUN LBRACK RBRACK LPAREN RPAREN COMMA
-%token LRANGE RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
+%token LRANGE WILDCARD RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
 %token DIVIDEF TIMESF POWF OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER 
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
@@ -79,6 +79,7 @@ expr:
     /* | expr expr                { App($1,$2) } */
     | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
+    | WILDCARD                    { WildCard }
     
     | lists                         { $1 }
 
