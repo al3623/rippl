@@ -75,4 +75,14 @@ let _ =
         | [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
         | h::t -> "not implemented"
         | [] -> "not implemented"
-    in print_endline ast_str
+        in let rec find_main prog =
+        match prog with
+            | x :: xs -> (
+                match x with 
+                    | Annot(_,_) -> find_main xs 
+                    | Vdef(ident,_) -> if ident = "main" then "YAY" else
+                            find_main xs
+            )
+            | [] -> "NAY"
+	in let result = find_main decl 
+	in print_endline ast_str ^ result
