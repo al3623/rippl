@@ -18,7 +18,6 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
-            | "main"		{ MAIN }
             | "maybe"           { MAYBE }
             | "just"            { JUST }
             | "none"            { NONE }
