@@ -1,3 +1,3 @@
 open Ast
 
-let rec infer_type _ = Tforall ("a", Tvar "a")
+let rec infer_type _ = Tforall (["a"], Tvar "a")

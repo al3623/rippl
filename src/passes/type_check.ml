@@ -27,7 +27,7 @@ let rec subtype = function
             | _ -> false)
     (* Tforalls *)
     | Tforall ([var1], (Tvar _)) -> (function | _ -> true)
-    | Tforall ([], ty) -> (function | ty' -> 
+    | Tforall ([], ty) -> (function | ty' -> true)
     (* We shouldn't see Tvars in a top-level annot? *)
 
 (* Assuming identifiers are the same *)

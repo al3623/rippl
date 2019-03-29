@@ -29,7 +29,7 @@ and ty = Int | Bool | Float | Char
     | Tarrow of (ty * ty)
     | TconList of ty
     | TconTuple of (ty * ty)
-    | Tforall of ([string], ty)
+    | Tforall of ((string list) * ty)
     | Tmaybe of ty
 
 type program = decl list

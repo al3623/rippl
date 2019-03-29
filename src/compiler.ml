@@ -2,6 +2,7 @@ open Ast
 open Scanner
 open Parser
 open Check_main
+open Type_check
 
 let _ =
         let lexbuf = Lexing.from_channel stdin in
