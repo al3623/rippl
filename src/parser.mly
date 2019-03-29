@@ -64,7 +64,7 @@ ty:
     | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
     | MAYBE ty                      { Tmaybe($2) }
     | IDENT                         { Tvar($1) }
-    | ty RARROW ty                  { Arrow($1,$3) }
+    | ty RARROW ty                  { Tarrow($1,$3) }
 
 annotation:
     | IDENT DOUBLECOL ty            { Annot($1,$3) }

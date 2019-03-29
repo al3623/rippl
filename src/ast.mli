@@ -26,10 +26,10 @@ type decl =
     | Vdef of (string * expr)
 and ty = Int | Bool | Float | Char
     | Tvar of string
-    | Arrow of (ty * ty)
+    | Tarrow of (ty * ty)
     | TconList of ty
     | TconTuple of (ty * ty)
-    | Tforall of ty
+    | Tforall of ([string], ty)
     | Tmaybe of ty
 
 type program = decl list
