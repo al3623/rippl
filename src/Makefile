@@ -1,5 +1,5 @@
 compiler.native: compiler.ml
-	ocamlbuild -I passes compiler.native
+	ocamlbuild -Is passes,utils compiler.native
 
 parser.native: parser.mly ast.mli scanner.mll
 	ocamlbuild parser.native
