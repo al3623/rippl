@@ -101,6 +101,37 @@ let rec find_main prog =
             )
             | [] -> "NAY"
 
+
+let rec check_lists prog =
+        match prog with 
+            | x :: xs -> ( match x with
+                    | Vdef(ident, expr) -> (
+                        match expr with (* I'm not exactly sure if 
+                        this is the right way to find the list comprehension
+                        within the program... Do I have to check every
+                        possible construct that could contain an expr?*)
+                            | ListComp(expr, clist) -> (
+                                match expr with (*where do I go from here? how do I check clist???*)
+                                | App(App(Add, _), _) -> "GOOD COMP"
+                                | App(App(Sub, _), _) -> "GOOD COMP"
+                                | App(App(Mult, _), _) -> "GOOD COMP"
+                                | App(App(Div, _), _) -> "GOOD COMP"       
+                                | App(App(Mod, _), _) -> "GOOD COMP"
+                                | App(App(Pow, _), _) -> "GOOD COMP"
+                                | App(App(AddF, _), _) -> "GOOD COMP"
+                                | App(App(SubF, _), _) -> "GOOD COMP" 
+                                | App(App(MultF, _), _) -> "GOOD COMP" 
+                                | App(App(DivF, _), _) -> "GOOD COMP" 
+                                | App(App(PowF, _), _) -> "GOOD COMP" 
+                                | App(App(Neg, _), _) -> "GOOD COMP" 
+                                | _ -> "BAD COMP"
+                            )
+                            | _ -> check_lists xs
+                        )
+                    | Annot(_,_) -> check_lists xs
+            )
+            | []-> ""
+
 let rec parse prog =
     	match prog with
                 | [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
@@ -112,4 +143,5 @@ let _ =
     let lexbuf = Lexing.from_channel stdin in
     let prog = Parser.program Scanner.token lexbuf in
     let ast_str = parse prog in let result = find_main prog in
-        print_endline (ast_str ^ result)
+    let list_result = check_lists prog in
+        print_endline (ast_str ^ result ^ list_result)
