@@ -56,17 +56,40 @@ let rec ast_to_str exp =
     | App(op, e) -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
     | Var(s) -> "Var(" ^ s ^ ")"
 
-    (* Lists skipped for now *)
+    (* Lists *)
+    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
+    | ListRange(e1, e2) -> "ListRange(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | InfList(e) -> "InfList" ^ (ast_to_str e)
+    | ListComp(e, c) -> "ListComp(" ^ (ast_to_str e) ^ "," ^ (clauses_to_str c)
 
     | Assign(e1, e2) -> "Assign(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
-    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
-    | WildCard -> "_"
+    
+    | WildCard -> "WildCard"
     | _ -> ""
 
+and clauses_to_str clauses =
+   match clauses with
+   | [Filter(e)] -> "Filter(" ^ (ast_to_str e)
+   | [ListVBind(e, l)] -> "ListVBind(" ^ (ast_to_str e) ^ "," ^ (ast_to_str l) ^ ")"
+   | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
+   | [] -> ""
+
+let rec ty_to_str ty =
+    match ty with
+    | Bool -> "Bool"
+    | Int -> "Int"
+    | Char -> "Char"
+    | Float -> "Float"
+    | TconList(t) -> "TconList(" ^ (ty_to_str t) ^ ")"
+    | TconTuple(t1,t2) -> "TconTuple(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
+    | Tvar(t) -> t
+    | Arrow(t1,t2) -> "Arrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tforall(t) -> "Tforall(" ^ (ty_to_str t) ^ ")" 
 
 let rec find_main prog =
         match prog with
@@ -78,14 +101,15 @@ let rec find_main prog =
             )
             | [] -> "NAY"
 
-let rec parse dec =
-    	match dec with
-        	| [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
+let rec parse prog =
+    	match prog with
+                | [Vdef(s, expr)] -> s ^ " = " ^ (ast_to_str expr)
+                | [Annot(ident, ty)] -> ident ^ " :: " ^ (ty_to_str ty) 
         	| h::t -> (parse [h]) ^ parse t  
         	| [] -> ""
 
 let _ =
     let lexbuf = Lexing.from_channel stdin in
-    let decl = Parser.program Scanner.token lexbuf in
-    let ast_str = parse decl in let result = find_main decl in
+    let prog = Parser.program Scanner.token lexbuf in
+    let ast_str = parse prog in let result = find_main prog in
         print_endline (ast_str ^ result)
