@@ -1,5 +1,5 @@
 compiler.native: compiler.ml
-	ocamlbuild -Is passes,utils compiler.native
+	ocamlbuild -use-ocamlfind -Is passes,utils compiler.native -pkgs llvm,llvm.analysis
 
 parser.native: parser.mly ast.mli scanner.mll
 	ocamlbuild parser.native
