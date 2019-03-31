@@ -14,7 +14,7 @@ Hans Montero (Prime Minister)
 
 - ocaml 4.01.0
 - opam 2.0.3
-- llvm 8.0.0
+- llvm 8.0.0 (installed with opam and on machine using brew/apt/..)
 
 **Features**
 1. Hello World!
