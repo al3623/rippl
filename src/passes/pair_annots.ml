@@ -12,7 +12,7 @@ let rec pair_helper decs last_annot annot =
 		| false -> pair_helper (List.tl decs) true (name, tname))
 	| Vdef(vname, vexpr) -> (match last_annot with
 		| true -> 
-			if String.equal vname (fst annot) then 
+			if vname = (fst annot) then 
 				(Annot(fst annot, snd annot), Vdef(vname, vexpr)) :: pair_helper (List.tl decs) false annot
 			else raise (Failure "mismatched identifier name in annotation and declaration")
 		| false -> 
