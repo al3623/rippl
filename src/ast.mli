@@ -6,13 +6,12 @@ type expr =
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
     | Less | LessF | Greater | GreaterF
     | And | Or | Not 
-    | Cons | Cat | Len | Head | Tai
+    | Cons | Cat | Len | Head | Tail
     | Var of string
-    | Let of (expr * expr)
+    | Let of (assign * expr)
     | Lambda of (expr * expr)
     | App of (expr * expr)
     | Ite of (expr * expr * expr)
-    | Assign of (expr * expr)
 	| ListComp of (expr * clause list)
 	| ListRange of (expr * expr)
 	| InfList of expr
@@ -20,6 +19,7 @@ type expr =
 and clause = 
 	| ListVBind of (expr * expr)
 	| Filter of expr
+and assign = Assign of (expr * expr)
 
 type decl =
     | Annot of (string * ty)
@@ -32,4 +32,4 @@ and ty = Int | Bool | Float | Char
     | Tforall of ((string list) * ty)
     | Tmaybe of ty
 
-
+type program = decl list

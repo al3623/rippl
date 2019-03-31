@@ -50,7 +50,7 @@ let char_list_to_str cl =
 let rec ast_to_str exp =
     match exp with
     | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
-    | Let(e1,e2) -> "Let(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | Lambda(e1,e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | App( App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
     | App(op, e) -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
@@ -62,7 +62,6 @@ let rec ast_to_str exp =
     | InfList(e) -> "InfList" ^ (ast_to_str e)
     | ListComp(e, c) -> "ListComp(" ^ (ast_to_str e) ^ "," ^ (clauses_to_str c)
 
-    | Assign(e1, e2) -> "Assign(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
     | IntLit n -> string_of_int n
@@ -70,6 +69,9 @@ let rec ast_to_str exp =
     
     | WildCard -> "WildCard"
     | _ -> ""
+
+and assign_to_str = function | Assign (e1,e2)
+	-> (ast_to_str e1) ^ "=" ^ (ast_to_str e2)
 
 and clauses_to_str clauses =
    match clauses with
