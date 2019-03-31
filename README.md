@@ -1,20 +1,41 @@
-# rippl
+# rippl beta 6.9.420
 
-NOTES: Current parsing only supports desugared syntax (no proper function definitions; only lambdas)
+Recursively Inferred Pure functional Programming Language
 
-Parsing Updates: @Da
- - make test script read in entire file to test (not line by line)
- - make epilogue process multiple vdefs/annotations in a row
- - make more parsing test cases
+Da Hua Chen (Riddler)
 
-Compiler passes:
-  * Semantic checks
-    - check that clauses in list comprehensions make sense @Hollis
-    - type checking @Amanda
-    - check that there are no type annotations for non-declared vdefs @Hans
-    - ~check that there is a "main" vdef present~
-  * AST transformations
-    - closures of lambdas (no unbound variables)
-    - lambda lifting (no more anonymous functions)
-    - lift local function definitions to global definitions
-    - type inference
+Hollis Lehv (Gallblader)
+
+Amanda Liu (Language Yoda)
+
+Hans Montero (Prime Minister)
+
+**Requirements**
+
+- ocaml 4.01.0
+- opam 2.0.3
+- llvm 8.0.0
+
+**Features**
+1. Hello World!
+
+   Here is how to make your own hello world program, written in Rippl :^)
+   
+   First, make a file called `hello.rpl` and write the following code:
+   ```
+   main = fun _ -> "Your cool string here!"
+   ```
+   Then, build the Rippl compiler in `/src` by simply running `make`.
+   Now run your first ever Rippl program!!!
+   ```
+   cat some/path/hello.rpl | ./compiler.native 
+   ```
+2. A bunch of other stuff
+
+   Coming soon...
+
+
+
+
+
+
