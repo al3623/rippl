@@ -6,7 +6,7 @@ type expr =
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
     | Less | LessF | Greater | GreaterF
     | And | Or | Not 
-    | Cons | Cat | Len | Head | Tail
+    | Cons | Cat | Len | Head | Tai
     | Var of string
     | Let of (expr * expr)
     | Lambda of (expr * expr)
@@ -32,6 +32,4 @@ and ty = Int | Bool | Float | Char
     | Tforall of ((string list) * ty)
     | Tmaybe of ty
 
-type program = decl list
 
-type ty_expr = TyExpr of (ty * expr)

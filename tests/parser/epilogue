@@ -88,9 +88,9 @@ let rec ty_to_str ty =
     | TconTuple(t1,t2) -> "TconTuple(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
     | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
-    | Arrow(t1,t2) -> "Arrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tforall(t) -> "Tforall(" ^ (ty_to_str t) ^ ")" 
+    | Tarrow(t1,t2) -> "Arrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
 
+   (* | Tforall(t) -> "Tforall(" ^ (ty_to_str t) ^ ")" *)
 let rec find_main prog =
         match prog with
             | x :: xs -> (
