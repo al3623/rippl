@@ -1,4 +1,4 @@
-compiler.native: compiler.ml
+compiler.native: compiler.ml codegen.ml
 	ocamlbuild -use-ocamlfind -Is passes,utils compiler.native -pkgs llvm,llvm.analysis
 
 parser.native: parser.mly ast.mli scanner.mll
