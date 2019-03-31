@@ -1,3 +1,5 @@
+type ty_expr = TyExpr of (ty * expr)
+
 type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
     | CharLit of char | WildCard
