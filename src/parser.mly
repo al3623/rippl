@@ -145,8 +145,9 @@ lists:
 	| LBRACK list_comp RBRACK { $2 }
 
 prim_list:
+    | 						{ [] }
     | expr                  { [$1] }
-    | prim_list COMMA expr  { $3 :: $1 }
+    | expr COMMA prim_list  { $1 :: $3 }
 
 list_range:
 	| expr LRANGE expr 		{ ListRange($1,$3) }
@@ -159,7 +160,7 @@ list_comp:
 
 clauses:
 	| clause				{ [$1] }
-	| clauses COMMA clause	{ $3 :: $1 }
+	| clause COMMA clauses	{ $1 :: $3 }
 
 clause:
     | expr { Filter($1) } /*boolean filter for list comp*/
