@@ -1,5 +1,6 @@
 module L = Llvm
 open Ast
+open Tast
 
 let translate decl_lst =
 	let context = L.global_context() in
@@ -20,7 +21,7 @@ let translate decl_lst =
 
   	
   	let print_main vd = match vd with
-  		| (Vdef ("main", Lambda(WildCard, ListLit(clist)))) -> 
+  		| (_, (TypedVdef ("main", (TListLit(clist),ty) ))) -> 
   			let printf_t : L.lltype = 
 		      L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
 			let printf_func : L.llvalue = 
@@ -30,14 +31,16 @@ let translate decl_lst =
 		    let builder = L.builder_at_end context (L.entry_block main_f) in
 		    let char_format_str = L.build_global_stringptr "%c" "fmt" builder in
 		    	let rec print_string str b = (match str with
-			  		| CharLit(c) :: xs -> 
+			  		| (TCharLit(c),char_ty) :: xs -> 
 			  			let l_char = L.const_int i8_t (Char.code c) in
-			  			let _ = L.build_call printf_func [| char_format_str ; l_char |] "printf" builder in
+			  			let _ = L.build_call printf_func [| char_format_str 
+						; l_char |] "printf" builder in
 			  			print_string xs b
 
 			  		| _ ->
 			  			let l_char = L.const_int i8_t (Char.code '\n') in
-			  			L.build_call printf_func [| char_format_str ; l_char |] "printf" builder) 
+			  			L.build_call printf_func [| char_format_str ; l_char |] "
+						printf" builder) 
 		    	in
 			let _ = print_string clist builder in
 		    L.build_ret (L.const_int i32_t 0) builder

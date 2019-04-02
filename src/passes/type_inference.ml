@@ -1,6 +1,7 @@
 open Ast
 open Tast
 
+
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
 let collect_tvar =
@@ -23,20 +24,28 @@ let simple_generalize ty =
 
 (* Takes an AST and returns a TAST (typed AST) *)
 let rec infer_type = function
-    | IntLit i -> ((IntLit i), Int)
-    | FloatLit f -> ((FloatLit f),Float)
-    | CharLit c -> ((CharLit c),Char)
-    | BoolLit b -> ((BoolLit b),Bool)
+    | IntLit i -> (TIntLit i, Int)
+    | FloatLit f -> (TFloatLit f,Float)
+    | CharLit c -> (TCharLit c,Char)
+    | BoolLit b -> (TBoolLit b,Bool)
     | ListLit l -> ( match l with
-        (* TODO: check type of the entire list later *)
-        | x::xs -> let (_,ty) = infer_type x in
-            (List.map infer_type (x::xs), TconList ty)
-        | [] ->  ([], (Tvar "a")))
-(*    | Assign (e1,e2) -> ( match e1 with
-        | (Var v) -> let itype = infer_type e2
-            in Assign ()
-        (* Can only assign to a variable *)
-        | _ -> raise (Failure "not an lvalue for assignemnt")        
-    )*)
+        | x::xs -> let (texpr,typ) = infer_type x in
+            (TListLit (List.map infer_type (x::xs)), TconList typ)
+        | [] ->  (TListLit [], (Tvar "a")))
     | _ -> raise (Failure ":C")
 
+let catch_main = function
+	| (annot, Vdef (name, exp)) -> (if name = "main" 
+		then let new_expr = (match exp with
+		| Lambda (_,ret_expr) -> ret_expr
+		| _ -> exp) 
+		in (annot, (Vdef (name,new_expr)))
+		else (annot, Vdef (name,exp)))
+	| other -> other
+
+let rec type_paired_program = function
+	| (x::xs) -> let (annot, (Vdef (name,exp))) = catch_main x in
+		let (texpr, infty) = infer_type exp in
+		let tpair = (annot, (TypedVdef (name, (texpr,infty) ) ) ) in
+		tpair :: (type_paired_program xs)
+	| [] -> []
