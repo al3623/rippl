@@ -71,7 +71,7 @@ let rec ast_to_str exp =
     | _ -> ""
 
 and assign_to_str = function | Assign (e1,e2)
-	-> (ast_to_str e1) ^ "=" ^ (ast_to_str e2)
+	-> (e1) ^ "=" ^ (ast_to_str e2)
 
 and clauses_to_str clauses =
    match clauses with
