@@ -70,7 +70,7 @@ annotation:
     | IDENT DOUBLECOL ty            { Annot($1,$3) }
 
 assign:
-    | expr ASSIGN expr              { Assign($1, $3) }
+    | IDENT ASSIGN expr              { Assign($1, $3) }
 
 expr:
         
