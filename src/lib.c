@@ -238,6 +238,3 @@ void printPrim(void *data, int ty) {
 	}
 }
 
-int main() {
-	return 0;
-}
