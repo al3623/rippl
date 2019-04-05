@@ -16,7 +16,7 @@ let rec pair_helper decs last_annot annot =
 				(Annot(fst annot, snd annot), Vdef(vname, vexpr)) :: pair_helper (List.tl decs) false annot
 			else raise (Failure "mismatched identifier name in annotation and declaration")
 		| false -> 
-			let vapair = (Annot(vname, Tvar("t" ^ get_fresh)), Vdef(vname, vexpr)) in
+			let vapair = (Annot(vname, Tvar(get_fresh "t")), Vdef(vname, vexpr)) in
 			vapair :: pair_helper (List.tl decs) false annot)
 let pair_av prog = match prog with
 	| x :: xs -> pair_helper (x :: xs) false ("", Tvar(""))
