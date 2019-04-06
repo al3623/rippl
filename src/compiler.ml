@@ -13,7 +13,7 @@ open Printf
 let print_decl d = 
         match d with
         | Vdef(n, e) -> (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);*)
-                find_lambdas false e;
+                let _ = find_lambdas false e in ()
         | _ -> print_endline "annot"
 
 let _ =
