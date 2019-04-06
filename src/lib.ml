@@ -82,7 +82,7 @@ let _ =
 		; i32_t
 		; i32_t
 		; i32_t
-		; i32_t |]
+		; i32_t |] false
 
 (* HEAP ALLOCATE PRIMS *)
 let makeInt_t : L.lltype =
@@ -166,5 +166,5 @@ let printf_func : L.llvalue =
 
 let printAny_t : L.lltype =
 	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
-let printAny_t : L.llvalue =
+let printAny : L.llvalue =
 	L.declare_function "printAny" printAny_t the_module
