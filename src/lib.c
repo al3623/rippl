@@ -33,7 +33,8 @@ struct Node {
 };
 
 struct ListComp {
-	struct Node * node;
+	struct Node *head;
+	struct Node *last_eval;
 	int curr_index; 
 	int start;
 	int end;
@@ -57,8 +58,12 @@ char *makeChar(char x);
 float *makeFloat(float x);
 struct Node *makeNode(void *data);
 struct ListComp *makeInfinite(int start);
+struct ListComp *makeListRange(int start, int end);
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
 struct Maybe *makeMaybe(void *data, int ty);
+
+void explodeRangeList(void *list);
+void evalNextNode(void *list);
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -109,6 +114,22 @@ struct Maybe *makeMaybe(void *data, int ty) {
 	may->data = data;
 }
 
+struct ListComp *makeListRange(int start, int end) {
+	struct ListComp *list = malloc(sizeof(struct ListComp));
+	list->start = start;
+	list->end = end;
+	list->content_type = INT;
+	list->type = RANGE;
+	list->curr_index = start;
+
+	int *data = makeInt(start);
+	list->head = makeNode(data);
+
+	list->last_eval = list->head;
+
+	return list;
+}
+
 struct ListComp *makeInfinite(int start) {
 	struct ListComp *list = malloc(sizeof(struct ListComp));
 
@@ -116,12 +137,32 @@ struct ListComp *makeInfinite(int start) {
 	list->type = INFINITE;
 	list->start = start;
 	list->end = -1;
+	list->last_eval = 0;
 	list->curr_index = start;
 
 	int *data = makeInt(start);
-	list->node = makeNode(data);	
+	list->head = makeNode(data);	
 	
+	list->last_eval = list->head;
 	return list;
+}
+
+void explodeListRange(void *list) {
+	struct ListComp *llist = (struct ListComp *)list;
+	
+	while (llist->curr_index < llist->end) {
+		evalNextNode(list);
+	}
+}
+
+void evalNextNode(void *list) {
+	struct ListComp *llist = (struct ListComp *)list;
+	
+	llist->curr_index++;
+	int *data = makeInt(llist->curr_index);
+	struct Node *newNode = makeNode(data);
+	(llist->last_eval)->next = newNode;
+	llist->last_eval = newNode;
 }
 
 void printAny(void *thing, int ty) {
@@ -140,7 +181,7 @@ void printList(void *list) {
 	struct ListComp *llist = (struct ListComp*) list;
 
 	int type = llist->type;	
-	struct Node *curr = llist->node;		
+	struct Node *curr = llist->head;		
 	int content_type = llist->content_type;
 
 	if (type == RANGE) {
@@ -158,7 +199,7 @@ void printPrimList(void *list) {
 	struct ListComp *llist = (struct ListComp*) list;
 	
 	int ty = llist->content_type;
-	struct Node *curr = llist->node;
+	struct Node *curr = llist->head;
 
 	printf("[");
 	while (curr) {
@@ -175,7 +216,7 @@ void printInfinteList(void *list) {
 	struct ListComp *llist = (struct ListComp*) list;
 	
 	int ty = llist->content_type;
-	struct Node *head = llist->node;
+	struct Node *head = llist->head;
 
 	printf("[");
 	printAny(head->data, ty);
@@ -186,9 +227,12 @@ void printRangeList(void *list) {
 	struct ListComp *llist = (struct ListComp*) list;
 	
 	int ty = llist->content_type;
-	struct Node *head = llist->node;
+	struct Node *head = llist->head;
 
 	if (llist->curr_index == llist->end) {
+		printPrimList(list);
+	} else {
+		explodeListRange(list);
 		printPrimList(list);
 	}
 }
