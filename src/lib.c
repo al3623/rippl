@@ -59,7 +59,7 @@ float *makeFloat(float x);
 struct Node *makeNode(void *data);
 struct ListComp *makeEmptyList(int ty);
 struct ListComp *makeInfinite(int start);
-struct ListComp *makeListRange(int start, int end);
+struct ListComp *makeRangeList(int start, int end);
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
 struct Maybe *makeMaybe(void *data, int ty);
 
@@ -130,7 +130,7 @@ struct ListComp *makeEmptyList(int ty) {
 	return new;
 }
 
-struct ListComp *makeListRange(int start, int end) {
+struct ListComp *makeRangeList(int start, int end) {
 	struct ListComp *list = malloc(sizeof(struct ListComp));
 	list->start = start;
 	list->end = end;
@@ -163,7 +163,7 @@ struct ListComp *makeInfinite(int start) {
 	return list;
 }
 
-void explodeListRange(void *list) {
+void explodeRangeList(void *list) {
 	struct ListComp *llist = (struct ListComp *)list;
 	
 	while (llist->curr_index < llist->end) {
@@ -248,7 +248,7 @@ void printRangeList(void *list) {
 	if (llist->curr_index == llist->end) {
 		printPrimList(list);
 	} else {
-		explodeListRange(list);
+		explodeRangeList(list);
 		printPrimList(list);
 	}
 }
