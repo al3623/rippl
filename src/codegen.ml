@@ -57,9 +57,14 @@ let translate decl_lst =
 	let printf_func : L.llvalue = 
 	      L.declare_function "printf" printf_t the_module in
 
+	(*
+	let eval_main vd = match vd with
+  		| (_, (TypedVdef ("main", (TListLit(clist), TconList (Char) ) ))) -> 
+	*)
+		
 	(* find and execute/print main *)
   	let print_main vd = match vd with
-  		| (_, (TypedVdef ("main", (TListLit(clist),ty) ))) -> 
+  		| (_, (TypedVdef ("main", (TListLit(clist), TconList (Char) ) ))) -> 
   					    let main_t = L.function_type i32_t [| |] in
 		    let main_f = L.define_function "main" main_t the_module in
 		    let builder = L.builder_at_end context (L.entry_block main_f) in

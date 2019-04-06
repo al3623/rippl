@@ -57,6 +57,7 @@ char *makeBool(char x);
 char *makeChar(char x);
 float *makeFloat(float x);
 struct Node *makeNode(void *data);
+struct ListComp *makeEmptyList(int ty);
 struct ListComp *makeInfinite(int start);
 struct ListComp *makeListRange(int start, int end);
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
@@ -91,6 +92,7 @@ struct Node *makeNode(void *data) {
 	struct Node *new = malloc(sizeof(struct Node));
 	new->data = data;
 	new->next = NULL;
+	return new;
 }
 
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
@@ -112,6 +114,20 @@ struct Maybe *makeMaybe(void *data, int ty) {
 		may->is_none = 1;
 	}
 	may->data = data;
+	return may;
+}
+
+struct ListComp *makeEmptyList(int ty) {
+	struct ListComp *new = malloc(sizeof(struct ListComp));	
+
+	new->start = 0;
+	new->end = 0;
+	new->curr_index = -1;
+	new->last_eval = NULL;
+	new->type = LITLIST;
+	new->content_type = ty;
+
+	return new;
 }
 
 struct ListComp *makeListRange(int start, int end) {
