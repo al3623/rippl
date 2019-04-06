@@ -28,5 +28,8 @@ let _ = let read_full_file fname =
         let oc = open_out file in
 		fprintf oc "%s\n" ls;
         close_out oc;
-		Sys.command ("llc -relocation-model=pic " ^ file);
-		Sys.command ("gcc -o exe " ^ file ^ ".s lib.o")
+		if (Sys.command ("llc -relocation-model=pic " ^ file) != 0)
+			then raise (Failure "llc: non-zero exit code") 
+		else if (Sys.command ("gcc -o exe " ^ file ^ ".s lib.o") != 0)
+			then raise (Failure "gcc: non-zero exit code")
+		else ()
