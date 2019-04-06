@@ -32,10 +32,11 @@ and find_lambdas nested = function
     | Let(Assign(_, e10) ,e1) -> let _ = find_lambdas nested e10 in let _ = find_lambdas nested e1 in StringSet.empty
     | App(e2, e3) -> let _ = find_lambdas nested e2 in let _ =  find_lambdas nested e3 in StringSet.empty
     | Ite(e4, e5, e6) -> let _ = find_lambdas nested e4 in let _ =  find_lambdas nested e5 in let _ = find_lambdas nested e6 in StringSet.empty
-    | Lambda(Var(p2), e10) -> print_endline ("lambda name: anon" ^ "; param: " ^ p2 ^"; inner_vars[ ");
+    | Lambda(Var(p2), e10) -> if nested then 
+    	(print_endline ("lambda name: anon" ^ "; param: " ^ p2 ^"; closed variables[ ");
     	let vs3 = get_closure_vars e10 (StringSet.add p2 StringSet.empty) nested in
     	StringSet.iter (print_endline) vs3;
-		print_endline "]"; vs3
+		print_endline "]"; vs3) else StringSet.empty
     | _ -> print_endline ""; StringSet.empty
 
 
