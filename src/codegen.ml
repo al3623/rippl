@@ -26,7 +26,12 @@ let translate decl_lst =
 			let _ = print_string clist builder in
 		    L.build_ret (L.const_int i32_t 0) builder;
 		| (_, (TypedVdef ("main", (TListRange(start_end), TconList(Int))))) ->
-			let _ = makerangelist start_end "mainlist" in
+			let rangelist = makerangelist start_end "mainlist" in
+			let _ = L.build_call printRangeList [| rangelist |]
+				"printRangeList" builder in
+			let l_char = L.const_int i8_t (Char.code '\n') in
+			let _ =	L.build_call printf_func [| char_format_str ; l_char |]
+				"printf" builder in
 			L.build_ret (L.const_int i32_t 0) builder
   		| _ -> raise (Failure "NO")
     in 

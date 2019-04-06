@@ -219,9 +219,9 @@ void printPrimList(void *list) {
 
 	printf("[");
 	while (curr) {
-		printAny(curr->data, ty);
+		printAny(curr->data, ty);	
 		curr = curr->next;
-		if (curr->next) {
+		if (curr) {
 			printf(", ");
 		}
 	}	
@@ -244,6 +244,7 @@ void printRangeList(void *list) {
 	
 	int ty = llist->content_type;
 	struct Node *head = llist->head;
+	
 
 	if (llist->curr_index == llist->end) {
 		printPrimList(list);

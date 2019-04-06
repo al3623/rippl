@@ -160,9 +160,14 @@ let makerangelist start_end name = match start_end with
 
 (* PRINTING *)	
 let printf_t : L.lltype = 
-      L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
 let printf_func : L.llvalue = 
-      L.declare_function "printf" printf_t the_module 
+    L.declare_function "printf" printf_t the_module 
+
+let printRangeList_t : L.lltype =
+	L.function_type i32_t [| L.pointer_type struct_listcomp_type |]
+let printRangeList : L.llvalue =
+	L.declare_function "printRangeList" printRangeList_t the_module
 
 let printAny_t : L.lltype =
 	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
