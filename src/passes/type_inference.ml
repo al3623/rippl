@@ -34,18 +34,8 @@ let rec infer_type = function
         | [] ->  (TListLit [], (Tvar "a")))
     | _ -> raise (Failure ":C")
 
-let catch_main = function
-	| (annot, Vdef (name, exp)) -> (if name = "main" 
-		then let new_expr = (match exp with
-		| Lambda (_,ret_expr) -> ret_expr
-		| _ -> exp) 
-		in (annot, (Vdef (name,new_expr)))
-		else (annot, Vdef (name,exp)))
-	| other -> other
-
 let rec type_paired_program = function
-	| (x::xs) -> let (annot, (Vdef (name,exp))) = catch_main x in
-		let (texpr, infty) = infer_type exp in
+	| ((annot, (Vdef (name,exp)))::xs) -> let (texpr, infty) = infer_type exp in
 		let tpair = (annot, (TypedVdef (name, (texpr,infty) ) ) ) in
 		tpair :: (type_paired_program xs)
 	| [] -> []

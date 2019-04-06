@@ -1,5 +1,18 @@
 open Ast
 
+let rec ty_to_str ty =
+    match ty with
+    | Bool -> "Bool"
+    | Int -> "Int"
+    | Char -> "Char"
+    | Float -> "Float"
+    | TconList(t) -> "TconList(" ^ (ty_to_str t) ^ ")"
+    | TconTuple(t1,t2) -> "TconTuple(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
+    | Tvar(t) -> t
+    | Tarrow(t1,t2) -> "Tarrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tforall(t) -> "Tforall"
+
 let op_to_str s =
     match s with
     (* Boolean Operators *)
@@ -36,6 +49,7 @@ let op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
+    | Var(sv) -> sv
     | _ -> "other"
 
 let char_list_to_str cl =
@@ -52,8 +66,8 @@ let rec ast_to_str exp =
     | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | Lambda(e1,e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | App( App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
-    | App(op, e) -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
+    | App(App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
+    | App(op, e) ->  "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
     | Var(s) -> "Var(" ^ s ^ ")"
 
     (* Lists *)
@@ -79,19 +93,6 @@ and clauses_to_str clauses =
    | [ListVBind(e, l)] -> "ListVBind(" ^ (ast_to_str e) ^ "," ^ (ast_to_str l) ^ ")"
    | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
    | [] -> ""
-
- let rec ty_to_str ty =
-    match ty with
-    | Bool -> "Bool"
-    | Int -> "Int"
-    | Char -> "Char"
-    | Float -> "Float"
-    | TconList(t) -> "TconList(" ^ (ty_to_str t) ^ ")"
-    | TconTuple(t1,t2) -> "TconTuple(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
-    | Tvar(t) -> t
-    | Tarrow(t1,t2) -> "Tarrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tforall(t) -> "Tforall"
 
 let rec print_annot_pairs lst = match lst with
 	| (Annot(n1, t), Vdef(n2, e)) :: tl ->
