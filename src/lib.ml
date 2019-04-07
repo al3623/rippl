@@ -27,7 +27,7 @@ let main_f = L.define_function "main" main_t the_module
 let builder = L.builder_at_end context (L.entry_block main_f)
 
 let char_format_str = L.build_global_stringptr "%c" "fmt" builder
-
+let l_char = L.const_int i8_t (Char.code '\n')
 (* 
 	struct Node {
 		void *data;
@@ -158,6 +158,12 @@ let makerangelist start_end name = match start_end with
 		name builder
 	| _ -> raise (Failure "type error in range list")
 
+let makeEmptyList_t : L.lltype =
+	L.function_type (L.pointer_type struct_listcomp_type)
+	[|  i32_t |] 
+let makeEmptyList : L.llvalue =
+	L.declare_function "makeEmptyList" makeEmptyList_t the_module
+
 (* PRINTING *)	
 let printf_t : L.lltype = 
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
@@ -168,6 +174,11 @@ let printRangeList_t : L.lltype =
 	L.function_type i32_t [| L.pointer_type struct_listcomp_type |]
 let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
+
+let printPrimList_t : L.lltype =
+	L.function_type i32_t [| L.pointer_type struct_listcomp_type |]
+let printPrimList : L.llvalue =
+	L.declare_function "printPrimList" printPrimList_t the_module
 
 let printAny_t : L.lltype =
 	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
