@@ -53,8 +53,8 @@ void printInfinteList(void *list);
 void printCompList(void *list);
 
 int *makeInt(int x);
-char *makeBool(char x);
-char *makeChar(char x);
+void *makeBool(char x);
+void *makeChar(char x);
 float *makeFloat(float x);
 struct Node *makeNode(void *data);
 struct ListComp *makeEmptyList(int ty);
@@ -65,6 +65,7 @@ struct Maybe *makeMaybe(void *data, int ty);
 
 void explodeRangeList(void *list);
 void evalNextNode(void *list);
+struct ListComp *appendNode(struct ListComp *list, struct Node *node);
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -72,11 +73,11 @@ int *makeInt(int x) {
 	return i;
 }
 
-char *makeBool(char x) {
+void *makeBool(char x) {
 	return makeChar(x);
 }	
 
-char *makeChar(char x) {
+void *makeChar(char x) {
 	char *b = malloc(1);
 	*b = x;
 	return b;
@@ -181,6 +182,17 @@ void evalNextNode(void *list) {
 	llist->last_eval = newNode;
 }
 
+struct ListComp *appendNode(struct ListComp *list, struct Node *node) {
+	if (!(list->head)) {
+		list->head = node;
+		list->last_eval = node;
+	} else {
+		(list->last_eval)->next = node;
+		list->last_eval = node;
+	}
+	return list;
+}
+
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
@@ -217,15 +229,17 @@ void printPrimList(void *list) {
 	int ty = llist->content_type;
 	struct Node *curr = llist->head;
 
-	printf("[");
+	if (ty!= 2)
+		printf("[");
 	while (curr) {
 		printAny(curr->data, ty);	
 		curr = curr->next;
-		if (curr) {
+		if (curr && ty != 2) {
 			printf(", ");
 		}
 	}	
-	printf("]");
+	if (ty != 2)
+		printf("]");
 }
 
 void printInfinteList(void *list) {

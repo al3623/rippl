@@ -164,6 +164,12 @@ let makeEmptyList_t : L.lltype =
 let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
 
+let appendNode_t : L.lltype =
+	L.function_type (L.pointer_type struct_listcomp_type)
+	[| L.pointer_type struct_listcomp_type ; L.pointer_type struct_node_type |]
+let appendNode : L.llvalue =
+	L.declare_function "appendNode" appendNode_t the_module
+
 (* PRINTING *)	
 let printf_t : L.lltype = 
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
