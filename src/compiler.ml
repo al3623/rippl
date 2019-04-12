@@ -9,20 +9,29 @@ open Lift_lambdas
 open Check_lists
 open Codegen
 open Printf
+open Type_inference
+(*open Pretty_tast_print*)
 
 let print_decl d = 
         match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
-                let (_, e_named_lambdas) = find_lambdas false e in ();
-                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e_named_lambdas);
-                let _ =Lift_lambdas.print_map() in ()
+                (*let (_, e_named_lambdas) = find_lambdas false e in ();*)
+                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e_named_lambdas);*)
+                (*let _ =Lift_lambdas.print_map() in ()*)
 
         | _ -> print_endline "annot"
+
+let print_tdecl td = 
+    match td with
+    | (x, _) -> print_decl x
+    | _ -> print_endline "no"
+
 
 let _ =
         let lexbuf = Lexing.from_channel stdin in
         let program = Parser.program Scanner.token lexbuf in
-        let m_program = Lift_lambdas.transform_main program in
+        let pair_program = Pair_annots.pair_av program in
+        let pair_tprogram = Type_inference.type_paired_program pair_program in
         (*let m = Codegen.translate program in
         Llvm_analysis.assert_valid_module m;
         let ls = Llvm.string_of_llmodule m in*)
@@ -31,4 +40,4 @@ let _ =
         fprintf oc "%s\n" ls; 
         close_out oc;
         Sys.command ("cat " ^ file ^ " | lli")*)
-        List.iter print_decl m_program;
+        List.iter print_tdecl pair_tprogram;
