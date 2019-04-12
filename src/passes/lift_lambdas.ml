@@ -27,7 +27,7 @@ let rec get_closure_vars exp scope nested= match exp with
 		| Let(Assign(nl2 ,Lambda(Var(p), def_expr)), WildCard) -> Let(Assign(nl2, Lambda(Var(p), def_expr)), rest_structure)
 		| _ -> WildCard) in
 
-		((StringSet.union il_scope rest_scope), complete_il_structure)
+		((StringSet.union (StringSet.diff il_scope scope) rest_scope), complete_il_structure)
 
 	| Let(Assign(na, e6), e1) -> 
 		let new_scope = (StringSet.add na scope) in 
@@ -50,7 +50,8 @@ let rec get_closure_vars exp scope nested= match exp with
 		(StringSet.union sc1 sc2, App(st1, st2))
 
 	| Lambda(e2, e3) -> 
-		find_lambdas nested exp
+		let (il_scope, il_structure) = find_lambdas nested exp in
+		((StringSet.diff il_scope scope), il_structure)
 
 	| other -> (StringSet.empty, other)
 
