@@ -1,0 +1,13 @@
+main =
+	let a = 5 in
+	let b = 5 in
+	let c = 5 in
+	let f1 = fun x ->
+		let d = x + a in
+		let f2 = fun y ->
+			let e = d + b + y in
+			let f3 = fun z -> z + c in
+			f3.a in
+		let f = d + b in 
+		f2.f in
+	f1.10
