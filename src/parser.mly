@@ -25,8 +25,8 @@
 %token <string> IDENT
 
 %left IN
-%left APP
 %left RARROW
+%left APP
 %left MAYBE
 %left ELSE
 
