@@ -1,6 +1,51 @@
 open Ast
 open Tast
 
+module SS = Set.Make(String);;
+module SMap = Map.Make(String);;
+
+module SubstMap = Map.Make(String);;
+
+(* mappings from term variables to tforall *)
+module TyEnvMap = Map.Make(String);;
+
+
+
+(* returns a set of free type variables *)
+let rec ftv = function
+    | Tvar(n) -> SS.add n SS.empty
+    | Int -> SS.empty
+    | Bool -> SS.empty
+    | Float -> SS.empty
+    | Char -> SS.empty
+    | Tarrow (t1, t2) -> SS.union (ftv t1) (ftv t2)
+    | TconList (t) -> ftv t
+    | TconTuple (t1, t2) -> SS.union (ftv t1) (ftv t2)
+    | Tforall (stlst, t) -> SS.diff (ftv t) (SS.of_list stlst)
+    | Tmaybe (t) -> ftv t
+
+let rec apply s = function
+    | Tvar(n) -> (match SubstMap.find_opt n s with
+        | Some t -> t
+        | None -> Tvar(n)
+    )
+    | Tarrow (t1, t2) -> Tarrow ( apply  s t2, apply s t2 )
+    | TconList (t) -> TconList (apply s t)
+    | TconTuple (t1, t2) -> TconTuple (apply s t1, apply s t2)
+    | Tforall (stlst, t) -> Tforall (stlst, apply (List.fold_right SubstMap.remove stlst s) t)
+    | Tmaybe(t) -> Tmaybe(apply s t) 
+    | t -> t 
+
+let collision key e1 e2 = Some e1
+
+let nullSubst : ty SubstMap.t = SubstMap.empty
+
+let composeSubst (s1 : ty SubstMap.t) (s2 : ty SubstMap.t) = 
+    SubstMap.union collision (SubstMap.map (apply s1) s2) s1
+
+
+
+
 
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
@@ -32,10 +77,12 @@ let rec infer_type = function
         | x::xs -> let (texpr,typ) = infer_type x in
             (TListLit (List.map infer_type (x::xs)), TconList typ)
         | [] ->  (TListLit [], (Tvar "a")))
-    | _ -> raise (Failure ":C")
+    | Lambda( e1, e2) -> infer_type e2 
+    | _ -> raise (Failure "not yet implemented in type inference")
 
 let rec type_paired_program = function
 	| ((annot, (Vdef (name,exp)))::xs) -> let (texpr, infty) = infer_type exp in
 		let tpair = (annot, (TypedVdef (name, (texpr,infty) ) ) ) in
 		tpair :: (type_paired_program xs)
+        | ((_, Annot _) :: _) -> raise(Failure("no"))
 	| [] -> []

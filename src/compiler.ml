@@ -1,4 +1,5 @@
 open Ast
+open Tast
 open Scanner
 open Parser
 open Check_main
@@ -23,8 +24,7 @@ let print_decl d =
 
 let print_tdecl td = 
     match td with
-    | (x, _) -> print_decl x
-    | _ -> print_endline "no"
+    | (annot, tvd) -> print_endline ( Pretty_tast_print.tast_to_str tvd)
 
 
 let _ =
