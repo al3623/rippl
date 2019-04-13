@@ -43,6 +43,24 @@ let nullSubst : ty SubstMap.t = SubstMap.empty
 let composeSubst (s1 : ty SubstMap.t) (s2 : ty SubstMap.t) = 
     SubstMap.union collision (SubstMap.map (apply s1) s2) s1
 
+(* removes element from typing environment *)
+let remove (env : ty SubstMap.t) var =
+    TyEnvMap.remove var env
+
+let getElem = function
+    | (key, a) -> a
+
+let getElems mp = List.map getElem (TyEnvMap.bindings mp)
+
+
+
+(* get elements of the map (not the keys), and map ftv over them then make a new set with those ftvs*)
+let ftvenv env = (List.fold_right ( SS.union ) (List.map ftv (getElems env)) SS.empty )
+
+let applyenv subst env = (TyEnvMap.map (apply subst) env)
+
+let generalize env t = 
+    let vars = SS.elements (SS.diff (ftv t) (ftvenv env)) in Tforall(vars, t)
 
 
 
