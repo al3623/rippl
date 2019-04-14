@@ -47,6 +47,7 @@ struct List {
 	void *(*expr)(void *,...);	// expression for each element
 	struct List *listvbinds;	// lists the comprehension is over
 	struct Node *indexes;		// curr index in each sublist for vbindings
+	int (**filt)(void *,...);	// boolean filters for vbind values to accept
 };
 
 void printPrim(void *data, int ty);

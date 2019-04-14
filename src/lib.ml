@@ -88,6 +88,10 @@ let _ =
 			[| L.pointer_type i8_t |])		(* void *(expr* )(void *,...) *)
 		; L.pointer_type struct_list_type	(* lists vbinds are over *)
 		; L.pointer_type struct_node_type 	(* index in each list for vbinds *)
+		; L.pointer_type
+			(L.pointer_type (L.var_arg_function_type
+			i32_t
+			[| L.pointer_type i8_t |]))		(* int ( **filt)(void *,...) *)
 	|] false
 
 (* HEAP ALLOCATE PRIMS *)
