@@ -76,13 +76,19 @@ let _ =
 	L.struct_set_body struct_node_type 
 	[| L.pointer_type i8_t ; L.pointer_type struct_node_type |] false;
 	L.struct_set_body struct_list_type
-	[| L.pointer_type struct_node_type 
-		; L.pointer_type struct_node_type 
-		; i32_t
-		; i32_t
-		; i32_t
-		; i32_t
-		; i32_t |] false
+	[| L.pointer_type struct_node_type		(* struct Node *head *) 
+		; i32_t								(* int content_type *) 
+		; i32_t								(* int type *)
+		; L.pointer_type struct_node_type	(* struct Node *last_eval *)
+		; i32_t								(* int curr_index *)
+		; i32_t								(* int start *)
+		; i32_t								(* int end *)
+		; L.pointer_type (L.var_arg_function_type
+			(L.pointer_type i8_t) 
+			[| L.pointer_type i8_t |])		(* void *(expr* )(void *,...) *)
+		; L.pointer_type struct_list_type	(* lists vbinds are over *)
+		; L.pointer_type struct_node_type 	(* index in each list for vbinds *)
+	|] false
 
 (* HEAP ALLOCATE PRIMS *)
 let makeInt_t : L.lltype =
