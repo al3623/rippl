@@ -56,7 +56,7 @@ let struct_tuple_type : L.lltype = L.named_struct_type context "Tuple"
 let struct_maybe_type : L.lltype = L.named_struct_type context "Maybe"
 
 (*
-	struct ListComp {
+	struct List {
 		struct Node *head;
 		struct Node *last_eval;
 		int curr_index;
@@ -66,7 +66,7 @@ let struct_maybe_type : L.lltype = L.named_struct_type context "Maybe"
 		int type;
 	}
 *)
-let struct_listcomp_type : L.lltype = L.named_struct_type context "ListComp"
+let struct_list_type : L.lltype = L.named_struct_type context "List"
 
 let _ =
 	L.struct_set_body struct_maybe_type
@@ -75,7 +75,7 @@ let _ =
 	[| i32_t ; i32_t ; L.pointer_type i8_t ; L.pointer_type i8_t |] false;
 	L.struct_set_body struct_node_type 
 	[| L.pointer_type i8_t ; L.pointer_type struct_node_type |] false;
-	L.struct_set_body struct_listcomp_type
+	L.struct_set_body struct_list_type
 	[| L.pointer_type struct_node_type 
 		; L.pointer_type struct_node_type 
 		; i32_t
@@ -125,7 +125,7 @@ let makeNode : L.llvalue =
 (* TODO: make node *)
 
 let makeEmptyList_t : L.lltype =
-	L.function_type (L.pointer_type struct_listcomp_type)
+	L.function_type (L.pointer_type struct_list_type)
 	[| i32_t |]
 let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
@@ -135,7 +135,7 @@ let makeemptylist ty name =
 	name builder
 
 let makeInfinite_t : L.lltype =
-	L.function_type (L.pointer_type struct_listcomp_type)
+	L.function_type (L.pointer_type struct_list_type)
 	[| i32_t |]
 let makeInfinite : L.llvalue =
 	L.declare_function "makeInfinite" makeInfinite_t the_module
@@ -147,7 +147,7 @@ let makeinfinite start name = match start with
 	| _ -> raise (Failure "type error in infinite list")
 
 let makeRangeList_t : L.lltype =
-	L.function_type (L.pointer_type struct_listcomp_type)
+	L.function_type (L.pointer_type struct_list_type)
 	[| i32_t ; i32_t |]
 let makeRangeList : L.llvalue =
 	L.declare_function "makeRangeList" makeRangeList_t the_module
@@ -159,14 +159,14 @@ let makerangelist start_end name = match start_end with
 	| _ -> raise (Failure "type error in range list")
 
 let makeEmptyList_t : L.lltype =
-	L.function_type (L.pointer_type struct_listcomp_type)
+	L.function_type (L.pointer_type struct_list_type)
 	[|  i32_t |] 
 let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
 
 let appendNode_t : L.lltype =
-	L.function_type (L.pointer_type struct_listcomp_type)
-	[| L.pointer_type struct_listcomp_type ; L.pointer_type struct_node_type |]
+	L.function_type (L.pointer_type struct_list_type)
+	[| L.pointer_type struct_list_type ; L.pointer_type struct_node_type |]
 let appendNode : L.llvalue =
 	L.declare_function "appendNode" appendNode_t the_module
 
@@ -177,12 +177,12 @@ let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module 
 
 let printRangeList_t : L.lltype =
-	L.function_type i32_t [| L.pointer_type struct_listcomp_type |]
+	L.function_type i32_t [| L.pointer_type struct_list_type |]
 let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
 
 let printPrimList_t : L.lltype =
-	L.function_type i32_t [| L.pointer_type struct_listcomp_type |]
+	L.function_type i32_t [| L.pointer_type struct_list_type |]
 let printPrimList : L.llvalue =
 	L.declare_function "printPrimList" printPrimList_t the_module
 
