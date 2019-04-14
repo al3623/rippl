@@ -36,7 +36,8 @@ let op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
-    | _ -> "other"
+    | Var(other) -> "Var("^other^")"
+	| _ -> "other"
 
 let char_list_to_str cl =
     match cl with
