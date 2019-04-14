@@ -5,18 +5,18 @@ open Lib
 let rec texpr_ptr texpr = match texpr with
             | (tx, _) -> match tx with 
                 | TIntLit n -> let int_ = L.const_int i32_t n in
-                        L.build_call makeInt [| int_ |] "makeInt" builder
+                        let intstar = L.build_call makeInt [| int_ |] "makeInt" builder in 
+                                L.build_call makeIntVoid [| intstar |] "makeIntVoid" builder
                 | TFloatLit f -> let float_ = L.const_float float_t f in
-                        L.build_call makeFloat [| float_ |] "makeFloat" builder
+                        let floatstar = L.build_call makeFloat [| float_ |] "makeFloat" builder in
+                                L.build_call makeFloatVoid [| floatstar |] "makeFloatVoid" builder
                 | TBoolLit b -> let bool_ = L.const_int i1_t (if b then 1 else 0) in
                         L.build_call makeBool [| bool_ |] "makeBool" builder
                 | TCharLit c -> let char_ = L.const_int i8_t (Char.code c) in
                         L.build_call makeChar [| char_ |] "makeChar" builder
                 | _ -> raise (Failure "tx not implemented")
             
-
 let translate decl_lst =
-        
 	(* find and execute/print main *)
   	let print_main vd = match vd with
   		| (_, (TypedVdef ("main", (TListLit(clist), TconList(Char))))) ->
@@ -69,12 +69,17 @@ let translate decl_lst =
                                 | Float -> L.const_int i32_t 3
                                 | _ -> raise (Failure "type")
                         in
-                        let _ = L.build_call printAny [| expr_ptr ; ty_code |] "printAny" builder in
+                        let _ = L.build_call printAny [| expr_ptr ; ty_code |] "" builder in
                         (* print newline *)
                         let _ = L.build_call printf_func [| char_format_str ; l_char |]
                                 "printf" builder in 
                         (* return 0 *)
                         L.build_ret (L.const_int i32_t 0) builder
+               
+                (* codegen for lambdas 
+                 * ex: fun x -> x + 2
+                 *) 
+                | (_, (TypedVdef("main", (TLambda(texpr1, texpr2), typ)))) -> raise(Failure ".")
                 | _ -> raise (Failure "NO")
     in 
     let _ = print_main (List.hd decl_lst) in

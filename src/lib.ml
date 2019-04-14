@@ -15,10 +15,10 @@ let ty_code = function
 let context = L.global_context()
 
 let i32_t      	 = L.i32_type    context
-  and i1_t       = L.i1_type     context
   and i8_t       = L.i8_type     context
   and float_t    = L.double_type context 
   and void_t     = L.void_type   context
+  and i1_t       = L.i1_type     context
 
 let the_module = L.create_module context "Rippl"
 
@@ -96,20 +96,29 @@ let _ =
 	|] false
 
 (* HEAP ALLOCATE PRIMS *)
+let makeIntVoid_t : L.lltype =
+        L.function_type (L.pointer_type i8_t) [| L.pointer_type i32_t |]
+let makeIntVoid : L.llvalue =
+        L.declare_function "makeIntVoid" makeIntVoid_t the_module
+let makeFloatVoid_t : L.lltype =
+        L.function_type (L.pointer_type i8_t) [| L.pointer_type float_t |]
+let makeFloatVoid : L.llvalue =
+        L.declare_function "makeFloatVoid" makeFloatVoid_t the_module
+
 let makeInt_t : L.lltype =
 	L.function_type (L.pointer_type i32_t) [| i32_t |]
 let makeInt : L.llvalue =
 	L.declare_function "makeInt" makeInt_t the_module
 let makeBool_t : L.lltype =
-	L.function_type (L.pointer_type i32_t) [| i1_t |]
+	L.function_type (L.pointer_type i8_t) [| i8_t |]
 let makeBool : L.llvalue =
 	L.declare_function "makeBool" makeBool_t the_module
 let makeChar_t : L.lltype =
-	L.function_type (L.pointer_type i32_t) [| i8_t |]
+	L.function_type (L.pointer_type i8_t) [| i8_t |]
 let makeChar : L.llvalue =
 	L.declare_function "makeChar" makeChar_t the_module
 let makeFloat_t : L.lltype =
-	L.function_type (L.pointer_type i32_t) [| float_t |]
+	L.function_type (L.pointer_type float_t) [| float_t |]
 let makeFloat : L.llvalue =
 	L.declare_function "makeFloat" makeFloat_t the_module
 
@@ -198,6 +207,6 @@ let printPrimList : L.llvalue =
 	L.declare_function "printPrimList" printPrimList_t the_module
 
 let printAny_t : L.lltype =
-	L.function_type i32_t [| L.pointer_type i32_t ; i32_t |]
+	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
 let printAny : L.llvalue =
 	L.declare_function "printAny" printAny_t the_module

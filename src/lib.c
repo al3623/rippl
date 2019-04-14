@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT		0
+#define	INT			0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -60,6 +60,8 @@ void printRangeList(void *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
+void *makeIntVoid(int *x);
+void *makeFloatVoid(float *x);
 int *makeInt(int x);
 void *makeBool(char x);
 void *makeChar(char x);
@@ -75,12 +77,19 @@ void explodeRangeList(void *list);
 void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
 
+void *makeIntVoid(int *x) {
+        return x;
+}
+
+void *makeFloatVoid(float *x) {
+        return x;
+}
+
 int *makeInt(int x) {
 	int *i = malloc(4);
 	*i = x;
 	return i;
 }
-
 
 void *makeBool(char x) {
 	return makeChar(x);
