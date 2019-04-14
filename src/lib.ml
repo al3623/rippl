@@ -58,12 +58,18 @@ let struct_maybe_type : L.lltype = L.named_struct_type context "Maybe"
 (*
 	struct List {
 		struct Node *head;
+		int content_type;
+		int type;
+
 		struct Node *last_eval;
 		int curr_index;
 		int start;
 		int end;
-		int content_type;
-		int type;
+	
+		void * ( * expr) void *,...);
+		struct List *listvbinds;
+		struct Node *indexes;
+		int ( **filt)( void *,...);
 	}
 *)
 let struct_list_type : L.lltype = L.named_struct_type context "List"
