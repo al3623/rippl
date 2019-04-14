@@ -6,6 +6,7 @@ open Printf
 module StringSet = Set.Make(String)
 
 let lamb_to_cl = Hashtbl.create 42069
+let og_to_mang = Hashtbl.create 42069
 
 let rec transform_main d_list = match d_list with 
 	| Vdef (name, exp) :: ds1 -> (if name = "main" 
@@ -119,6 +120,27 @@ let print_map _ =
 		Printf.printf " ]\n" in
 	Hashtbl.iter (fun x c -> Printf.printf "lambda: %s; " x; print_closure c;) lamb_to_cl
 
+let rec close_app la vars = match vars with
+	| hd :: tl ->
+		let app1 = App(la, Var(Hashtbl.find og_to_mang hd)) in
+		close_app app1 tl
+	| [] -> la
+
+let rec m_replace og_ex m_ex ex = match ex with
+	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
+	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
+	| Lambda(e1, e2) -> Lambda(e1, m_replace og_ex m_ex e2)
+	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, (m_replace og_ex m_ex e2)), (m_replace og_ex m_ex e3))
+	| Var(s1) -> if ex = og_ex then m_ex else ex
+	| other -> other
+
+let rec close_lambda lam vars = match vars with
+	| hd :: tl -> 
+		let mang_param = get_fresh ("$" ^ hd) in
+		let repl_lam = m_replace (Var(Hashtbl.find og_to_mang hd)) (Var(mang_param)) lam in
+		Lambda(Var(mang_param), (close_lambda repl_lam tl))
+	| [] -> lam
+
 let rec mangle_lets e = match e with 
 	| Var(s1) -> Var(s1)
 	| App(e1, e2) -> App(mangle_lets e1, mangle_lets e2)
@@ -129,30 +151,21 @@ let rec mangle_lets e = match e with
 		(match cl_res with
 			| None -> 
 				let man_n1 = get_fresh ("$" ^ s2) in
-				let repl_expr = m_replace Var(s2) Var(man_n1) e6 in
+				Hashtbl.add og_to_mang s2 man_n1;
+				let repl_expr = m_replace (Var(s2)) (Var(man_n1)) e6 in
 				let mangl_expr = mangle_lets repl_expr in
 				Let(Assign(man_n1, mangle_lets e1), mangl_expr)
 			| Some(cp) -> 
 				let man_n2 = fst cp in
 				let cl_vars = StringSet.elements (snd cp) in
 				let cl_lam = close_lambda e1 cl_vars in
-				let cl_app = close_app man_n2 c1_vars in
-				let repl_expr2 = m_replace Var(s2) cl_app e6 in
+				let cl_app = close_app (Var(man_n2)) cl_vars in
+				let repl_expr2 = m_replace (Var(s2)) cl_app e6 in
 				let mangl_expr2 = mangle_lets repl_expr2 in
 				Let(Assign(man_n2, mangle_lets cl_lam), mangl_expr2)
 
 		)
 	| other -> other
-
-and m_replace og_ex m_ex ex = match ex with
-	| App(e1, e2) -> App(m_replace og_name m_name e1, m_replace og_name m_name e2)
-	| Ite(e1, e2, e3) -> Ite(m_replace og_name m_name e1, m_replace og_name m_name e2, m_replace og_name m_name e3)
-	| Lambda(e1, e2) -> Lambda(e1, m_replace og_name m_name e2)
-	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, m_replace og_name m_name e2), m_replace og_name m_name e3)
-	| Var(s1) -> if ex = og_ex then m_ex else og_ex
-	| other -> other
-
-
 
 (*main _ =
 	let a = 5 in
