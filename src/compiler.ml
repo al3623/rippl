@@ -13,9 +13,12 @@ open Printf
 let print_decl d = 
         match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
-                let (_, e_named_lambdas) = find_lambdas false e in ();
-                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e_named_lambdas);
-                let _ =Lift_lambdas.print_map() in ()
+                let (_, nl_ast) = find_lambdas false e in ();
+                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str nl_ast);
+                let _ =Lift_lambdas.print_map() in ();
+                let mang_ast = mangle_lets nl_ast in
+                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str mang_ast);
+
 
         | _ -> print_endline "annot"
 

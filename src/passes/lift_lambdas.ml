@@ -120,7 +120,7 @@ let print_map _ =
 	Hashtbl.iter (fun x c -> Printf.printf "lambda: %s; " x; print_closure c;) lamb_to_cl
 
 let rec mangle_lets e = match e with 
-	| Var(s1) -> Var(get_fresh ("$" ^ s1))
+	| Var(s1) -> Var(s1)
 	| App(e1, e2) -> App(mangle_lets e1, mangle_lets e2)
 	| Ite(e3, e4, e5) -> Ite(mangle_lets e3, mangle_lets e4, mangle_lets e5)
 	| Lambda(e6, e7) -> Lambda(e6, mangle_lets e7)
@@ -130,14 +130,16 @@ let rec mangle_lets e = match e with
 			| Some(cp) -> fst cp) in
 		let repl_expr = m_replace s2 man_n e6 in
 		let mangl_expr = mangle_lets repl_expr in
-		Let(Assign(Var(man_n), mangle_lets e1), mangl_expr)
+		Let(Assign(man_n, mangle_lets e1), mangl_expr)
+	| other -> other
 
 and m_replace og_name m_name ex = match ex with
 	| App(e1, e2) -> App(m_replace og_name m_name e1, m_replace og_name m_name e2)
 	| Ite(e1, e2, e3) -> Ite(m_replace og_name m_name e1, m_replace og_name m_name e2, m_replace og_name m_name e3)
 	| Lambda(e1, e2) -> Lambda(e1, m_replace og_name m_name e2)
-	| Let(Assign(s2, e2), e32) -> Let(Assign(s2, m_replace og_name m_name e2), m_replace og_name m_name e3)
+	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, m_replace og_name m_name e2), m_replace og_name m_name e3)
 	| Var(s1) -> if s1 = og_name then Var(m_name) else Var(s1)
+	| other -> other
 
 
 
