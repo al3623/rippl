@@ -1,0 +1,22 @@
+# TODO
+
+## Front-end
+1. Create global variable and "fresh_ty_var" that generates fresh type variable for inference
+2. Implement the rest of type inference in "infer_type" in passes/type_inference.ml
+    - [use this as a source for type inference algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.65.7733&rep=rep1&type=pdf)
+    - add the equivalent of TypeEnv (type environment) as function argument
+    - write equivalent mgu (most general union) function
+    - write equivalent apply function
+    - write equivalent ftv function (fresh type variable)
+    - create Subst struct/type
+3. Lift local named functions to the global scope
+4. Perform lambda lifting (lift unnamed functions to toplevel lambda vdefs)
+    - first capture unbound variables in lambda -> lambda args
+    - [lambda lifting tutorial in Haskell](https://gist.github.com/jozefg/652f1d7407b7f0266ae9)
+    - [high-level wiki algorithm on lifting](https://en.wikipedia.org/wiki/Lambda_lifting#Algorithm)
+
+## Backend
+1. Create struct to represent list comprehensions
+2. Create struct to represent thunks
+3. Rewrite codgen to generate loop to print lists
+4. Write codegen to pattern match ITE and generate code

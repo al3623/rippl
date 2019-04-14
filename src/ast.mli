@@ -19,7 +19,7 @@ type expr =
 and clause = 
 	| ListVBind of (expr * expr)
 	| Filter of expr
-and assign = Assign of (expr * expr)
+and assign = Assign of (string * expr)
 
 type decl =
     | Annot of (string * ty)
