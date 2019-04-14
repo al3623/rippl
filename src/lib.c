@@ -34,12 +34,19 @@ struct Node {
 
 struct List {
 	struct Node *head;
-	struct Node *last_eval;
-	int curr_index; 
-	int start;
-	int end;
 	int content_type;
 	int type;
+
+	/* INDEXING ACCESS STUFF */
+	struct Node *last_eval;
+	int curr_index; 			// useful for laziness in ranges/infinites
+	int start;					// useful for ranges/infintes
+	int end;					// useful for ranges
+	
+	/* COMPREHENSION STUFF */
+	void *(*expr)(void *,...);	// expression for each element
+	struct List *listvbinds;	// lists the comprehension is over
+	struct Node *indexes;		// curr index in each sublist for vbindings
 };
 
 void printPrim(void *data, int ty);
