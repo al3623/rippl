@@ -167,9 +167,28 @@ let rec mangle_lets e = match e with
 		)
 	| other -> other
 
-(*main _ =
-	let a = 5 in
-	let f1 = (fun x -> 
-		let b = 3 in
-		(b + 10)) in
-	f1 . a*)
+
+let rec lift exp decl_list = match exp with
+	| Let(Assign(ln, Lambda(Var(p), e8)), e9) ->
+		let (new_lbody, new_dlist) = lift e8 decl_list in
+		let lifted_l = Vdef(ln, Lambda(Var(p), new_lbody)) in
+		lift e9 (new_dlist @ [lifted_l])
+	| App(e1, e2) -> 
+		let (body1, dlist1) = lift e1 decl_list in
+		let (body2, dlist2) = lift e2 dlist1 in
+		(App(body1, body2), dlist2)
+	| Ite(e1, e2, e3) -> 
+		let (body1, dlist1) = lift e1 decl_list in
+		let (body2, dlist2) = lift e2 dlist1 in
+		let (body3, dlist3) = lift e3 dlist2 in
+		(Ite(body1, body2, body3), dlist3)
+	| Let(Assign(n, e1), e2) -> 
+		let (body1, dlist1) = lift e1 decl_list in
+		let (body2, dlist2) = lift e2 dlist1 in
+		(Let(Assign(n, body1), body2), dlist2)
+	| Var(s1) -> 
+		(Var(s1), decl_list)
+	| Lambda(e1, e2) ->
+		let (body2, dlist2) = lift e2 decl_list in
+		(Lambda(e1, body2), dlist2)
+	| other -> (other, decl_list)

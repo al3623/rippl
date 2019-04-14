@@ -10,17 +10,26 @@ open Check_lists
 open Codegen
 open Printf
 
-let print_decl d = 
-        match d with
-        | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
+let print_decls d = match d with
+        | Vdef(n, e) ->
+                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
+        | _ -> print_endline "annots"
+
+let lift_decl curr_list d = match d with
+        | Vdef(n, e) -> (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);*)
                 let (_, nl_ast) = find_lambdas false e in ();
-                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str nl_ast);
-                let _ =Lift_lambdas.print_map() in ();
+                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str nl_ast);*)
+                (*let _ = Lift_lambdas.print_map() in ();*)
                 let mang_ast = mangle_lets nl_ast in
-                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str mang_ast);
+                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str mang_ast);
+                print_endline "-------------";*)
+                let (lifted, l_decs) = lift mang_ast [] in
+                curr_list @ (l_decs @ [Vdef(n, lifted)])
 
 
-        | _ -> print_endline "annot"
+
+        | _ -> curr_list @ [d]
+
 
 let _ =
         let lexbuf = Lexing.from_channel stdin in
@@ -34,4 +43,5 @@ let _ =
         fprintf oc "%s\n" ls; 
         close_out oc;
         Sys.command ("cat " ^ file ^ " | lli")*)
-        List.iter print_decl m_program;
+        let program_ll = List.fold_left lift_decl [] m_program in
+        List.iter print_decls program_ll;
