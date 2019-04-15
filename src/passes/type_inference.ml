@@ -1,5 +1,6 @@
 open Ast
 open Tast
+open Get_fresh_var
 
 module SS = Set.Make(String);;
 module SMap = Map.Make(String);;
@@ -62,6 +63,49 @@ let applyenv subst env = (TyEnvMap.map (apply subst) env)
 let generalize env t = 
     let vars = SS.elements (SS.diff (ftv t) (ftvenv env)) in Tforall(vars, t)
 
+let newTyVar prefix = 
+    let str = get_fresh prefix in Tvar(str)
+
+let rec zip lst1 lst2 = match lst1, lst2 with
+    | [], _ -> []
+    | _, [] -> []
+    | (x :: xs), (y :: ys) -> (x, y) :: (zip xs ys)
+
+
+let rec map_from_list = function 
+    | [] -> SubstMap.empty
+    | (t1, t2) :: tl -> SubstMap.add t1 t2 (map_from_list tl)
+
+
+
+
+let instantiate tval = function
+    | Tforall(vars, t) -> let nvars = List.map (fun var -> newTyVar(var)) vars in let s = map_from_list (zip vars nvars) in apply s t
+    | t -> t
+
+let varBind u t = match u, t with
+    | u, Tvar(x) -> nullSubst
+    | u, t when SS.mem u (ftv t) -> raise(Failure("Occur check fails "))
+    | _,_ -> SubstMap.add u t SubstMap.empty
+
+let rec mgu ty1 ty2 = match ty1, ty2 with
+    | Tarrow(l, r), Tarrow(l', r') -> 
+            let s1 = mgu l l' in 
+            let s2 = mgu (apply s1 r) (apply s1 r') in 
+            composeSubst s1 s2
+    | Tvar(u), t -> varBind u t
+    | t, Tvar(u) -> varBind u t
+    | Int, Int -> nullSubst
+    | Bool, Bool -> nullSubst
+    | Float, Float -> nullSubst
+    | Char, Char -> nullSubst
+    | TconList(t), TconList(t') -> mgu t t'
+    | Tmaybe(t), Tmaybe(t') -> mgu t t'
+    | TconTuple(l, r), TconTuple(l', r') -> 
+            let s1 = mgu l l' in
+            let s2 = mgu (apply s1 r) (apply s1 r') in 
+            composeSubst s1 s2
+    | t1, t2 -> raise(Failure (" types do not unify "))
 
 
 
@@ -86,16 +130,20 @@ let simple_generalize ty =
     if (List.length gen_list) = 0 then ty else (Tforall (gen_list,ty))
 
 (* Takes an AST and returns a TAST (typed AST) *)
-let rec infer_type = function
-    | IntLit i -> (TIntLit i, Int)
-    | FloatLit f -> (TFloatLit f,Float)
-    | CharLit c -> (TCharLit c,Char)
-    | BoolLit b -> (TBoolLit b,Bool)
+let rec ti s = function
+    | IntLit i -> (nullSubst, TIntLit i, Int)
+    | FloatLit f -> (nullSubst, TFloatLit f,Float)
+    | CharLit c -> (nullSubst, TCharLit c,Char)
+    | BoolLit b -> (nullSubst, TBoolLit b,Bool)
     | ListLit l -> ( match l with
-        | x::xs -> let (texpr,typ) = infer_type x in
-            (TListLit (List.map infer_type (x::xs)), TconList typ)
-        | [] ->  (TListLit [], (Tvar "a")))
-    | Lambda( e1, e2) -> infer_type e2 
+        | x::xs -> let (subst, texpr, typ) = ti s x in
+            (nullSubst, TListLit (List.map (ti subst) (x::xs)), TconList typ)
+        | [] ->  (nullSubst, TListLit [], (freshTyVar "a")))
+    | Lambda( n, e ) -> let tv = newTyVar n in 
+        let env' = remove env n in 
+        let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
+        let (s1, t1) = ti env'' e in 
+        (s1, TLambda (n, e), TArrow( (apply s1 tv), t1 ))
     | _ -> raise (Failure "not yet implemented in type inference")
 
 let rec type_paired_program = function
