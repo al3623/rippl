@@ -50,11 +50,68 @@ let rec get_closure_vars exp scope nested= match exp with
 
 		(StringSet.union sc1 sc2, App(st1, st2))
 
+	| InfList(e1) ->
+    	let (sc1, st1) = (get_closure_vars e1 scope nested) in
+
+    	(sc1, InfList(st1))
+
+
+    | ListRange(e1, e2) ->
+		let (sc1, st1) = (get_closure_vars e1 scope nested) in
+		let (sc2, st2) = (get_closure_vars e2 scope nested) in
+
+    	((StringSet.union sc1 sc2), ListRange(st1, st2))
+
+    | ListComp(e1, e2) -> (match e2 with
+    	| [] ->
+    		let (sc1, st1) = (get_closure_vars e1 scope nested) in
+
+    		(sc1, ListComp(st1, []))
+
+    	| cl ->
+    		let (sc1, st1) = (get_closure_vars e1 scope nested) in
+    		let (trav_sc, trav_st) = List.fold_left (list_helperc_cl nested scope) (StringSet.empty, []) cl in
+
+    		((StringSet.union sc1 trav_sc), ListComp(st1, List.rev trav_st)))
+
+
+    | ListLit(e1) ->
+    	if List.length e1 = 0 then (StringSet.empty, ListLit([])) 
+    	else
+    		let (trav_sc, trav_st) = List.fold_left (list_helperc_ex nested scope) (StringSet.empty, []) e1 in
+
+    		(trav_sc , ListLit((List.rev trav_st))) 
+
 	| Lambda(e2, e3) -> 
 		let (il_scope, il_structure) = find_lambdas nested exp in
 		((StringSet.diff il_scope scope), il_structure)
 
 	| other -> (StringSet.empty, other)
+
+
+and list_helperc_ex nested scope exl ex =
+	let (sc, st) = get_closure_vars ex scope nested in
+
+	((StringSet.union sc (fst exl), st :: (snd exl)))
+
+and list_helperc_cl nested scope clal cl =
+	let (sc, st) = get_closure_vars_clause cl scope nested in
+
+	((StringSet.union sc (fst clal)), st :: (snd clal))
+
+and get_closure_vars_clause exp scope nested = match exp with
+	| Filter(e1) ->
+    	let (sc1, st1) = get_closure_vars e1 scope nested in
+
+    	(sc1, Filter(st1))
+
+    | ListVBind(e1, e2) ->
+    	let (sc1, st1) = find_lambdas true e1 in 
+    	let (sc2, st2) =  find_lambdas true e2 in
+
+    	((StringSet.union sc1 sc2), ListVBind(st1, st2))
+
+
 
 and find_lambdas nested = function
 	| Let(Assign(ln, Lambda(Var(p), e8)), e9) ->
@@ -107,7 +164,7 @@ and find_lambdas nested = function
     | ListLit(e1) ->
     	if List.length e1 = 0 then (StringSet.empty, ListLit([])) 
     	else
-    		let trav_list = List.fold_left (list_helper_ex nested) [] e1 in
+    		let trav_list = List.fold_left (list_helperf_ex nested) [] e1 in
 
     		(StringSet.empty, ListLit((List.rev trav_list))) 
 
@@ -117,7 +174,7 @@ and find_lambdas nested = function
 	    	(StringSet.empty, ListComp(st1, []))
 	    | _ ->
 	    	let (_, st1) = find_lambdas nested e1 in
-	    	let trav_list = List.fold_left (list_helper_cla nested) [] e2 in
+	    	let trav_list = List.fold_left (list_helperf_cla nested) [] e2 in
 	    	(StringSet.empty, ListComp(st1, trav_list)))
 
 
@@ -139,11 +196,11 @@ and find_lambdas nested = function
 
     | other -> (*print_endline "";*) (StringSet.empty, other)
 
-and list_helper_ex nested exl ex =
+and list_helperf_ex nested exl ex =
 	let (_, st) = find_lambdas nested ex in
 	st :: exl
 
-and list_helper_cla nested clal cla =
+and list_helperf_cla nested clal cla =
 	let (_, st) = find_lambdas_clause nested cla in
 	st :: clal
 
