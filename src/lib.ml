@@ -70,6 +70,7 @@ let struct_maybe_type : L.lltype = L.named_struct_type context "Maybe"
 		struct List *listvbinds;
 		struct Node *indexes;
 		int ( **filt)( void *,...);
+		int num_vbinds;
 	}
 *)
 let struct_list_type : L.lltype = L.named_struct_type context "List"
@@ -98,6 +99,7 @@ let _ =
 			(L.pointer_type (L.var_arg_function_type
 			i32_t
 			[| L.pointer_type i8_t |]))		(* int ( **filt)(void *,...) *)
+		; i32_t								(* int num_vbinds *)
 	|] false
 
 (* HEAP ALLOCATE PRIMS *)

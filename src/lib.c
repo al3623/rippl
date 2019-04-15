@@ -48,6 +48,7 @@ struct List {
 	struct List *listvbinds;	// lists the comprehension is over
 	struct Node *indexes;		// curr index in each sublist for vbindings
 	int (**filt)(void *,...);	// boolean filters for vbind values to accept
+	int num_vbinds;
 };
 
 void printPrim(void *data, int ty);
@@ -74,6 +75,29 @@ struct Maybe *makeMaybe(void *data, int ty);
 void explodeRangeList(void *list);
 void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
+struct Node *evalNextNodeComp(void *list, int num_vbinds);
+
+struct Node *evalNextNodeComp(void *list, int num_vbinds) {
+	/*struct List {
+	struct Node *head;
+	int content_type;
+	int type;
+
+	INDEXING ACCESS STUFF 
+	struct Node *last_eval;
+	int curr_index; 			// useful for laziness in ranges/infinites
+	int start;					// useful for ranges/infintes
+	int end;					// useful for ranges
+	
+	COMPREHENSION STUFF 
+	void *(*expr)(void *,...);	// expression for each element
+	struct List *listvbinds;	// lists the comprehension is over
+	struct Node *indexes;		// curr index in each sublist for vbindings
+	int (**filt)(void *,...);	// boolean filters for vbind values to accept
+	int num_vbinds;
+	}	;*/
+
+}
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -182,12 +206,13 @@ void explodeRangeList(void *list) {
 
 void evalNextNode(void *list) {
 	struct List *llist = (struct List *)list;
-	
-	llist->curr_index++;
-	int *data = makeInt(llist->curr_index);
-	struct Node *newNode = makeNode(data);
-	(llist->last_eval)->next = newNode;
-	llist->last_eval = newNode;
+	if (llist->type == 0 || llist->type == 1) {
+		llist->curr_index++;
+		int *data = makeInt(llist->curr_index);
+		struct Node *newNode = makeNode(data);
+		(llist->last_eval)->next = newNode;
+		llist->last_eval = newNode;
+	}
 }
 
 struct List *appendNode(struct List *list, struct Node *node) {
