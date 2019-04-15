@@ -93,6 +93,34 @@ and find_lambdas nested = function
 
     	(StringSet.empty, Ite(st4, st5, st6))
 
+    | InfList(e1) ->
+    	let (_, st1) = find_lambdas nested e1 in
+
+    	(StringSet.empty, InfList(st1))
+
+	| ListRange(e1, e2) ->
+		let (_, st1) = find_lambdas true e1 in 
+    	let (_, st2) =  find_lambdas true e2 in
+
+    	(StringSet.empty, ListRange(st1, st2))
+
+    | ListLit(e1) ->
+    	if List.length e1 = 0 then (StringSet.empty, ListLit([])) 
+    	else
+    		let trav_list = List.fold_left (list_helper_ex nested) [] e1 in
+
+    		(StringSet.empty, ListLit((List.rev trav_list))) 
+
+    | ListComp(e1, e2) -> (match e2 with
+	    | [] ->
+	    	let (_, st1) = find_lambdas nested e1 in
+	    	(StringSet.empty, ListComp(st1, []))
+	    | _ ->
+	    	let (_, st1) = find_lambdas nested e1 in
+	    	let trav_list = List.fold_left (list_helper_cla nested) [] e2 in
+	    	(StringSet.empty, ListComp(st1, trav_list)))
+
+
     | Lambda(Var(p2), e10) -> 
     	if nested then 
 			(*(print_endline ("lambda name: anon" ^ "; param: " ^ p2 ^"; closed variables[ ");*)
@@ -110,6 +138,26 @@ and find_lambdas nested = function
 			(StringSet.empty, Lambda(Var(p2), e10))
 
     | other -> (*print_endline "";*) (StringSet.empty, other)
+
+and list_helper_ex nested exl ex =
+	let (_, st) = find_lambdas nested ex in
+	st :: exl
+
+and list_helper_cla nested clal cla =
+	let (_, st) = find_lambdas_clause nested cla in
+	st :: clal
+
+and find_lambdas_clause nested = function
+	| Filter(e1) ->
+    	let (_, st1) = find_lambdas nested e1 in
+
+    	(StringSet.empty, Filter(st1))
+
+    | ListVBind(e1, e2) ->
+    	let (_, st1) = find_lambdas true e1 in 
+    	let (_, st2) =  find_lambdas true e2 in
+
+    	(StringSet.empty, ListVBind(st1, st2))
 
 
 let print_map _ =
