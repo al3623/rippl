@@ -231,6 +231,9 @@ let rec close_app la vars = match vars with
 		close_app app1 tl
 	| [] -> la
 
+
+
+
 let rec m_replace og_ex m_ex ex = match ex with
 	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
 	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
@@ -239,6 +242,9 @@ let rec m_replace og_ex m_ex ex = match ex with
 	| Var(s1) -> if ex = og_ex then m_ex else ex
 	| other -> other
 
+
+
+
 let rec close_lambda lam vars = match vars with
 	| hd :: tl -> 
 		let mang_param = get_fresh ("$" ^ hd) in
@@ -246,11 +252,22 @@ let rec close_lambda lam vars = match vars with
 		Lambda(Var(mang_param), (close_lambda repl_lam tl))
 	| [] -> lam
 
+
+
+
+
 let rec mangle_lets e = match e with 
 	| Var(s1) -> Var(s1)
 	| App(e1, e2) -> App(mangle_lets e1, mangle_lets e2)
 	| Ite(e3, e4, e5) -> Ite(mangle_lets e3, mangle_lets e4, mangle_lets e5)
 	| Lambda(e6, e7) -> Lambda(e6, mangle_lets e7)
+	| ListRange(e1, e2) -> ListRange(mangle_lets e1, mangle_lets e2)
+	| InfList(e1) -> InfList(mangle_lets e1)
+	| ListLit(elst) ->
+		ListLit(List.rev (List.fold_left (fun l ex -> (mangle_lets ex) :: l) [] elst))
+	| ListComp(e1, cl) ->
+		let mangled_lst = List.rev(List.fold_left mangle_helperc [] cl) in
+		ListComp(mangle_lets e1, mangled_lst)
 	| Let(Assign(s2, e1), e6) ->
 		let cl_res = Hashtbl.find_opt lamb_to_cl s2 in
 		(match cl_res with
@@ -271,6 +288,12 @@ let rec mangle_lets e = match e with
 
 		)
 	| other -> other
+
+
+and mangle_helperc clst clau= match clau with
+	| Filter(e1) -> Filter(mangle_lets e1) :: clst
+    | ListVBind(e1, e2) -> ListVBind(mangle_lets e1, mangle_lets e2) :: clst
+
 
 
 let rec lift exp decl_list = match exp with
@@ -297,3 +320,10 @@ let rec lift exp decl_list = match exp with
 		let (body2, dlist2) = lift e2 decl_list in
 		(Lambda(e1, body2), dlist2)
 	| other -> (other, decl_list)
+
+
+
+
+
+
+
