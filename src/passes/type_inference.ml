@@ -32,7 +32,8 @@ let rec apply s = function
     | Tarrow (t1, t2) -> Tarrow ( apply  s t2, apply s t2 )
     | TconList (t) -> TconList (apply s t)
     | TconTuple (t1, t2) -> TconTuple (apply s t1, apply s t2)
-    | Tforall (stlst, t) -> Tforall (stlst, apply (List.fold_right SubstMap.remove stlst s) t)
+    | Tforall (stlst, t) -> Tforall (stlst, 
+		apply (List.fold_right SubstMap.remove stlst s) t)
     | Tmaybe(t) -> Tmaybe(apply s t) 
     | t -> t 
 
@@ -54,8 +55,10 @@ let getElems mp = List.map getElem (TyEnvMap.bindings mp)
 
 
 
-(* get elements of the map (not the keys), and map ftv over them then make a new set with those ftvs*)
-let ftvenv env = (List.fold_right ( SS.union ) (List.map ftv (getElems env)) SS.empty )
+(*	get elements of the map (not the keys), 
+	and map ftv over them then make a new set with those ftvs*)
+let ftvenv env = 
+	(List.fold_right ( SS.union ) (List.map ftv (getElems env)) SS.empty )
 
 let applyenv subst env = (TyEnvMap.map (apply subst) env)
 
@@ -79,7 +82,10 @@ let rec map_from_list = function
 
 
 let instantiate tval = function
-    | Tforall(vars, t) -> let nvars = List.map (fun var -> newTyVar(var)) vars in let s = map_from_list (zip vars nvars) in apply s t
+    | Tforall(vars, t) -> 
+		let nvars = List.map (fun var -> newTyVar(var)) vars in 
+		let s = map_from_list (zip vars nvars) in 
+		apply s t
     | t -> t
 
 let varBind u t = match u, t with
