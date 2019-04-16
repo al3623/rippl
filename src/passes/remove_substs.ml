@@ -23,7 +23,7 @@ let rec remove_subst_expr = function
 	| (_,ILen,t) -> (TLen,t) | (_,IHead,t) -> (THead,t) 
 	| (_,ITail,t) -> (TTail,t) 
 	| (_,IVar str,t) -> (TVar str,t)
-    | (_,ILet (_* iassign * inferred_expr),t) ->
+    | (_,ILet (_, iassign, inferred_expr),t) ->
 		(TLet(remove_subst_iassign, remove_subst_expr),t)
     | (_,ILambda(_, ix1, ix2),t) ->
 		(TLambda(remove_subst_expr ix1, remove_subst_expr ix2),t)
@@ -52,3 +52,9 @@ and remove_subst_iassign = function
 
 let remove_subst InferredVdef(name,expr) = 
 	TypedVdef(name, remove_subst_expr expr)
+
+let remove_subst_pairs = function
+	| [] -> []
+	| (annot, infvdef)::xs -> 
+		(annot, remove_subst infvdef)::(remove_subst_pairs
+xs)

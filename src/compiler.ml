@@ -11,6 +11,7 @@ open Check_lists
 open Codegen
 open Printf
 open Type_inference
+open Remove_subst
 (*open Pretty_tast_print*)
 
 let print_decl d = 
@@ -31,7 +32,8 @@ let _ =
         let lexbuf = Lexing.from_channel stdin in
         let program = Parser.program Scanner.token lexbuf in
         let pair_program = Pair_annots.pair_av program in
-        let pair_tprogram = Type_inference.type_paired_program pair_program in
+        let pair_iprogram = Type_inference.type_paired_program pair_program in
+		let pair_tprogram = Remove_subst.remove_subst_pairs pair_iprogram in
         (*let m = Codegen.translate program in
         Llvm_analysis.assert_valid_module m;
         let ls = Llvm.string_of_llmodule m in*)
