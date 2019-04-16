@@ -19,15 +19,15 @@ ix =
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
     | ICons | ICat | ILen | IHead | ITail
-    | IVar of string
+    | IVar of (Ast.ty SubstMap.t * string)
     | ILet of (Ast.ty SubstMap.t * iassign * inferred_expr)
     | ILambda of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
     | IApp of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
     | IIte of (Ast.ty SubstMap.t * inferred_expr * inferred_expr * inferred_expr)
 	| IListComp of (Ast.ty SubstMap.t * inferred_expr * iclause list)
 	| IListRange of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
-	| IInfList of inferred_expr
-    | IListLit of inferred_expr list
+	| IInfList of (Ast.ty SubstMap.t * inferred_expr)
+    | IListLit of (Ast.ty SubstMap.t * inferred_expr list)
 and iclause = 
 	| IListVBind of (inferred_expr * inferred_expr)
 	| IFilter of inferred_expr

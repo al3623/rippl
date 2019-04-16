@@ -6,7 +6,7 @@ let rec remove_subst_expr = function
 	| (_,IFloatLit f,t) -> (TFloatLit f, t)
 	| (_,IBoolLit b,t) -> (TBoolLit b,t)
     | (_,ICharLit c,t) -> (TCharLit c,t)
-	| (_,IWildCard,t) -> (TWildCard,t) | (_,IAdd,t) -> (Tadd,t) 
+	| (_,IWildCard,t) -> (TWildCard,t) | (_,IAdd,t) -> (TAdd,t) 
 	| (_,ISub,t) -> (TSub,t) | (_,IMult,t) -> (TMult,t)
 	| (_,IDiv,t) -> (TDiv,t) | (_,IMod,t) -> (TMod,t) | (_,IPow,t) -> (TPow,t) 
 	| (_,IAddF,t) -> (TAddF,t) | (_,ISubF,t) -> (TSubF,t) 
@@ -22,24 +22,24 @@ let rec remove_subst_expr = function
     | (_,ICons,t) -> (TCons,t) | (_,ICat,t) -> (TCat,t) 
 	| (_,ILen,t) -> (TLen,t) | (_,IHead,t) -> (THead,t) 
 	| (_,ITail,t) -> (TTail,t) 
-	| (_,IVar str,t) -> (TVar str,t)
-    | (_,ILet (_, iassign, inferred_expr),t) ->
-		(TLet(remove_subst_iassign, remove_subst_expr),t)
+	| (_,IVar (_,str),t) -> (TVar str,t)
+    | (_,ILet (_, iassign, ix1),t) ->
+		(TLet(remove_subst_iassign iassign, remove_subst_expr ix1),t)
     | (_,ILambda(_, ix1, ix2),t) ->
 		(TLambda(remove_subst_expr ix1, remove_subst_expr ix2),t)
     | (_,IApp(_, ix1, ix2),t) ->
 		(TApp(remove_subst_expr ix1, remove_subst_expr ix2),t)
-    | (_,IIte(ix1, ix2, ix3),t) ->
+    | (_,IIte(_,ix1, ix2, ix3),t) ->
 		(TIte(remove_subst_expr ix1, remove_subst_expr ix2, 
 			remove_subst_expr ix3),t)
-	| (_,IListComp(ix1, iclause_list),t) ->
-		(TListComp(remove_subst_expr ix1, i
+	| (_,IListComp(_,ix1, iclause_list),t) ->
+		(TListComp(remove_subst_expr ix1,
 		List.map remove_subst_clause iclause_list),t)
-	| (_,IListRange(ix1,ix2),t) ->
+	| (_,IListRange(_,ix1,ix2),t) ->
 		(TListRange(remove_subst_expr ix1, remove_subst_expr ix2),t)
-	| (_,IInfList ix1,t) ->
+	| (_,IInfList(_,ix1),t) ->
 		(TInfList (remove_subst_expr ix1),t)
-    | (_,IListLit ix_list,t) ->
+    | (_,(IListLit(_,ix_list)),t) ->
 		(TListLit (List.map remove_subst_expr ix_list),t)
 and remove_subst_clause = function
 	| IListVBind(ix1,ix2) ->
@@ -50,10 +50,10 @@ and remove_subst_iassign = function
 	| IAssign(ix1,ix2) ->
 		TAssign(remove_subst_expr ix1, remove_subst_expr ix2)
 
-let remove_subst InferredVdef(name,expr) = 
-	TypedVdef(name, remove_subst_expr expr)
+let remove_subst = function
+	|InferredVdef(name,expr) ->	TypedVdef(name, remove_subst_expr expr)
 
-let remove_subst_pairs = function
+let rec remove_subst_pairs = function
 	| [] -> []
 	| (annot, infvdef)::xs -> 
 		(annot, remove_subst infvdef)::(remove_subst_pairs
