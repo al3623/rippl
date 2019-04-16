@@ -27,7 +27,7 @@ ix =
 	| IListComp of (Ast.ty SubstMap.t * inferred_expr * iclause list)
 	| IListRange of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
 	| IInfList of (Ast.ty SubstMap.t * inferred_expr)
-    | IListLit of (Ast.ty SubstMap.t * inferred_expr list)
+    | IListLit of (inferred_expr list)
 and iclause = 
 	| IListVBind of (inferred_expr * inferred_expr)
 	| IFilter of inferred_expr

@@ -2,6 +2,7 @@ open Ast
 open Tast
 open Get_fresh_var
 open Iast
+open List
 
 module SS = Set.Make(String);;
 module SMap = Map.Make(String);;
@@ -133,11 +134,19 @@ let rec ti s = function
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
     | BoolLit b -> (nullSubst, IBoolLit b,Bool)
-(*    | ListLit l -> ( match l with
-        | x::xs -> let (subst, texpr, typ) = ti s x in
-            (nullSubst, TListLit (List.map (ti subst) (x::xs)), TconList typ)
-        | [] ->  (nullSubst, TListLit [], (freshTyVar "a")))
-    | Lambda( n, e ) -> let tv = newTyVar n in 
+    | ListLit l -> let iexpr_list = List.map (ti s) l in
+		(match iexpr_list with
+		(* collect all substs; apply substs on elements and final type *)
+		| ix_list -> 
+			let fullSubst = 
+			fold_left (fun s1 (s2,_,_) -> composeSubst s1 s2) s ix_list in
+			let merged_ix_list = List.map 
+				(fun (s,e,t) -> (s,e, apply fullSubst t)) ix_list in
+			let (_,_,ty) = List.hd merged_ix_list in
+			(fullSubst, IListLit(merged_ix_list), ty)
+		| [] -> (nullSubst, IListLit [], newTyVar "a")
+		)
+(*    | Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
         let (s1, t1) = ti env'' e in 

@@ -39,7 +39,7 @@ let rec remove_subst_expr = function
 		(TListRange(remove_subst_expr ix1, remove_subst_expr ix2),t)
 	| (_,IInfList(_,ix1),t) ->
 		(TInfList (remove_subst_expr ix1),t)
-    | (_,(IListLit(_,ix_list)),t) ->
+    | (_,(IListLit(ix_list)),t) ->
 		(TListLit (List.map remove_subst_expr ix_list),t)
 and remove_subst_clause = function
 	| IListVBind(ix1,ix2) ->
