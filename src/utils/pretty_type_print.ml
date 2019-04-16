@@ -80,12 +80,12 @@ and ty_to_str ty =
     | Int -> "Int"
     | Char -> "Char"
     | Float -> "Float"
-    | TconList(t) -> "TconList(" ^ (ty_to_str t) ^ ")"
-    | TconTuple(t1,t2) -> "TconTuple(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
+    | TconList(t) -> "["^ (ty_to_str t) ^ "]"
+    | TconTuple(t1,t2) -> "(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tmaybe(t) -> "Maybe " ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
-    | Tarrow(t1,t2) -> "Tarrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tforall(t) -> "Tforall"
+    | Tarrow(t1,t2) -> (ty_to_str t1) ^ " -> " ^ (ty_to_str t2)
+    | Tforall(_,t) -> ty_to_str t
 
 
 and char_list_to_str cl =

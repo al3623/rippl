@@ -34,6 +34,11 @@ let print_tdecl td =
     match td with
     | (annot, tvd) -> print_endline ( Pretty_tast_print.tast_to_str tvd)
 
+let rec print_all_types = function
+	| (_, TypedVdef(name, (_,ty)))::xs -> 
+		print_endline (name ^ ": " ^ (ty_to_str ty));
+		print_all_types xs
+	| [] -> print_newline
 
 let _ =
         let lexbuf = Lexing.from_channel stdin in
@@ -43,6 +48,8 @@ let _ =
         let pair_iprogram = Type_inference.type_paired_program
 remove_lambda_main in
 		let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
+		print_all_types pair_tprogram
+		(*
         let m = Codegen.translate pair_tprogram in
         Llvm_analysis.assert_valid_module m;
         let ls = Llvm.string_of_llmodule m in
@@ -52,4 +59,5 @@ remove_lambda_main in
         close_out oc;
         Sys.command ("cat " ^ file ^ " | lli");
         List.iter print_tdecl pair_tprogram; 
-		()
+		() 
+		*)

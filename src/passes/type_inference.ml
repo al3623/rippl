@@ -146,8 +146,8 @@ let rec ti s = function
 			let merged_ix_list = List.map 
 				(fun (s,e,t) -> (s,e, apply fullSubst t)) ix_list in
 			let (_,_,ty) = List.hd merged_ix_list in
-			(fullSubst, IListLit(merged_ix_list), ty)
-		| [] -> (nullSubst, IListLit [], newTyVar "a"))
+			(fullSubst, IListLit(merged_ix_list), TconList ty)
+		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
 (*  | Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
