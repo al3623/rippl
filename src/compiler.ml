@@ -10,6 +10,7 @@ open Codegen
 open Printf
 open Sys
 open String
+open Thunk
 
 let rec remove_path str =
 	let slash = index_opt str '/' in
