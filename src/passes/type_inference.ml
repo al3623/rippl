@@ -1,16 +1,14 @@
 open Ast
 open Tast
 open Get_fresh_var
+open Iast
 
 module SS = Set.Make(String);;
 module SMap = Map.Make(String);;
 
-module SubstMap = Map.Make(String);;
 
 (* mappings from term variables to tforall *)
 module TyEnvMap = Map.Make(String);;
-
-
 
 (* returns a set of free type variables *)
 let rec ftv = function
@@ -46,7 +44,7 @@ let composeSubst (s1 : ty SubstMap.t) (s2 : ty SubstMap.t) =
 
 (* removes element from typing environment *)
 let remove (env : ty SubstMap.t) var =
-    TyEnvMap.remove var env
+    SubstMap.remove var env
 
 let getElem = function
     | (key, a) -> a
@@ -131,11 +129,11 @@ let simple_generalize ty =
 
 (* Takes an AST and returns a TAST (typed AST) *)
 let rec ti s = function
-    | IntLit i -> (nullSubst, TIntLit i, Int)
-    | FloatLit f -> (nullSubst, TFloatLit f,Float)
-    | CharLit c -> (nullSubst, TCharLit c,Char)
-    | BoolLit b -> (nullSubst, TBoolLit b,Bool)
-    | ListLit l -> ( match l with
+    | IntLit i -> (nullSubst, IIntLit i, Int)
+    | FloatLit f -> (nullSubst, IFloatLit f,Float)
+    | CharLit c -> (nullSubst, ICharLit c,Char)
+    | BoolLit b -> (nullSubst, IBoolLit b,Bool)
+(*    | ListLit l -> ( match l with
         | x::xs -> let (subst, texpr, typ) = ti s x in
             (nullSubst, TListLit (List.map (ti subst) (x::xs)), TconList typ)
         | [] ->  (nullSubst, TListLit [], (freshTyVar "a")))
@@ -144,11 +142,12 @@ let rec ti s = function
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
         let (s1, t1) = ti env'' e in 
         (s1, TLambda (n, e), TArrow( (apply s1 tv), t1 ))
-    | _ -> raise (Failure "not yet implemented in type inference")
+    | _ -> raise (Failure "not yet implemented in type inference") *)
 
 let rec type_paired_program = function
-	| ((annot, (Vdef (name,exp)))::xs) -> let (texpr, infty) = infer_type exp in
-		let tpair = (annot, (TypedVdef (name, (texpr,infty) ) ) ) in
+	| ((annot, (Vdef (name,exp)))::xs) -> 
+		let iexpr = ti TyEnvMap.empty exp in
+		let tpair = (annot, (InferredVdef (name, iexpr) ) ) in
 		tpair :: (type_paired_program xs)
         | ((_, Annot _) :: _) -> raise(Failure("no"))
 	| [] -> []

@@ -39,5 +39,6 @@ let _ =
         let oc = open_out file in
         fprintf oc "%s\n" ls; 
         close_out oc;
-        Sys.command ("cat " ^ file ^ " | lli")*)
-        List.iter print_tdecl pair_tprogram;
+        Sys.command ("cat " ^ file ^ " | lli")
+        List.iter print_tdecl pair_tprogram; *)
+		()
