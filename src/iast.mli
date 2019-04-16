@@ -1,6 +1,6 @@
 open Ast
+open Miast
 
-module SubstMap : (Map.S with type key = string);;
 (*
 type typed_expr = (typed_expr * ty)
 

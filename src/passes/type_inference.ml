@@ -5,7 +5,7 @@ open Iast
 
 module SS = Set.Make(String);;
 module SMap = Map.Make(String);;
-
+module SubstMap = Map.Make(String);;
 
 (* mappings from term variables to tforall *)
 module TyEnvMap = Map.Make(String);;
