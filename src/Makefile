@@ -17,7 +17,7 @@ clean:
 	ocamlbuild -clean 2>/dev/null
 	rm -f scanner.native
 	rm -rf _build
-	rm -rf *.o *.s *.byte exe
+	rm -rf *.o *.s *.byte exe a.out
 
 .PHONY: all
 all: clean scanner.native
