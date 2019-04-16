@@ -78,9 +78,6 @@ let rec map_from_list = function
     | [] -> SubstMap.empty
     | (t1, t2) :: tl -> SubstMap.add t1 t2 (map_from_list tl)
 
-
-
-
 let instantiate tval = function
     | Tforall(vars, t) -> 
 		let nvars = List.map (fun var -> newTyVar(var)) vars in 
@@ -150,14 +147,14 @@ let rec ti s = function
 				(fun (s,e,t) -> (s,e, apply fullSubst t)) ix_list in
 			let (_,_,ty) = List.hd merged_ix_list in
 			(fullSubst, IListLit(merged_ix_list), ty)
-		| [] -> (nullSubst, IListLit [], newTyVar "a")
-		)
-(*    | Lambda( n, e ) -> let tv = newTyVar n in 
+		| [] -> (nullSubst, IListLit [], newTyVar "a"))
+(*  | Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
         let (s1, t1) = ti env'' e in 
-        (s1, TLambda (n, e), TArrow( (apply s1 tv), t1 ))
-    | _ -> raise (Failure "not yet implemented in type inference") *)
+        (s1, TLambda (n, e), TArrow( (apply s1 tv), t1 )) *)
+	| Lambda(_) -> raise (Failure "NO LAMBDAS :(")
+    | _ -> raise (Failure "not yet implemented in type inference") 
 
 let rec type_paired_program = function
 	| ((annot, (Vdef (name,exp)))::xs) -> 
