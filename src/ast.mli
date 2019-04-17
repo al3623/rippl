@@ -33,3 +33,12 @@ and ty = Int | Bool | Float | Char
     | Tmaybe of ty
 
 type program = decl list
+
+type lambda_def = {
+    lname: string;
+    ltyp: ty;
+    rtyp: ty;
+    lexp: expr;
+    rexp: expr;
+}
+

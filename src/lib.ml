@@ -216,7 +216,7 @@ let printAny : L.llvalue =
 	L.declare_function "printAny" printAny_t the_module
 
 let printBool_t : L.lltype =
-	L.function_type void_t [| i1_t |]
+	L.function_type void_t [| i8_t |]
 let printBool : L.llvalue =
 	L.declare_function "printBool" printBool_t the_module
 
