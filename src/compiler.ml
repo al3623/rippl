@@ -11,24 +11,16 @@ open Codegen
 open Printf
 
 let print_decls d = match d with
-        | Vdef(n, e) ->
-                print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
+        | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
         | _ -> print_endline "annots"
 
 let lift_decl curr_list d = match d with
-        | Vdef(n, e) -> (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);*)
+        | Vdef(n, e) ->
                 let (_, nl_ast) = find_lambdas false e in ();
-                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str nl_ast);*)
-                (*let _ = Lift_lambdas.print_map() in ();*)
                 let mang_ast = mangle_lets nl_ast in
-                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str mang_ast);
-                print_endline "-------------";*)
                 let (lifted, l_decs) = lift mang_ast [] in
                 curr_list @ (l_decs @ [Vdef(n, lifted)])
-
-
-
-        | _ -> curr_list @ [d]
+        | annot -> curr_list @ [annot]
 
 
 let _ =
