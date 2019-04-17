@@ -52,9 +52,6 @@ let rec transform_main d_list = match d_list with
 let rec find_lambdas nested = function
 	| Let(Assign(ln, Lambda(Var(p), e8)), e9) ->
 		let (lsc, lst) = get_closure_vars e8 (StringSet.add p StringSet.empty) true  in
-		(*print_endline ("lambda name:" ^ ln ^ ";param: " ^ p ^ ";closed variables[ ");
-		StringSet.iter (print_endline) vs1;
-		print_endline "]";*)
 		let (_, rest_st) = if not nested then find_lambdas nested e9
 								else (lsc, WildCard (* let helper construct this *) ) in
 
@@ -116,10 +113,7 @@ let rec find_lambdas nested = function
 
     | Lambda(Var(p2), e10) -> 
     	if nested then 
-			(*(print_endline ("lambda name: anon" ^ "; param: " ^ p2 ^"; closed variables[ ");*)
 			let (sc10, st10) = get_closure_vars e10 (StringSet.add p2 StringSet.empty) nested in
-			(*StringSet.iter (print_endline) vs3;
-			print_endline "]"; vs3) else StringSet.empty*)
 
 			let anon_name = get_fresh "$anon" in
 			let new_expr = Let(Assign(anon_name, Lambda(Var(p2), st10)), Var(anon_name)) in
@@ -261,8 +255,6 @@ and get_closure_vars_clause exp scope nested = match exp with
  * on its free variables using close_app and m_replace.
  * .
  *)
-
-
 let rec close_app la vars = match vars with
 	| hd :: tl ->
 		let app1 = App(la, Var(Hashtbl.find og_to_mang hd)) in
