@@ -10,27 +10,25 @@ let translate (decl_lst: (decl * typed_decl) list) =
     (* function to print typed expressions *)
     let print_texpr (tlit: tx) (lval: L.llvalue) =
         let tycode = match tlit with
-              TIntLit _ -> L.const_int i32_t 0
             | TBoolLit _ -> L.const_int i32_t 1
-            | TCharLit _ -> L.const_int i32_t 2
-            | TFloatLit _ -> L.const_int i32_t 3
-            | _ -> raise (Failure "not literal")
+            (* tycode unused for all other tx *)
+            | _ -> L.const_int i32_t (-1)
         in
-        let expr_ptr = match tlit with
-            | TIntLit _ -> 
-                let intstar = L.build_call makeInt [| lval |] "makeInt" builder in 
-                L.build_call makeIntVoid [| intstar |] "makeIntVoid" builder
+        match tlit with
+            | TIntLit n ->
+                let _ = L.build_call printf_func [| int_format_str ; L.const_int i32_t n |] "printf" builder in
+                    L.build_call printf_func [| char_format_str ; l_char |] "printf" builder
             | TBoolLit _ -> 
-                L.build_call makeBool [| lval |] "makeBool" builder
-            | TCharLit _ -> 
-                L.build_call makeChar [| lval |] "makeChar" builder
-            | TFloatLit _ -> 
-                let floatstar = L.build_call makeFloat [| lval |] "makeFloat" builder in
-                L.build_call makeFloatVoid [| floatstar |] "makeFloatVoid" builder
-            | _ -> raise (Failure "Not Literal")
-        in  
-        let _ = L.build_call printAny [| expr_ptr ; tycode |] "" builder in
-        L.build_call printf_func [| char_format_str ; l_char |] "printf" builder
+                let b = L.build_call makeBool [| lval |] "makeBool" builder in  
+                    let _ = L.build_call printAny [| b ; tycode |] "" builder in
+                    L.build_call printf_func [| char_format_str ; l_char |] "printf" builder
+            | TCharLit c -> 
+                let _ = L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code c) |] "printf" builder in
+                    L.build_call printf_func [| char_format_str ; l_char |] "printf" builder
+            | TFloatLit f -> 
+                let _ =  L.build_call printf_func [| float_format_str ; L.const_float float_t f |] "printf" builder in
+                    L.build_call printf_func [| char_format_str ; l_char |] "printf" builder
+            | _ -> raise (Failure "Printing not implemented")
     in
 
     (* build code for typed_expr *)

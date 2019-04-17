@@ -50,6 +50,8 @@ struct List {
 	int (**filt)(void *,...);	// boolean filters for vbind values to accept
 };
 
+void printInt(int n);
+void printFloat(float f);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
 void printList(void *list);
@@ -60,8 +62,6 @@ void printRangeList(void *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
-void *makeIntVoid(int *x);
-void *makeFloatVoid(float *x);
 int *makeInt(int x);
 void *makeBool(char x);
 void *makeChar(char x);
@@ -331,3 +331,10 @@ void printPrim(void *data, int ty) {
 	}
 }
 
+void printInt(int n) {
+    printf("%d", n);
+}
+
+void printFloat(float f) {
+    printf("%f", f);
+}

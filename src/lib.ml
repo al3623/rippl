@@ -28,7 +28,11 @@ let main_f = L.define_function "main" main_t the_module
 let builder = L.builder_at_end context (L.entry_block main_f)
 
 let char_format_str = L.build_global_stringptr "%c" "fmt" builder
+let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder
+let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
+
 let l_char = L.const_int i8_t (Char.code '\n')
+
 (* 
 	struct Node {
 		void *data;
@@ -210,3 +214,4 @@ let printAny_t : L.lltype =
 	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
 let printAny : L.llvalue =
 	L.declare_function "printAny" printAny_t the_module
+
