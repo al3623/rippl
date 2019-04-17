@@ -1,10 +1,5 @@
-default: compiler.native lib.o
-	
-
 compiler.native: compiler.ml codegen.ml
 	ocamlbuild -use-ocamlfind -Is passes,utils compiler.native -pkgs llvm,llvm.analysis
-
-lib.o: lib.c
 
 parser.native: parser.mly ast.mli scanner.mll
 	ocamlbuild parser.native
@@ -17,7 +12,6 @@ clean:
 	ocamlbuild -clean 2>/dev/null
 	rm -f scanner.native
 	rm -rf _build
-	rm -rf *.o *.s *.byte exe
 
 .PHONY: all
 all: clean scanner.native
