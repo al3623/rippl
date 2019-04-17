@@ -110,7 +110,7 @@ let makeInt_t : L.lltype =
 let makeInt : L.llvalue =
 	L.declare_function "makeInt" makeInt_t the_module
 let makeBool_t : L.lltype =
-	L.function_type (L.pointer_type i8_t) [| i8_t |]
+	L.function_type (L.pointer_type i8_t) [| i1_t |]
 let makeBool : L.llvalue =
 	L.declare_function "makeBool" makeBool_t the_module
 let makeChar_t : L.lltype =
