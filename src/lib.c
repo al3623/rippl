@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT			0
+#define	INT		0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -50,8 +50,7 @@ struct List {
 	int (**filt)(void *,...);	// boolean filters for vbind values to accept
 };
 
-void printInt(int n);
-void printFloat(float f);
+void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
 void printList(void *list);
@@ -76,14 +75,6 @@ struct Maybe *makeMaybe(void *data, int ty);
 void explodeRangeList(void *list);
 void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
-
-void *makeIntVoid(int *x) {
-        return x;
-}
-
-void *makeFloatVoid(float *x) {
-        return x;
-}
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -211,6 +202,7 @@ struct List *appendNode(struct List *list, struct Node *node) {
 	return list;
 }
 
+
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
@@ -331,10 +323,7 @@ void printPrim(void *data, int ty) {
 	}
 }
 
-void printInt(int n) {
-    printf("%d", n);
+void printBool(char b) {
+    printf("%s", b != 0 ? "true" : "false");
 }
 
-void printFloat(float f) {
-    printf("%f", f);
-}

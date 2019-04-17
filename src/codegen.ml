@@ -7,71 +7,70 @@ module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
 
-    let print_newline () =  L.build_call printf_func [| char_format_str ; l_char |] "printf" builder in
+    let print_blankline () =  L.build_call printf_func [| char_format_str ; l_char |] "printf" builder in
     
     (* function to print typed expressions *)
-    let print_texpr (tlit: tx) (lval: L.llvalue) =
-        match tlit with
-            | TIntLit n ->
+    let print_texpr (t: typed_expr) = 
+        match t with
+            | (TIntLit n, _) ->
                 let _ = L.build_call printf_func [| int_format_str ; L.const_int i32_t n |] "printf" builder in
-                    print_newline ()
-            | TBoolLit _ -> 
-                let b = L.build_call makeBool [| lval |] "makeBool" builder in  
-                    let _ = L.build_call printAny [| b ; L.const_int i32_t 1 |] "" builder in
-                    print_newline ()
-            | TCharLit c -> 
+                    print_blankline ()
+            | (TBoolLit b, _) ->
+                let bool_ = (if b = true then L.const_int i1_t 1 else L.const_int i1_t 0) in
+                let _ = L.build_call printf_func [| bool_ |] "printBool" builder in
+                    print_blankline ()
+            | (TCharLit c, _) -> 
                 let _ = L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code c) |] "printf" builder in
-                    print_newline ()
-            | TFloatLit f -> 
+                    print_blankline ()
+            | (TFloatLit f, _) -> 
                 let _ =  L.build_call printf_func [| float_format_str ; L.const_float float_t f |] "printf" builder in
-                    print_newline ()
-            
+                    print_blankline ()
+         
+            (* strings = char lists*)
+            | (TListLit(clist), TconList(Char)) ->
+                let emptylist = L.build_call makeEmptyList [| L.const_int i32_t 2 |]
+                "empty" builder in
+                let rec print_string str prevlist = (match str with
+                    | (TCharLit(c),char_ty) :: xs -> 
+                        let l_char = L.const_int i8_t (Char.code c) in
+                        let charstar = L.build_call makeChar
+                            [| l_char |] "makeChar" builder in
+                        let nodestar = L.build_call makeNode
+                            [| charstar |] "makeNode" builder in
+                        let nextlist = L.build_call appendNode
+                            [| emptylist ; nodestar |] "appendNode" builder in
+                        print_string xs nextlist
+                    | _ ->
+                        let _ = L.build_call printPrimList [| prevlist |] "printPrimList" builder in
+                        print_blankline ()
+                )
+                in
+                print_string clist emptylist
+
+            (* list ranges *)
+            | (TListRange(start_end), TconList(Int)) ->
+                let rangelist = makerangelist start_end "mainlist" in
+                let _ = L.build_call printRangeList [| rangelist |] "printRangeList" builder in
+                print_blankline ()
+
+            (* primitive lists *)
+            | (TListLit([]), TconList(_)) ->
+                let emptylist = L.build_call makeEmptyList [| L.const_int i32_t 0 |] "emptyl" builder in
+                let _ = L.build_call printPrimList [| emptylist |] "printPrimList" builder in
+                print_blankline ()
+    
             | _ -> raise (Failure "print_texpr") 
     in
 
     (* build code for typed_expr *)
-    let rec build_expr builder (t: typed_expr) = 
+    let rec build_expr builder (t: tx) = 
         match t with
         (* literals *)
-        | (TIntLit n, _) -> L.const_int i32_t n
-        | (TBoolLit b, _) -> L.const_int i1_t (if b then 1 else 0)
-        | (TCharLit c, _) -> L.const_int i8_t (Char.code c)
-        | (TFloatLit f, _) -> L.const_float float_t f
-        
-        (* strings = char lists*)
-        | (TListLit(clist), TconList(Char)) ->
-            let emptylist = L.build_call makeEmptyList [| L.const_int i32_t 2 |]
-            "empty" builder in
-            let rec print_string str prevlist = (match str with
-                | (TCharLit(c),char_ty) :: xs -> 
-                    let l_char = L.const_int i8_t (Char.code c) in
-                    let charstar = L.build_call makeChar
-                        [| l_char |] "makeChar" builder in
-                    let nodestar = L.build_call makeNode
-                        [| charstar |] "makeNode" builder in
-                    let nextlist = L.build_call appendNode
-                        [| emptylist ; nodestar |] "appendNode" builder in
-                    print_string xs nextlist
-                | _ ->
-                    let _ = L.build_call printPrimList [| prevlist |] "printPrimList" builder in
-                    print_newline ()
-            )
-            in
-            print_string clist emptylist
-
-        (* list ranges *)
-        | (TListRange(start_end), TconList(Int)) ->
-            let rangelist = makerangelist start_end "mainlist" in
-            let _ = L.build_call printRangeList [| rangelist |] "printRangeList" builder in
-            print_newline ()
-
-        (* primitive lists *)
-        | (TListLit([]), TconList(_)) ->
-            let emptylist = L.build_call makeEmptyList [| L.const_int i32_t 0 |] "emptyl" builder in
-            let _ = L.build_call printPrimList [| emptylist |] "printPrimList" builder in
-            print_newline ()
-
-        | _ -> raise (Failure "codegen for expr not implemented")
+        | TIntLit n -> L.const_int i32_t n
+        | TBoolLit b -> L.const_int i1_t (if b then 1 else 0)
+        | TCharLit c -> L.const_int i8_t (Char.code c)
+        | TFloatLit f -> L.const_float float_t f
+        | _ -> (* TODO: code for other typed_expr *) L.const_int i1_t 0 
     in
 
     (* d_lst is (name, expr) list representing (annot, Vdef) list *)
@@ -92,20 +91,11 @@ let translate (decl_lst: (decl * typed_decl) list) =
      *)
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
-            | (_, TypedVdef(_,texp)) -> 
-                let txp = fst texp in
+            | (_, TypedVdef(name,texp)) -> 
                 (* build expr *)
-                let e = build_expr builder texp in
-                ignore (
+                let _ = build_expr builder (fst texp) in
                 (* print expr *)
-                match txp with
-                    | TIntLit   _ as i -> print_texpr i e
-                    | TBoolLit  _ as b -> print_texpr b e
-                    | TCharLit  _ as c -> print_texpr c e
-                    | TFloatLit _ as f -> print_texpr f e
-                    
-                    | _ -> L.const_int i1_t 0
-                )
+                if name = "main" then ignore (print_texpr texp) else ()
     in
     let _ = List.iter build_decl decl_lst in
     (* return 0 *)
