@@ -314,12 +314,40 @@ let rec lift exp decl_list = match exp with
 		let (body1, dlist1) = lift e1 decl_list in
 		let (body2, dlist2) = lift e2 dlist1 in
 		(Let(Assign(n, body1), body2), dlist2)
+	| InfList(e1) ->
+		let (body1, dlist1) = lift e1 decl_list in
+		(InfList(body1), dlist1)
+	| ListRange(e1, e2) ->
+		let (body1, dlist1) = lift e1 decl_list in
+		let (body2, dlist2) = lift e2 dlist1 in
+		(ListRange(body1, body2), dlist2)
+	| ListLit(elist) ->
+		let (blist, dlist) = List.fold_left lift_helpere ([], decl_list) elist in
+		(ListLit(List.rev blist), dlist)
+	| ListComp(e1, cl) ->
+		let (body1, dlist1) = lift e1 decl_list in
+		let(clist, dlist2) = List.fold_left lift_helperc ([], dlist1) cl in
+		(ListComp(body1, clist), dlist2)
 	| Var(s1) -> 
 		(Var(s1), decl_list)
 	| Lambda(e1, e2) ->
 		let (body2, dlist2) = lift e2 decl_list in
 		(Lambda(e1, body2), dlist2)
 	| other -> (other, decl_list)
+
+and lift_helpere dl e =
+	let (body1, dlist1) = lift e (snd dl) in
+	((body1 :: (fst dl)), dlist1)
+
+and lift_helperc cl c = match c with
+	| ListVBind(e1, e2) ->
+		let (body1, dlist1) = lift e1 (snd cl) in
+		let (body2, dlist2) = lift e2 dlist1 in
+		((ListVBind(body1, body2) :: (fst cl)), dlist2)
+	| Filter(e1) ->
+		let (body1, dlist1) = lift e1 (snd cl) in
+		((Filter(body1) :: (fst cl)), dlist1)
+
 
 
 
