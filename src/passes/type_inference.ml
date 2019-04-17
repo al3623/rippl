@@ -31,7 +31,9 @@ let rec infer_type = function
     | ListLit l -> ( match l with
         | x::xs -> let (texpr,typ) = infer_type x in
             (TListLit (List.map infer_type (x::xs)), TconList typ)
-        | [] ->  (TListLit [], (Tvar "a")))
+        | [] ->  (TListLit [], TconList (Tvar "a")))
+	| ListRange (IntLit s, IntLit f) ->
+		(TListRange ((TIntLit s,Int), (TIntLit f,Int)), TconList Int)
     | _ -> raise (Failure ":C")
 
 let rec type_paired_program = function

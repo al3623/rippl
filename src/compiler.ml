@@ -9,6 +9,8 @@ open Lift_lambdas
 open Check_lists
 open Codegen
 open Printf
+open Sys
+open String
 
 let print_decls d = match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
@@ -21,19 +23,47 @@ let lift_decl curr_list d = match d with
                 let (lifted, l_decs) = lift mang_ast [] in
                 curr_list @ (l_decs @ [Vdef(n, lifted)])
         | annot -> curr_list @ [annot]
+        
+let rec remove_path str =
+	let slash = index_opt str '/' in
+	match slash with
+	| (Some i) -> remove_path (sub str (i+1) ((length str) -i-1))
+	| None -> str
 
+let read_full_file fname =
+			let ch = open_in fname in
+			let s = really_input_string ch (in_channel_length ch) in
+			close_in ch;
+			s
 
-let _ =
-        let lexbuf = Lexing.from_channel stdin in
-        let program = Parser.program Scanner.token lexbuf in
-        let m_program = Lift_lambdas.transform_main program in
-        (*let m = Codegen.translate program in
-        Llvm_analysis.assert_valid_module m;
-        let ls = Llvm.string_of_llmodule m in*)
-        (*let file = "hello.rply" in
-        let oc = open_out file in
-        fprintf oc "%s\n" ls; 
+let _ = 
+	let input = argv.(1) in
+	let length = length input in
+	let base = sub input 0 (length-4) in
+	let base_no_path = remove_path base in
+	let extension = sub input (length-3) 3 in
+
+	let _ = if extension = "rpl" 
+			then ()
+			else raise (Failure "Usage: <.rpl file>") in
+
+	let file_contents = read_full_file input in
+    
+	let lexbuf = Lexing.from_string file_contents in
+    let program = Parser.program Scanner.token lexbuf in
+    let m_program = Lift_lambdas.transform_main program in
+    let program_ll = List.fold_left lift_decl [] m_program in
+	let pair_program = Pair_annots.pair_av program_ll in
+	let pair_tprogram = Type_inference.type_paired_program pair_program in
+    let m = Codegen.translate pair_tprogram in
+	    Llvm_analysis.assert_valid_module m;
+    let ls = Llvm.string_of_llmodule m in
+    let file = base_no_path ^ ".byte" in
+    let oc = open_out file in
+		fprintf oc "%s\n" ls;
         close_out oc;
-        Sys.command ("cat " ^ file ^ " | lli")*)
-        let program_ll = List.fold_left lift_decl [] m_program in
-        List.iter print_decls program_ll;
+		if (command ("llc -relocation-model=pic " ^ file) != 0)
+			then raise (Failure "llc: non-zero exit code") 
+		else if (command ("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o") != 0)
+			then raise (Failure "gcc: non-zero exit code")
+		else ()
