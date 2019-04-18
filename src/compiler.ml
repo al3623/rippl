@@ -4,7 +4,8 @@ open Parser
 open Check_main
 open Pair_annots
 open Pretty_type_print
-open Type_inference
+(*open Type_check*)
+open Lift_lambdas
 open Check_lists
 open Codegen
 open Printf
@@ -12,6 +13,18 @@ open Sys
 open String
 open Thunk
 
+let print_decls d = match d with
+        | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
+        | _ -> print_endline "annots"
+
+let lift_decl curr_list d = match d with
+        | Vdef(n, e) ->
+                let (_, nl_ast) = find_lambdas false e in ();
+                let mang_ast = mangle_lets nl_ast in
+                let (lifted, l_decs) = lift mang_ast [] in
+                curr_list @ (l_decs @ [Vdef(n, lifted)])
+        | annot -> curr_list @ [annot]
+        
 let rec remove_path str =
 	let slash = index_opt str '/' in
 	match slash with
@@ -39,7 +52,9 @@ let _ =
     
 	let lexbuf = Lexing.from_string file_contents in
     let program = Parser.program Scanner.token lexbuf in
-	let pair_program = Pair_annots.pair_av program in
+    let m_program = Lift_lambdas.transform_main program in
+    let program_ll = List.fold_left lift_decl [] m_program in
+	let pair_program = Pair_annots.pair_av program_ll in
 	let pair_tprogram = Type_inference.type_paired_program pair_program in
     let m = Codegen.translate pair_tprogram in
 	    Llvm_analysis.assert_valid_module m;
