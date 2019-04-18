@@ -11,6 +11,7 @@ open Codegen
 open Printf
 open Sys
 open String
+open Thunk
 
 let print_decls d = match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
