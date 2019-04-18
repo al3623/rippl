@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT			0
+#define	INT		0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -51,6 +51,7 @@ struct List {
 	int num_vbinds;
 };
 
+void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
 void printList(void *list);
@@ -226,6 +227,7 @@ struct List *appendNode(struct List *list, struct Node *node) {
 	return list;
 }
 
+
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
@@ -344,5 +346,9 @@ void printPrim(void *data, int ty) {
 		char char_data = *(char *)data;
 		printf("%c",char_data);
 	}
+}
+
+void printBool(char b) {
+    printf("%s", b != 0 ? "true" : "false");
 }
 
