@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT			0
+#define	INT		0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
