@@ -1,4 +1,5 @@
 open Ast
+open Tast
 open Scanner
 open Parser
 open Check_main
@@ -9,12 +10,17 @@ open Lift_lambdas
 open Check_lists
 open Codegen
 open Printf
+open Type_inference
+open Remove_substs
 open Sys
 open String
 open Thunk
 
 let print_decls d = match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e);
+                (*let (_, e_named_lambdas) = find_lambdas false e in ();*)
+                (*print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str e_named_lambdas);*)
+                (*let _ =Lift_lambdas.print_map() in ()*)
         | _ -> print_endline "annots"
 
 let lift_decl curr_list d = match d with
@@ -30,6 +36,16 @@ let rec remove_path str =
 	match slash with
 	| (Some i) -> remove_path (sub str (i+1) ((length str) -i-1))
 	| None -> str
+
+let print_tdecl td = 
+    match td with
+    | (annot, tvd) -> print_endline ( Pretty_tast_print.tast_to_str tvd)
+
+let rec print_all_types = function
+	| (_, TypedVdef(name, (_,ty)))::xs -> 
+		print_endline (name ^ ": " ^ (ty_to_str ty));
+		print_all_types xs
+	| [] -> print_newline
 
 let read_full_file fname =
 			let ch = open_in fname in
@@ -54,8 +70,10 @@ let _ =
     let program = Parser.program Scanner.token lexbuf in
     let m_program = Lift_lambdas.transform_main program in
     let program_ll = List.fold_left lift_decl [] m_program in
-	let pair_program = Pair_annots.pair_av program_ll in
-	let pair_tprogram = Type_inference.type_paired_program pair_program in
+	  let pair_program = Pair_annots.pair_av program_ll in
+    let pair_iprogram = Type_inference.type_paired_program paired_program in
+		let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
+		    print_all_types pair_tprogram;  
     let m = Codegen.translate pair_tprogram in
 	    Llvm_analysis.assert_valid_module m;
     let ls = Llvm.string_of_llmodule m in
