@@ -72,7 +72,7 @@ and op_to_str s =
     | Var(sv) -> sv
     | Lambda(e1, e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | _ -> "other"
+    | _ -> ast_to_str s
 
 and ty_to_str ty =
     match ty with

@@ -1,0 +1,1 @@
+main = if true then 4.5 else 9.0

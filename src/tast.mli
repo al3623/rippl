@@ -34,3 +34,11 @@ and tassign = TAssign of (typed_expr * typed_expr)
 
 type typed_decl =
     | TypedVdef of (string * typed_expr)
+
+type tlambda_def = {
+    tlname: string;
+    tltyp: ty;
+    trtyp: ty;
+    tlexp: typed_expr;
+    trexp: typed_expr;
+}
