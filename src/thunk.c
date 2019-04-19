@@ -1,15 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-struct Thunk {
-	struct Thunk * (* f)(struct Thunk *,void *);
-	int num_args;
-	int filled_args;
-	void **args;
-//	int *types;
-	void *value;
-};
+#include "thunk.h"
+#include "lib.h"
 
 struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *), 
 //	int[] types,
@@ -71,6 +62,7 @@ struct Thunk *invoke(struct Thunk *t, void *arg) {
 	return f(t,arg);	
 }
 
+/*
 int main() {
 	int types[] = {0, 0};
 
@@ -99,4 +91,4 @@ int main() {
 	printf("%d\n",two_);
 
 	return 0;
-}
+} */

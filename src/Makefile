@@ -1,4 +1,4 @@
-default: compiler.native lib.o thunk.o
+default: compiler.native lib.o thunk.o mymap.o
 
 compiler.native: compiler.ml codegen.ml
 	ocamlbuild -use-ocamlfind -Is passes,utils compiler.native -pkgs llvm,llvm.analysis
@@ -6,9 +6,11 @@ compiler.native: compiler.ml codegen.ml
 parser.native: parser.mly ast.mli scanner.mll
 	ocamlbuild parser.native
 
-lib.o: lib.c
+lib.o: lib.c lib.h
 
-thunk.o: thunk.c
+thunk.o: thunk.c thunk.h
+
+mymap.o: mymap.c mymap.h thunk.h lib.c
 
 scanner.native: scanner.mll
 	ocamlbuild scanner.native
