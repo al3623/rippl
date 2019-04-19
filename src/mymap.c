@@ -7,9 +7,36 @@ struct List *map(struct List *list, struct Thunk *func) {
 
 	while (curr) {
 		void *data = (curr->data)->value; // always evaluated?
-		struct Thunk *newThunk = invoke(func, data);
+		struct Thunk *newThunk = apply(func, data);
 		struct Node *newNode = makeNode(newThunk);
 		appendNode(new, newNode);
+		curr = curr->next;
+	}
+	return new;
+}
+
+struct List *filter(struct List *list, struct Thunk *filter) {
+	struct List *new = makeEmptyList(list->content_type);
+	struct Node *curr = list->head;
+
+	while (curr) {
+		struct Thunk *currThunk = curr->data;
+		int filled_args = currThunk->filled_args;
+		void **currArg = currThunk->args;
+		struct Thunk *passesFilter = filter;	
+
+		while (filled_args) {
+			passesFilter = apply(passesFilter, currArg);
+			currArg++;
+			filled_args--;
+		}	
+		void *value = invoke(passesFilter);
+		
+		int passed = *(int *)value;
+		if (passed) {
+			struct Node *newNode = makeNode(curr->data);
+			appendNode(new,newNode);
+		}
 		curr = curr->next;
 	}
 	return new;

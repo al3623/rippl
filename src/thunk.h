@@ -11,5 +11,6 @@ struct Thunk {
 
 struct Thunk *init_thunk(struct Thunk *( *f)(struct Thunk *, void *), 
 	int num_args);
-struct Thunk *invoke(struct Thunk *t, void *arg);
+struct Thunk *apply(struct Thunk *t, void *arg);
+void *invoke(struct Thunk *t);
 #endif

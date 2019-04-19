@@ -57,11 +57,20 @@ struct Thunk *add_thunk(struct Thunk *thunk, void *arg) {
 	return new_thunk;
 }
 
-struct Thunk *invoke(struct Thunk *t, void *arg) {
+struct Thunk *apply(struct Thunk *t, void *arg) {
 	struct Thunk* (*f) (struct Thunk *thunk, void *a) = t->f;
 	return f(t,arg);	
 }
 
+
+void *invoke(struct Thunk *t) {
+	void *val = t->value;
+	if (!t) {
+		fprintf(stderr, "can't extract value from partially applied function");
+		exit(1);
+	}
+	return val;
+}
 /*
 int main() {
 	int types[] = {0, 0};
@@ -73,14 +82,14 @@ int main() {
 	int zero = 0;
 	int two = 2;
 
-	struct Thunk *add5 = invoke(orig_thunk, &five);	
+	struct Thunk *add5 = apply(orig_thunk, &five);	
 	fprintf(stderr, "in add5: %d\n", *(int *)((add5->args)[0]));
-	struct Thunk *add2 = invoke(orig_thunk, &two);
+	struct Thunk *add2 = apply(orig_thunk, &two);
 	fprintf(stderr, "in add5: %d\n", *(int *)((add5->args)[0]));
 	
-	struct Thunk *add50 = invoke(add5, &zero);
-	struct Thunk *add52 = invoke(add5, &two);
-	struct Thunk *add20 = invoke(add2, &zero);
+	struct Thunk *add50 = apply(add5, &zero);
+	struct Thunk *add52 = apply(add5, &two);
+	struct Thunk *add20 = apply(add2, &zero);
 
 	int seven_ = *(int *)(add52->value);
 	int five_ = *(int *)(add50->value);
