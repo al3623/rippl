@@ -71,7 +71,7 @@ let _ =
     let m_program = Lift_lambdas.transform_main program in
     let program_ll = List.fold_left lift_decl [] m_program in
 	  let pair_program = Pair_annots.pair_av program_ll in
-    let pair_iprogram = Type_inference.type_paired_program paired_program in
+    let pair_iprogram = Type_inference.type_paired_program pair_program in
 		let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
 		    print_all_types pair_tprogram;  
     let m = Codegen.translate pair_tprogram in
