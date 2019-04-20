@@ -18,7 +18,7 @@ open Thunk
 module StringSet = Set.Make(String)
 
 let print_decls d = match d with
-        | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str (transform_comps e));
+        | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str (e));
         | _ -> print_endline "annots"
 
 let lift_decl curr_list d = match d with
@@ -26,7 +26,9 @@ let lift_decl curr_list d = match d with
                 let vnames = List.fold_left (fun s d -> match d with 
                         | Vdef(nm, _) -> StringSet.add nm s
                         | _ -> s) StringSet.empty curr_list in
-                let (_, nl_ast) = find_lambdas false e in ();
+                let wraplc_ast = transform_comps e in
+                (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
+                let (_, nl_ast) = find_lambdas false wraplc_ast in ();
                 let mang_ast = mangle_lets nl_ast in
                 let (lifted, l_decs) = lift mang_ast [] in
                 map_v_decl n;

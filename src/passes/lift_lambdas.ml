@@ -3,6 +3,7 @@ open Scanner
 open Parser
 open Get_fresh_var
 open Printf
+open Pretty_type_print
 module StringSet = Set.Make(String)
 
 let lamb_to_cl = Hashtbl.create 42069
@@ -79,8 +80,8 @@ let rec transform_comps expr = match expr with
 	| ListComp(constr_e, cl) ->
 		let trans_constr = transform_comps constr_e in
 		let c_vars = List.rev(check_clauses cl false false []) in
-		print_endline (string_of_int (List.length cl));
 		let wrapped_constr = add_params trans_constr c_vars in
+		(*print_endline ("-----wrapped:----\n" ^ ast_to_str wrapped_constr ^ "\n------");*)
 		let new_name = get_fresh "$anon" in
 		ListComp(Let(Assign(new_name, wrapped_constr), Var(new_name)), cl)
 
