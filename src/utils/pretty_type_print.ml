@@ -29,7 +29,7 @@ and assign_to_str = function | Assign (e1,e2)
 and clauses_to_str clauses =
    match clauses with
    | [Filter(e)] -> "Filter(" ^ (ast_to_str e)
-   | [ListVBind(e, l)] -> "ListVBind(" ^ (ast_to_str e) ^ "," ^ (ast_to_str l) ^ ")"
+   | [ListVBind(s, l)] -> "ListVBind(" ^ s ^ "," ^ (ast_to_str l) ^ ")"
    | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
    | [] -> ""
 

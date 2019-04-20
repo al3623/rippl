@@ -30,6 +30,63 @@ let rec transform_main d_list = match d_list with
 	| other :: ds2 -> other :: transform_main ds2
 	| [] -> []
 
+let rec m_replace og_ex m_ex ex = match ex with
+	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
+	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
+	| Lambda(e1, e2) -> Lambda(e1, m_replace og_ex m_ex e2)
+	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, (m_replace og_ex m_ex e2)), (m_replace og_ex m_ex e3))
+	| Var(s1) -> if ex = og_ex then m_ex else ex
+	| other -> other
+
+let rec close_lambda lam vars = match vars with
+	| hd :: tl -> 
+		let mang_param = get_fresh ("$" ^ hd) in
+		let repl_lam = m_replace (Var(Hashtbl.find og_to_mang hd)) (Var(mang_param)) lam in
+		Lambda(Var(mang_param), (close_lambda repl_lam tl))
+	| [] -> lam
+
+let rec add_params lam vars = match vars with
+	| hd :: tl -> 
+		let mang_param = get_fresh ("$" ^ hd) in
+		let repl_lam = m_replace (Var(hd)) (Var(mang_param)) lam in
+		Lambda(Var(mang_param), (add_params repl_lam tl))
+	| [] -> lam
+
+let rec contains n haystack = match haystack with
+	| [] -> false
+	| hd :: tl -> if n = hd then true else contains n tl
+
+let rec check_clauses clauses seen_v seen_f vnames= match clauses with
+	| [] -> if seen_v then vnames else raise(Failure "missing variable binding(s)")
+	| hd :: tl -> (match hd with 
+		| ListVBind(n, _) -> if seen_f then raise(Failure "unexpected variable binding; expecting filter") else
+			if contains n vnames then raise(Failure "redeclaration of variable binding in clauses") else
+				check_clauses tl true seen_f (n :: vnames)
+		| Filter(_) -> if not seen_v then raise(Failure "missing variable binding(s)!!") else
+			check_clauses tl seen_v true vnames)
+
+
+let rec transform_comps expr = match expr with
+	| Lambda(e1, e2) -> Lambda(transform_comps e1, transform_comps e2)
+	| App(e1, e2) -> App(transform_comps e1, transform_comps e2)
+	| Ite(e1, e2, e3) -> Ite(transform_comps e1, transform_comps e2, transform_comps e3)
+	| Let(Assign(n, e1), e2) -> Let(Assign(n, transform_comps e1), transform_comps e2)
+	| InfList(e1) -> InfList(transform_comps e1)
+	| ListRange(e1, e2) -> ListRange(transform_comps e1, transform_comps e2)
+	| ListLit(elst) ->
+		let e_list = List.rev(List.fold_left (fun l e -> (transform_comps e) :: l) [] elst) in
+		ListLit(e_list)
+	| ListComp(constr_e, cl) ->
+		let trans_constr = transform_comps constr_e in
+		let c_vars = List.rev(check_clauses cl false false []) in
+		print_endline (string_of_int (List.length cl));
+		let wrapped_constr = add_params trans_constr c_vars in
+		let new_name = get_fresh "$anon" in
+		ListComp(Let(Assign(new_name, wrapped_constr), Var(new_name)), cl)
+
+		
+	| other -> other
+
 (* 
  * Free variable detection: get_closure_vars and find_lambdas
  * 
@@ -141,10 +198,9 @@ and find_lambdas_clause nested = function
     	(StringSet.empty, Filter(st1))
 
     | ListVBind(e1, e2) ->
-    	let (_, st1) = find_lambdas true e1 in 
     	let (_, st2) =  find_lambdas true e2 in
 
-    	(StringSet.empty, ListVBind(st1, st2))
+    	(StringSet.empty, ListVBind(e1, st2))
 
 and get_closure_vars exp scope nested= match exp with
 	| Let(Assign(nl, Lambda(_,_)), e1) -> 
@@ -233,11 +289,10 @@ and get_closure_vars_clause exp scope nested = match exp with
 
     	(sc1, Filter(st1))
 
-    | ListVBind(e1, e2) ->
-    	let (sc1, st1) = find_lambdas true e1 in 
+    | ListVBind(e1, e2) -> 
     	let (sc2, st2) =  find_lambdas true e2 in
 
-    	((StringSet.union sc1 sc2), ListVBind(st1, st2))
+    	(sc2, ListVBind(e1, st2))
 (* END OF FREE VARIABLE DETECTION *)
 
 (*
@@ -260,21 +315,6 @@ let rec close_app la vars = match vars with
 		let app1 = App(la, Var(Hashtbl.find og_to_mang hd)) in
 		close_app app1 tl
 	| [] -> la
-
-let rec m_replace og_ex m_ex ex = match ex with
-	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
-	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
-	| Lambda(e1, e2) -> Lambda(e1, m_replace og_ex m_ex e2)
-	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, (m_replace og_ex m_ex e2)), (m_replace og_ex m_ex e3))
-	| Var(s1) -> if ex = og_ex then m_ex else ex
-	| other -> other
-
-let rec close_lambda lam vars = match vars with
-	| hd :: tl -> 
-		let mang_param = get_fresh ("$" ^ hd) in
-		let repl_lam = m_replace (Var(Hashtbl.find og_to_mang hd)) (Var(mang_param)) lam in
-		Lambda(Var(mang_param), (close_lambda repl_lam tl))
-	| [] -> lam
 
 let rec mangle_lets e = match e with 
 	| Var(s1) -> Var(s1)
@@ -312,7 +352,7 @@ let rec mangle_lets e = match e with
 
 and mangle_helperc clst clau= match clau with
 	| Filter(e1) -> Filter(mangle_lets e1) :: clst
-    | ListVBind(e1, e2) -> ListVBind(mangle_lets e1, mangle_lets e2) :: clst
+    | ListVBind(e1, e2) -> ListVBind(e1, mangle_lets e2) :: clst
 (* END OF CLOSURE *)
 
 
@@ -369,10 +409,13 @@ and lift_helpere dl e =
 
 and lift_helperc cl c = match c with
 	| ListVBind(e1, e2) ->
-		let (body1, dlist1) = lift e1 (snd cl) in
-		let (body2, dlist2) = lift e2 dlist1 in
-		((ListVBind(body1, body2) :: (fst cl)), dlist2)
+		let (body2, dlist2) = lift e2 (snd cl) in
+		((ListVBind(e1, body2) :: (fst cl)), dlist2)
 	| Filter(e1) ->
 		let (body1, dlist1) = lift e1 (snd cl) in
 		((Filter(body1) :: (fst cl)), dlist1)
 (* END OF LAMBDA LIFTING *)
+
+
+let map_v_decl n =
+		Hashtbl.add og_to_mang n n;

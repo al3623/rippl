@@ -7,7 +7,7 @@ let rec check_list_clauses clauses =
     match clauses with
         | hd :: tl -> (
                 match hd with 
-                    | ListVBind(Var(_), lst) -> "GOOD LIST COMPREHENSION"
+                    | ListVBind(_, lst) -> "GOOD LIST COMPREHENSION"
                     | _ -> "BAD LIST COMPREHENSION"
                 )
         | [] -> ""

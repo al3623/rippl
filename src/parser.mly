@@ -164,4 +164,4 @@ clauses:
 
 clause:
     | expr { Filter($1) } /*boolean filter for list comp*/
-    | expr OVER lists { ListVBind($1,$3) } /*variable binding for list comp*/
+    | IDENT OVER lists { ListVBind($1,$3) } /*variable binding for list comp*/

@@ -17,7 +17,7 @@ type expr =
 	| InfList of expr
     | ListLit of expr list
 and clause = 
-	| ListVBind of (expr * expr)
+	| ListVBind of (string * expr)
 	| Filter of expr
 and assign = Assign of (string * expr)
 
