@@ -19,9 +19,9 @@ ix =
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
     | ICons | ICat | ILen | IHead | ITail
-    | IVar of (Ast.ty SubstMap.t * string)
+    | IVar of (string)
     | ILet of (Ast.ty SubstMap.t * iassign * inferred_expr)
-    | ILambda of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
+    | ILambda of (Ast.ty SubstMap.t * string * inferred_expr)
     | IApp of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
     | IIte of (Ast.ty SubstMap.t * inferred_expr * inferred_expr * inferred_expr)
 	| IListComp of (Ast.ty SubstMap.t * inferred_expr * iclause list)
@@ -29,9 +29,9 @@ ix =
 	| IInfList of (Ast.ty SubstMap.t * inferred_expr)
     | IListLit of (inferred_expr list)
 and iclause = 
-	| IListVBind of (inferred_expr * inferred_expr)
+	| IListVBind of (string * inferred_expr)
 	| IFilter of inferred_expr
-and iassign = IAssign of (inferred_expr * inferred_expr)
+and iassign = IAssign of (string * inferred_expr)
 
 type inferred_decl =
     | InferredVdef of (string * inferred_expr)

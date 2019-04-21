@@ -22,11 +22,11 @@ let rec remove_subst_expr = function
     | (_,ICons,t) -> (TCons,t) | (_,ICat,t) -> (TCat,t) 
 	| (_,ILen,t) -> (TLen,t) | (_,IHead,t) -> (THead,t) 
 	| (_,ITail,t) -> (TTail,t) 
-	| (_,IVar (_,str),t) -> (TVar str,t)
+	| (_,IVar (str),t) -> (TVar str,t)
     | (_,ILet (_, iassign, ix1),t) ->
 		(TLet(remove_subst_iassign iassign, remove_subst_expr ix1),t)
-    | (_,ILambda(_, ix1, ix2),t) ->
-		(TLambda(remove_subst_expr ix1, remove_subst_expr ix2),t)
+    | (_,ILambda(_, var, ix2),t) ->
+		(TLambda(var, remove_subst_expr ix2),t)
     | (_,IApp(_, ix1, ix2),t) ->
 		(TApp(remove_subst_expr ix1, remove_subst_expr ix2),t)
     | (_,IIte(_,ix1, ix2, ix3),t) ->
@@ -42,13 +42,13 @@ let rec remove_subst_expr = function
     | (_,(IListLit(ix_list)),t) ->
 		(TListLit (List.map remove_subst_expr ix_list),t)
 and remove_subst_clause = function
-	| IListVBind(ix1,ix2) ->
-		TListVBind(remove_subst_expr ix1, remove_subst_expr ix2)	
+	| IListVBind(str,ix2) ->
+		TListVBind(str, remove_subst_expr ix2)	
 	| IFilter ix1 ->
 		TFilter (remove_subst_expr ix1)
 and remove_subst_iassign = function
-	| IAssign(ix1,ix2) ->
-		TAssign(remove_subst_expr ix1, remove_subst_expr ix2)
+	| IAssign(str,ix2) ->
+		TAssign(str, remove_subst_expr ix2)
 
 let remove_subst = function
 	|InferredVdef(name,expr) ->	TypedVdef(name, remove_subst_expr expr)

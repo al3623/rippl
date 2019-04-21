@@ -9,7 +9,7 @@ type expr =
     | Cons | Cat | Len | Head | Tail
     | Var of string
     | Let of (assign * expr)
-    | Lambda of (expr * expr)
+    | Lambda of (string * expr)
     | App of (expr * expr)
     | Ite of (expr * expr * expr)
 	| ListComp of (expr * clause list)
@@ -17,7 +17,7 @@ type expr =
 	| InfList of expr
     | ListLit of expr list
 and clause = 
-	| ListVBind of (expr * expr)
+	| ListVBind of (string * expr)
 	| Filter of expr
 and assign = Assign of (string * expr)
 
