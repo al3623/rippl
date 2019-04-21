@@ -148,6 +148,18 @@ let rec ti env = function
 			let (_,_,ty) = List.hd merged_ix_list in
 			(fullSubst, IListLit(merged_ix_list), TconList ty)
 		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
+	| ListRange(e1, e2) -> 
+		let (subst1, tex1, ty1) = ti env e1 in
+		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in
+		let subst3 = mgu (apply subst2 ty1) ty2 in
+		let subst4 = mgu (apply subst3 ty1) Int in
+		(subst4, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
+			TconList Int)
+	| InfList e ->
+		let (subst, tex, ty) = ti env e in
+		let subst' = mgu (apply subst ty) Int in
+		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
+	(*| ListComp ->*)
     | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
