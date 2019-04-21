@@ -153,7 +153,7 @@ let rec ti env = function
                 | None -> raise(Failure("unbound variable" ^ n))
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
-    | Let (x, e2) ->  
+    (*| Let (x, e2) ->  *)
 (*  | Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
