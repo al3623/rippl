@@ -19,6 +19,14 @@ struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *),
 	return thunk;
 }
 
+struct Thunk *init_thunk_literal(void *data) {
+	struct Thunk *lit = init_thunk(NULL, 1);
+	(lit->args)[0] = data;
+	lit->filled_args = 1;
+	lit->value = data;
+	return lit;
+}
+
 void *add(int x, int y) {
 	// CODEGEN SPECIFIC: malloc result based on type
 	int *result = malloc(sizeof(int));
@@ -76,7 +84,6 @@ int main() {
 	int types[] = {0, 0};
 
 	struct Thunk *orig_thunk = init_thunk(add_thunk, 2);
-	struct Thunk *orig2 = init_thunk(add_thunk, 2);
 	
 	int five = 5;
 	int zero = 0;

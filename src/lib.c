@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "lib.h"
+#include "thunk.h"
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -22,20 +24,17 @@ float *makeFloat(float x) {
 	return f;
 }
 
-struct Node *makeNode(void *data) {
-	struct Node *new = malloc(sizeof(struct Node));
-	new->data = data;
-	new->next = NULL;
-	return new;
-}
-
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
 	struct Tuple *newtup = malloc(sizeof(struct Tuple));
 
 	newtup->t1 = t1;
 	newtup->t2 = t2;
-	newtup->first = data1; //TODO: does this work lol
-	newtup->second = data2;
+
+	struct Thunk *thunk_data1 = init_thunk_literal(data1);
+	struct Thunk *thunk_data2 = init_thunk_literal(data2);
+
+	newtup->first = thunk_data1;
+	newtup->second = thunk_data2;
 
 	return newtup;
 }
@@ -47,7 +46,9 @@ struct Maybe *makeMaybe(void *data, int ty) {
 	} else {
 		may->is_none = 1;
 	}
-	may->data = data;
+
+	struct Thunk *data_thunk = init_thunk_literal(data);
+	may->data = data_thunk;
 	return may;
 }
 
@@ -74,7 +75,6 @@ struct List *makeRangeList(int start, int end) {
 
 	int *data = makeInt(start);
 	list->head = makeNode(data);
-
 	list->last_eval = list->head;
 
 	return list;
@@ -97,6 +97,17 @@ struct List *makeInfinite(int start) {
 	return list;
 }
 
+struct Node *makeNode(void *data) {
+	struct Node *new = malloc(sizeof(struct Node));
+
+	struct Thunk *thunk_data = init_thunk_literal(data);
+
+	new->data = thunk_data;
+	new->next = NULL;
+	return new;
+}
+
+
 void explodeRangeList(void *list) {
 	struct List *llist = (struct List *)list;
 	
@@ -107,12 +118,12 @@ void explodeRangeList(void *list) {
 
 void evalNextNode(void *list) {
 	struct List *llist = (struct List *)list;
-	if (llist->type == 0 || llist->type == 1) {
+	
+	if (llist->type == RANGE || llist->type == INFINITE) {
 		llist->curr_index++;
 		int *data = makeInt(llist->curr_index);
 		struct Node *newNode = makeNode(data);
-		(llist->last_eval)->next = newNode;
-		llist->last_eval = newNode;
+		llist = appendNode(llist, newNode);
 	}
 }
 
@@ -164,12 +175,12 @@ void printPrimList(void *list) {
 	int ty = llist->content_type;
 	struct Node *curr = llist->head;
 
-	if (ty!= 2)
+	if (ty!= CHAR)
 		printf("[");
 	while (curr) {
-		printAny(curr->data, ty);	
+		printAny((curr->data)->value, ty);	
 		curr = curr->next;
-		if (curr && ty != 2) {
+		if (curr && ty != CHAR) {
 			printf(", ");
 		}
 	}	
@@ -184,7 +195,7 @@ void printInfinteList(void *list) {
 	struct Node *head = llist->head;
 
 	printf("[");
-	printAny(head->data, ty);
+	printAny((head->data)->value, ty);
 	printf("...]");
 }
 
@@ -192,8 +203,7 @@ void printRangeList(void *list) {
 	struct List *llist = (struct List*) list;
 	
 	int ty = llist->content_type;
-	struct Node *head = llist->head;
-	
+	struct Node *head = llist->head;	
 
 	if (llist->curr_index == llist->end) {
 		printPrimList(list);
@@ -211,9 +221,9 @@ void printTuple(void *tup) {
 	int t2 = tupl->t2;
 
 	printf("(");
-	printAny(tupl->first, t1);		
+	printAny(((tupl->first))->value, t1);		
 	printf(", ");
-	printAny(tupl->second, t2);
+	printAny((tupl->second)->value, t2);
 	printf(")");	
 }
 
@@ -224,7 +234,7 @@ void printMaybe(void *may) {
 		printf("None");
 	} else {
 		printf("Some ");
-		printAny(mayb->data, ty);
+		printAny((mayb->data)->value, ty);
 	}
 }
 

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT		0
+#define	INT			0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -20,14 +20,14 @@
 struct Tuple {
 	int t1;
 	int t2;
-	void *first;
-	void *second;
+	struct Thunk *first;
+	struct Thunk *second;
 };
 
 struct Maybe {
 	int ty;
 	int is_none;
-	void *data;
+	struct Thunk *data;
 };
 
 struct Node {

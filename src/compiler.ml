@@ -83,6 +83,7 @@ let _ =
         close_out oc;
 		if (command ("llc -relocation-model=pic " ^ file) != 0)
 			then raise (Failure "llc: non-zero exit code") 
-		else if (command ("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o") != 0)
+		else if (command 
+			("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o thunk.o") != 0)
 			then raise (Failure "gcc: non-zero exit code")
 		else ()

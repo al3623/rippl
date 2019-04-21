@@ -2,6 +2,8 @@ module L = Llvm
 open Ast
 open Tast
 open Lib
+open Structs
+open Thunk
 
 module StringMap = Map.Make(String)
 
