@@ -159,7 +159,7 @@ let rec ti env = function
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
-	(*| ListComp ->*)
+	(*| ListComp(e, clauses) ->*)
     | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
@@ -174,6 +174,9 @@ let rec ti env = function
 	| Lambda(_) -> raise (Failure "NO LAMBDAS :(")
     | _ -> raise (Failure "not yet implemented in type inference") 
 
+(*let rec type_clauses env = function
+	| ListVBind (var, blist) ->
+	| Filter e ->*)
 
 let rec type_paired_program = function
 	| ((annot, (Vdef (name,exp)))::xs) -> 
