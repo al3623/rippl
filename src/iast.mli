@@ -19,7 +19,7 @@ ix =
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
     | ICons | ICat | ILen | IHead | ITail
-    | IVar of (Ast.ty SubstMap.t * string)
+    | IVar of (string)
     | ILet of (Ast.ty SubstMap.t * iassign * inferred_expr)
     | ILambda of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
     | IApp of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)

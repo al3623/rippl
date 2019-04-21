@@ -22,7 +22,7 @@ let rec remove_subst_expr = function
     | (_,ICons,t) -> (TCons,t) | (_,ICat,t) -> (TCat,t) 
 	| (_,ILen,t) -> (TLen,t) | (_,IHead,t) -> (THead,t) 
 	| (_,ITail,t) -> (TTail,t) 
-	| (_,IVar (_,str),t) -> (TVar str,t)
+	| (_,IVar (str),t) -> (TVar str,t)
     | (_,ILet (_, iassign, ix1),t) ->
 		(TLet(remove_subst_iassign iassign, remove_subst_expr ix1),t)
     | (_,ILambda(_, ix1, ix2),t) ->
