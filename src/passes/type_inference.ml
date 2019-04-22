@@ -166,12 +166,12 @@ let rec ti env = function
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
     (*| Let (x, e2) ->  *)
-(*  | Lambda( n, e ) -> let tv = newTyVar n in 
+	| Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
-        let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in
-        let (s1, t1) = ti env'' e in 
-        (s1, TLambda (n, e), TArrow( (apply s1 tv), t1 )) *)
-	| Lambda(_) -> raise (Failure "NO LAMBDAS :(")
+        let env'' = SubstMap.union collision env' 
+			(SubstMap.singleton n (Tforall([], tv)) ) in
+        let (s1, tex1, t1) as ix1 = ti env'' e in 
+        (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
     | _ -> raise (Failure "not yet implemented in type inference") 
 
 (*let rec type_clauses env = function
