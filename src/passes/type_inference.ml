@@ -30,7 +30,7 @@ let rec apply s = function
         | Some t -> t
         | None -> Tvar(n)
     )
-    | Tarrow (t1, t2) -> Tarrow ( apply  s t2, apply s t2 )
+    | Tarrow (t1, t2) -> Tarrow ( apply  s t1, apply s t2 )
     | TconList (t) -> TconList (apply s t)
     | TconTuple (t1, t2) -> TconTuple (apply s t1, apply s t2)
     | Tforall (stlst, t) -> Tforall (stlst, 
@@ -91,7 +91,8 @@ let varBind u t = match u, t with
     | u, t when SS.mem u (ftv t) -> raise(Failure("Occur check fails "))
     | _,_ -> SubstMap.add u t SubstMap.empty
 
-let rec mgu ty1 ty2 = match ty1, ty2 with
+let rec mgu ty1 ty2 = 
+	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
             let s1 = mgu l l' in 
             let s2 = mgu (apply s1 r) (apply s1 r') in 
@@ -175,7 +176,7 @@ let rec ti env = function
 			(SubstMap.singleton n (Tforall([], tv)) ) in
         let (s1, tex1, t1) as ix1 = ti env'' e in 
         (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
-	| App(e1,e2) ->
+	| App(e1,e2) -> 
 		let tv = newTyVar "a" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
