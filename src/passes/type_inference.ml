@@ -3,6 +3,7 @@ open Tast
 open Get_fresh_var
 open Iast
 open List
+open Pretty_type_print
 
 module SS = Set.Make(String);;
 module SMap = Map.Make(String);;
@@ -107,7 +108,8 @@ let rec mgu ty1 ty2 = match ty1, ty2 with
             let s1 = mgu l l' in
             let s2 = mgu (apply s1 r) (apply s1 r') in 
             composeSubst s1 s2
-    | t1, t2 -> raise(Failure (" types do not unify "))
+    | t1, t2 -> raise(Failure ((ty_to_str ty1) ^ " types do not unify " ^
+(ty_to_str ty2)))
 
 
 
