@@ -4,6 +4,7 @@ open Tast
 open Lib
 open Structs
 open Thunk
+open Mymap
 
 module StringMap = Map.Make(String)
 
