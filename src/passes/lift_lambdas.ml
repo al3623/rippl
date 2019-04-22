@@ -31,13 +31,27 @@ let rec transform_main d_list = match d_list with
 	| other :: ds2 -> other :: transform_main ds2
 	| [] -> []
 
+
 let rec m_replace og_ex m_ex ex = match ex with
 	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
 	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
 	| Lambda(e1, e2) -> Lambda(e1, m_replace og_ex m_ex e2)
 	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, (m_replace og_ex m_ex e2)), (m_replace og_ex m_ex e3))
+	| InfList(e1) -> InfList(m_replace og_ex m_ex e1)
+	| ListRange(e1, e2) -> ListRange(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
+	| ListLit(elist) -> ListLit(List.rev (List.fold_left (fun l e -> (m_replace og_ex m_ex e) :: l) [] elist))
+	| ListComp(e1, cl) ->
+		let repl_constr = m_replace og_ex m_ex e1 in
+		ListComp(repl_constr, List.rev(List.fold_left (fun l c -> (m_replace_clause og_ex m_ex c) :: l) [] cl))
 	| Var(s1) -> if ex = og_ex then m_ex else ex
 	| other -> other
+
+and m_replace_clause og_ex m_ex cl = match cl with
+	| Filter(e1) -> Filter(m_replace og_ex m_ex e1)
+	| ListVBind(s, e1) -> ListVBind(s, m_replace og_ex m_ex e1)
+
+
+
 
 let rec close_lambda lam vars = match vars with
 	| hd :: tl -> 
