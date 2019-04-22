@@ -57,14 +57,14 @@ let rec contains n haystack = match haystack with
 	| [] -> false
 	| hd :: tl -> if n = hd then true else contains n tl
 
-let rec check_clauses clauses seen_v seen_f vnames= match clauses with
-	| [] -> if seen_v then vnames else raise(Failure "missing variable binding(s)")
+let rec check_clauses clauses seen_v seen_f vnames wrapped_clauses= match clauses with
+	| [] -> if seen_v then (vnames, wrapped_clauses) else raise(Failure "empty clause list")
 	| hd :: tl -> (match hd with 
 		| ListVBind(n, _) -> if seen_f then raise(Failure "unexpected variable binding; expecting filter") else
 			if contains n vnames then raise(Failure "redeclaration of variable binding in clauses") else
-				check_clauses tl true seen_f (n :: vnames)
-		| Filter(_) -> if not seen_v then raise(Failure "missing variable binding(s)!!") else
-			check_clauses tl seen_v true vnames)
+				check_clauses tl true seen_f (n :: vnames) (hd :: wrapped_clauses)
+		| Filter(e) -> if not seen_v then raise(Failure "missing variable binding(s)") else
+			check_clauses tl seen_v true vnames ((Filter(add_params e vnames)) :: wrapped_clauses))
 
 
 let rec transform_comps expr = match expr with
@@ -79,11 +79,11 @@ let rec transform_comps expr = match expr with
 		ListLit(e_list)
 	| ListComp(constr_e, cl) ->
 		let trans_constr = transform_comps constr_e in
-		let c_vars = List.rev(check_clauses cl false false []) in
-		let wrapped_constr = add_params trans_constr c_vars in
+		let (c_vars, wrapped_cls) = check_clauses cl false false [] [] in
+		let wrapped_constr = add_params trans_constr (List.rev c_vars) in
 		(*print_endline ("-----wrapped:----\n" ^ ast_to_str wrapped_constr ^ "\n------");*)
 		let new_name = get_fresh "$anon" in
-		ListComp(Let(Assign(new_name, wrapped_constr), Var(new_name)), cl)
+		ListComp(Let(Assign(new_name, wrapped_constr), Var(new_name)), (List.rev wrapped_cls))
 
 		
 	| other -> other
@@ -194,8 +194,7 @@ and list_helperf_cla nested clal cla =
 
 and find_lambdas_clause nested = function
 	| Filter(e1) ->
-    	let (_, st1) = find_lambdas nested e1 in
-
+    	let (_, st1) = find_lambdas true e1 in
     	(StringSet.empty, Filter(st1))
 
     | ListVBind(e1, e2) ->
