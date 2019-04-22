@@ -52,9 +52,12 @@ let rec ast_to_str exp =
     match exp with
     | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | Lambda(e1,e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | Lambda(e1,e2) -> "Lambda(" ^ e1 ^ "," ^ (ast_to_str e2) ^ ")"
     | App( App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
-    | App(op, e) -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
+    | App(op, e) -> (match op with
+                        Lambda(_,_) as l -> "App(" ^ (ast_to_str l) ^ "," ^ (ast_to_str e) ^ ")"
+                        | _ -> "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")" 
+                    )
     | Var(s) -> "Var(" ^ s ^ ")"
 
     (* Lists *)
@@ -77,7 +80,7 @@ and assign_to_str = function | Assign (e1,e2)
 and clauses_to_str clauses =
    match clauses with
    | [Filter(e)] -> "Filter(" ^ (ast_to_str e)
-   | [ListVBind(e, l)] -> "ListVBind(" ^ (ast_to_str e) ^ "," ^ (ast_to_str l) ^ ")"
+   | [ListVBind(e, l)] -> "ListVBind(" ^ e ^ "," ^ (ast_to_str l) ^ ")"
    | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
    | [] -> ""
 
@@ -108,7 +111,7 @@ let rec check_list_clauses clauses =
         match clauses with
             | hd :: tl -> (
                     match hd with 
-                        | ListVBind(Var(_), lst) -> "GOOD LIST COMPREHENSION"
+                        | ListVBind(_, lst) -> "GOOD LIST COMPREHENSION"
                         | _ -> "BAD LIST COMPREHENSION"
                     )
             | [] -> ""
