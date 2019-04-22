@@ -56,6 +56,9 @@ and m_replace_clause og_ex m_ex cl = match cl with
 let rec close_lambda lam vars = match vars with
 	| hd :: tl -> 
 		let mang_param = get_fresh ("$" ^ hd) in
+		let meme =(match (Hashtbl.find_opt og_to_mang hd) with
+			| Some(s) -> print_endline ("ok epic found" ^ s); 5
+			| _ -> print_endline ("couldnt find " ^ hd); print_endline("trying to close: " ^ (ast_to_str lam)); 5) in
 		let repl_lam = m_replace (Var(Hashtbl.find og_to_mang hd)) (Var(mang_param)) lam in
 		Lambda(Var(mang_param), (close_lambda repl_lam tl))
 	| [] -> lam
@@ -353,6 +356,7 @@ let rec mangle_lets e = match e with
 				Let(Assign(man_n1, mangle_lets e1), mangl_expr)
 			| Some(cp) -> 
 				let man_n2 = fst cp in
+				Hashtbl.add og_to_mang s2 man_n2;
 				let cl_vars = StringSet.elements (snd cp) in
 				let cl_lam = close_lambda e1 cl_vars in
 				let cl_app = close_app (Var(man_n2)) cl_vars in
