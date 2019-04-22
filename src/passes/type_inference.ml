@@ -166,14 +166,23 @@ let rec ti env = function
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
     (*| Let (x, e2) ->  *)
-	| Lambda( n, e ) -> let tv = newTyVar n in 
+	| Lambda( n, e ) -> 
+		let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union collision env' 
 			(SubstMap.singleton n (Tforall([], tv)) ) in
         let (s1, tex1, t1) as ix1 = ti env'' e in 
         (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
+	| App(e1,e2) ->
+		let tv = newTyVar "a" in
+		let (s1, tx1, t1) as ix1 = ti env e1 in
+		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
+		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in
+		((composeSubst (composeSubst s1 s2) s3)
+		, IApp(s3,ix1,ix2)
+		, apply s3 tv)
+	| Add -> (nullSubst, IAdd, Tarrow(Int, Tarrow(Int,Int)))
     | _ -> raise (Failure "not yet implemented in type inference") 
-
 (*let rec type_clauses env = function
 	| ListVBind (var, blist) ->
 	| Filter e ->*)
