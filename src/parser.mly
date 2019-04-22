@@ -24,6 +24,7 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
+%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left IN
 %left RARROW
 %left APP
@@ -31,7 +32,6 @@
 %left ELSE
 
 %left ASSIGN
-%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left PLUS MINUS PLUSF MINUSF
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
@@ -78,7 +78,7 @@ expr:
     
     | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
     | LET assign IN expr            { Let($2,$4) }
-    | FUN expr RARROW expr        { Lambda($2,$4) }
+    | FUN IDENT RARROW expr        { Lambda($2,$4) }
     /* | expr expr                { App($1,$2) } */
     | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
