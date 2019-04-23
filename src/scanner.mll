@@ -81,7 +81,7 @@ rule token =
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* APPLICATION *)
-            | '.'               { APP }
+            | '~'               { APP }
             (* IDENTIFIERS *)
             | (letter | '_') (letter | digit | '_')* as id { IDENT(id) }
             (* WHITESPACE *)

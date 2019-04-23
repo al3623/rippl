@@ -1,6 +1,14 @@
 %%
+let char_list_to_str cl =
+    match cl with
+    | [] -> ""
+    | [Ast.CharLit c] -> String.make 1 c
+    | charlist -> let convert x = match x with 
+        | Ast.CharLit c -> c 
+        | _ -> 'F'
+        in List.fold_left (^) "" (List.map (String.make 1) (List.map convert charlist))
 
-let op_to_str s =
+let rec op_to_str s =
     match s with
     (* Boolean Operators *)
     | Or -> "or"
@@ -37,18 +45,10 @@ let op_to_str s =
     | Tail -> "tail"
     | Len -> "len"
     | Var(other) -> "Var("^other^")"
-	| _ -> "other"
-
-let char_list_to_str cl =
-    match cl with
-    | [] -> ""
-    | [Ast.CharLit c] -> String.make 1 c
-    | charlist -> let convert x = match x with 
-        | Ast.CharLit c -> c 
-        | _ -> 'F'
-        in List.fold_left (^) "" (List.map (String.make 1) (List.map convert charlist))
-
-let rec ast_to_str exp =
+    | App(x,y) -> "App("^(ast_to_str x)^","^(ast_to_str y)^")"
+    | _ -> "other"
+and
+ast_to_str exp =
     match exp with
     | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
