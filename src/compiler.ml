@@ -20,20 +20,6 @@ module StringSet = Set.Make(String)
 let print_decls d = match d with
         | Vdef(n, e) -> print_endline (n ^ " = " ^ Pretty_type_print.ast_to_str (e));
         | _ -> print_endline "annots"
-
-let lift_decl curr_list d = match d with
-        | Vdef(n, e) ->
-                let vnames = List.fold_left (fun s d -> match d with 
-                        | Vdef(nm, _) -> StringSet.add nm s
-                        | _ -> s) StringSet.empty curr_list in
-                let wraplc_ast = transform_comps e in
-                (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
-                let (_, nl_ast) = find_lambdas false wraplc_ast in ();
-                let mang_ast = mangle_lets nl_ast in
-                let (lifted, l_decs) = lift mang_ast [] in
-                map_v_decl n;
-                curr_list @ (l_decs @ [Vdef(n, lifted)])
-        | annot -> curr_list @ [annot]
         
 let rec remove_path str =
 	let slash = index_opt str '/' in
@@ -73,7 +59,7 @@ let _ =
 	let lexbuf = Lexing.from_string file_contents in
     let program = Parser.program Scanner.token lexbuf in
     let m_program = Lift_lambdas.transform_main program in
-    let program_ll = List.fold_left lift_decl [] m_program in
+    let program_ll = Lift_lambdas.close_and_lift m_program in
     List.iter print_decls program_ll;
 	  (*let pair_program = Pair_annots.pair_av program_ll in
     let pair_iprogram = Type_inference.type_paired_program pair_program in

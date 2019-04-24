@@ -4,7 +4,7 @@ let rec ast_to_str exp =
     match exp with
     | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | Lambda(e1,e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | Lambda(e1,e2) -> "Lambda(" ^ (e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | App(App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
     | App(op, e) ->  "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
     | Var(s) -> "Var(" ^ s ^ ")"
@@ -69,8 +69,8 @@ and op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
-    | Var(sv) -> sv
-    | Lambda(e1, e2) -> "Lambda(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
+    | Var(sv) -> ("Var(" ^ sv ^ ")")
+    | Lambda(e1, e2) -> "Lambda(" ^ (e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | _ -> ast_to_str s
 
