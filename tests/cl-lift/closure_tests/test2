@@ -1,7 +1,0 @@
-main =	let pythag = fun a -> fun b -> a^2 + b^2 in
-		let a = 3 in
-		let b = 4 in
-		let c = 5 in
-			if pythag.a.b == c^2 
-				then "Pythagoras was right!" 
-			else "oh no"
