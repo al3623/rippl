@@ -8,7 +8,6 @@ module StringSet = Set.Make(String)
 module StringMap = Map.Make(String)
 
 let lamb_to_cl = Hashtbl.create 42069
-let og_to_mang = Hashtbl.create 42069
 let top_level_sc = ref StringSet.empty
 
 
@@ -52,27 +51,6 @@ and m_replace_clause og_ex m_ex cl = match cl with
 	| ListVBind(s, e1) -> ListVBind(s, m_replace og_ex m_ex e1)
 
 
-
-
-let rec close_lambda lam vars = match vars with
-	| hd :: tl -> 
-		let mang_param = Hashtbl.find og_to_mang hd(*get_fresh ("$" ^ hd)*) in
-		(*let meme =(match (Hashtbl.find_opt og_to_mang hd) with
-			| Some(s) -> print_endline ("ok epic found " ^ s ^ " from " ^ hd); 5
-			| _ -> print_endline ("couldnt find " ^ hd); print_endline("trying to close: " ^ (ast_to_str lam)); 
-					print_map 0; 5) in*)
-		(*Hashtbl.add og_to_mang hd mang_param;
-		Printf.printf "Let's replace %s with %s in %s\n" hd mang_param (ast_to_str lam);*)
-		let repl_lam = m_replace (Var(hd)) (Var(mang_param)) lam in
-		(*Printf.printf "Result: %s\n" (ast_to_str repl_lam);*)
-		Lambda(mang_param, (close_lambda repl_lam tl))
-	| [] -> (match lam with
-		| Lambda(p, b) -> 
-			let param = (match (Hashtbl.find_opt og_to_mang p) with
-			| Some(s) -> s
-			| _ -> p) in
-			Lambda(param, b))
-
 let rec add_params lam vars = match vars with
 	| hd :: tl -> 
 		let mang_param = get_fresh ("$" ^ hd) in
@@ -91,7 +69,8 @@ let rec check_clauses clauses seen_v seen_f vnames wrapped_clauses= match clause
 			if contains n vnames then raise(Failure "redeclaration of variable binding in clauses") else
 				check_clauses tl true seen_f (n :: vnames) (hd :: wrapped_clauses)
 		| Filter(e) -> if not seen_v then raise(Failure "missing variable binding(s)") else
-			check_clauses tl seen_v true vnames ((Filter(add_params e vnames)) :: wrapped_clauses))
+			check_clauses tl seen_v true vnames ((Filter(add_params e vnames)) :: wrapped_clauses)
+		(*| _ -> raise (Failure "NO")*))
 
 
 let rec transform_comps expr = match expr with
@@ -211,7 +190,7 @@ let rec find_lambdas nested = function
 		else
 			(StringSet.empty, Lambda(p2, e10))
 
-    | other -> (*print_endline "";*) (StringSet.empty, other)
+    | other -> (StringSet.empty, other)
 
 and list_helperf_ex nested exl ex =
 	let (_, st) = find_lambdas nested ex in
@@ -302,13 +281,7 @@ and get_closure_vars exp scope nested last_lam = match exp with
 			(sc1, (Lambda(p, st1)))
 		else
 			let (il_scope, il_structure) = find_lambdas nested exp in
-			(*let anon_name = (match il_structure with
-				| Let(Assign(an, Lambda(_, _)), Var(_)) -> an
-				| _ -> raise(Failure "what the FUCK")) in *)
 			let set_diff = (StringSet.diff il_scope scope) in
-
-		(*Hashtbl.add lamb_to_cl anon_name (anon_name, set_diff);*)
-
 			(set_diff, il_structure)
 
 	| other -> (StringSet.empty, other)
@@ -361,6 +334,7 @@ let rec wrap_lambda lam cl cl_to_mang = match cl with
 	| hd :: tl ->
 		Lambda((StringMap.find hd cl_to_mang), (wrap_lambda lam tl cl_to_mang))
 	| [] -> lam 
+
 let rec repl_body body cl_to_mang = match body with
 	| Var(s1) -> (match Hashtbl.find_opt lamb_to_cl s1 with
 		| Some(lc) -> (* oh god oh FUCK it's a lambda call.. let's close it rq *)
@@ -370,7 +344,7 @@ let rec repl_body body cl_to_mang = match body with
 					| Some(cp) -> cp :: pl
 					| _ -> p :: pl) [] closure_vars) in
 			let wrapped_var = wrap_app (Var(s1)) params_to_wrap in
-			Printf.printf "Before: %s; After: %s \n" s1 (ast_to_str wrapped_var);
+			(*Printf.printf "Before: %s; After: %s \n" s1 (ast_to_str wrapped_var);*)
 			wrapped_var
 
 		| _ -> ( (* not a lambda, let's check if it's a closure variable *)
@@ -378,8 +352,24 @@ let rec repl_body body cl_to_mang = match body with
 			| Some(mp) -> Var(mp) (* ok epic, it's a closure variable.. let's use the mangled parameter name *)
 			| _ -> Var(s1))) (* not from closure, just use the same name*)
 	| App(e1, e2) -> App(repl_body e1 cl_to_mang, repl_body e2 cl_to_mang)
-	| Let(Assign(n, e1), e2) -> Let(Assign(n, repl_body e1 cl_to_mang), repl_body e2 cl_to_mang)
-	| other -> other
+	| Let(Assign(n, e1), e2) -> (match e1 with 
+		| Lambda(_, _) -> Let(Assign(n, e1), repl_body e2 cl_to_mang)
+		| _ -> Let(Assign(n, repl_body e1 cl_to_mang), repl_body e2 cl_to_mang))
+	| Ite(e1, e2, e3) -> Ite(repl_body e1 cl_to_mang, repl_body e2 cl_to_mang, repl_body e3 cl_to_mang)
+	| Lambda(n, e1) -> Lambda(n, repl_body e1 cl_to_mang)
+	| InfList(e1) -> InfList(repl_body e1 cl_to_mang)
+	| ListRange(e1, e2) -> ListRange(repl_body e1 cl_to_mang, repl_body e2 cl_to_mang)
+	| ListLit(el) ->
+		let rl = List.rev(List.fold_left (fun lst le -> (repl_body le cl_to_mang) :: lst) [] el) in
+		ListLit(rl)
+	| ListComp(e1, cl) ->
+		let rcl = List.rev(List.fold_left (fun lst lc -> (repl_bodyc lc cl_to_mang) :: lst) [] cl) in
+		ListComp(repl_body e1 cl_to_mang, rcl)
+	| other -> other 
+
+and repl_bodyc body cl_to_mang = match body with
+	| ListVBind(s, e1) -> ListVBind(s, repl_body e1 cl_to_mang)
+	| Filter(e1) -> Filter(repl_body e1 cl_to_mang)
 
 let rec mangle_close e nested = match e with
 	| Var(s1) -> Var(s1)
@@ -389,7 +379,7 @@ let rec mangle_close e nested = match e with
 		| Lambda(lparam, lbody) ->
 			let mc_lbody = mangle_close lbody true in
 			let closure_info = Hashtbl.find lamb_to_cl n in
-			let mangled_lname = (fst closure_info) in
+			(*let mangled_lname = (fst closure_info) in*)
 			let cl_vars = StringSet.elements (snd closure_info) in
 			let clv_to_mang = List.fold_left (fun mp c -> StringMap.add c (get_fresh ("$" ^ c)) mp) StringMap.empty cl_vars in
 			let mang_body = repl_body mc_lbody clv_to_mang in
@@ -398,65 +388,20 @@ let rec mangle_close e nested = match e with
 			let man2_in_expr = if not nested then repl_body man_in StringMap.empty else man_in in
 			Let(Assign(n, w_lambda), man2_in_expr)
 		| other -> Let(Assign(n, other), (mangle_close inexp nested)))
-	| other -> other
-
-(*let rec mangle_lets e = match e with 
-	| Var(s1) -> Var(s1)
-	| App(e1, e2) -> App(mangle_lets e1, mangle_lets e2)
-	| Ite(e3, e4, e5) -> Ite(mangle_lets e3, mangle_lets e4, mangle_lets e5)
-	| Lambda(p, e7) -> 
-		(*let mang_param = get_fresh ("$" ^ og_param) in
-		Hashtbl.add og_to_mang og_param mang_param;
-		Printf.printf "Replacing %s with %s in %s\n" og_param mang_param (ast_to_str e7);
-		let repl_body = m_replace (Var(og_param)) (Var(mang_param)) e7 in
-		Printf.printf "Result: %s\n" (ast_to_str repl_body);
-		Lambda(mang_param, mangle_lets repl_body)*)
-		Lambda(p, mangle_lets e7)
-	| ListRange(e1, e2) -> ListRange(mangle_lets e1, mangle_lets e2)
-	| InfList(e1) -> InfList(mangle_lets e1)
-	| ListLit(elst) ->
-		ListLit(List.rev (List.fold_left (fun l ex -> (mangle_lets ex) :: l) [] elst))
+	| Lambda(n, e1) -> Lambda(n, mangle_close e1 nested)
+	| InfList(e1) -> InfList(mangle_close e1 nested)
+	| ListRange(e1, e2) -> ListRange(mangle_close e1 nested, mangle_close e2 nested)
+	| ListLit(el) ->
+		let ml = List.rev(List.fold_left (fun lst le -> (mangle_close le nested) :: lst) [] el) in
+		ListLit(ml)
 	| ListComp(e1, cl) ->
-		let mangled_lst = List.rev(List.fold_left mangle_helperc [] cl) in
-		let mangled_constr = mangle_lets e1 in
-		print_endline "sad meme";
-		ListComp(mangled_constr, mangled_lst)
-	| Let(Assign(s2, e1), e6) -> 
-		(*print_endline ("boutta mangle " ^ s2);
-		print_endline ("assign expr: " ^ (ast_to_str e1) ^ "; in expr: " ^ (ast_to_str e6));*)
-
-		let cl_res = Hashtbl.find_opt lamb_to_cl s2 in
-		(match cl_res with
-			| None -> 
-				let man_n1 = get_fresh ("$" ^ s2) in
-				Hashtbl.add og_to_mang s2 man_n1;
-				let repl_expr = m_replace (Var(s2)) (Var(man_n1)) e6 in
-				let mangl_expr = mangle_lets repl_expr in
-				Let(Assign(man_n1, mangle_lets e1), mangl_expr)
-			| Some(cp) -> 
-				(*this is a let binding to a lambda *)
-				let man_n2 = fst cp in (* this is its mangled name *)
-				Hashtbl.add og_to_mang s2 man_n2; (* store in og_to_mangled for replacement later *)
-				let cl_vars = StringSet.elements (snd cp) in (* these are the variables this lambda gets from closure *)
-				let mangled_inner = mangle_lets e1 in
-				let cl_app = close_app (Var(man_n2)) cl_vars in 
-				let repl_expr2 = m_replace (Var(s2)) cl_app e6 in
-				(*Printf.printf "in went from %s to %s\n" (ast_to_str e6) (ast_to_str repl_expr2);*)
-				
-				let cl_lam = close_lambda mangled_inner cl_vars in
-				(*Printf.printf "Just closed %s:\n went from %s\n to\n %s\n" man_n2 (ast_to_str e1) (ast_to_str cl_lam);*)
-				let mangl_expr2 = mangle_lets repl_expr2 in
-				Let(Assign(man_n2, cl_lam), mangl_expr2)
-
-		)
+		let ml = List.rev(List.fold_left (fun lst lc -> (mangle_closec lc nested) :: lst ) [] cl) in
+		ListComp(mangle_close e1 nested, ml)
 	| other -> other
 
-
-and mangle_helperc clst clau= match clau with
-	| Filter(e1) -> Filter(mangle_lets e1) :: clst
-    | ListVBind(e1, e2) -> ListVBind(e1, mangle_lets e2) :: clst*)
-(* END OF CLOSURE *)
-
+and mangle_closec c nested = match c with
+	| ListVBind(s, e1) -> ListVBind(s, mangle_close e1 nested)
+	| Filter(e1) -> Filter(mangle_close e1 nested)
 
 (* and finally... Lambda lifting: lift
  * Entry point is lift – traverse AST and raise lambdas to the global scope 
@@ -519,23 +464,16 @@ and lift_helperc cl c = match c with
 (* END OF LAMBDA LIFTING *)
 
 
-let map_v_decl n =
-		Hashtbl.add og_to_mang n n
-
 let lift_decl curr_list d = match d with
     | Vdef(n, e) ->
-            let vnames = List.fold_left (fun s d -> match d with 
-                    | Vdef(nm, _) -> StringSet.add nm s
-                    | _ -> s) StringSet.empty curr_list in
             let wraplc_ast = transform_comps e in
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
-            print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");
+            (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
             let mang_ast = mangle_close nl_ast false in
-            print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");
+            (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
-            map_v_decl n;
-            print_map 0;
+            (*print_map 0;*)
             curr_list @ (l_decs @ [Vdef(n, lifted)])
     | annot -> curr_list @ [annot]
 
@@ -547,7 +485,3 @@ let get_top_sc plist =
 let close_and_lift ast =
 	get_top_sc ast;
 	List.fold_left lift_decl [] ast
-
-
-
-
