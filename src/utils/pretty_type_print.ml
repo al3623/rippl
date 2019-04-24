@@ -2,25 +2,29 @@ open Ast
 
 let rec ast_to_str exp =
     match exp with
-    | Ite(e1,e2,e3) -> "Ite(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ "," ^ (ast_to_str e3) ^ ")"
-    | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | Lambda(e1,e2) -> "Lambda(" ^ (e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | App(App(op, arg1), arg2) -> "App(App(" ^ op_to_str op ^ "," ^ (ast_to_str arg1) ^ ")," ^ (ast_to_str arg2) ^ ")"
-    | App(op, e) ->  "App(" ^ (op_to_str op) ^ "," ^ (ast_to_str e) ^ ")"
-    | Var(s) -> "Var(" ^ s ^ ")"
+    | Ite(e1,e2,e3) -> "if (" ^ (ast_to_str e1) ^ 
+					")\nthen (" ^ (ast_to_str e2) ^ 
+					")\n else(" ^ (ast_to_str e3) ^ ")"
+    | Let(e1,e2) -> "let (" ^ (assign_to_str e1) ^ 
+					")\nin (" ^ (ast_to_str e2) ^ ")"
+    | Lambda(e1,e2) -> "fun " ^ (e1) ^ " -> \n(" ^ (ast_to_str e2) ^ ")"
+    | App(App(op, arg1), arg2) -> "((" ^ op_to_str op ^ ")~" 
+		^ (ast_to_str arg1) ^ ")~" ^ (ast_to_str arg2)
+    | App(op, e) ->  "(" ^ (op_to_str op) ^ ")~" ^ (ast_to_str e)
+    | Var(s) -> s
 
     (* Lists *)
     | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
-    | ListRange(e1, e2) -> "ListRange(" ^ (ast_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | InfList(e) -> "InfList" ^ (ast_to_str e)
-    | ListComp(e, c) -> "ListComp(" ^ (ast_to_str e) ^ "," ^ (clauses_to_str c)
+    | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
+    | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
+    | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
 
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
     
-    | WildCard -> "WildCard"
+    | WildCard -> "_"
     | _ -> ""
 
 and assign_to_str = function | Assign (e1,e2)
@@ -28,8 +32,8 @@ and assign_to_str = function | Assign (e1,e2)
 
 and clauses_to_str clauses =
    match clauses with
-   | [Filter(e)] -> "Filter(" ^ (ast_to_str e)
-   | [ListVBind(s, l)] -> "ListVBind(" ^ s ^ "," ^ (ast_to_str l) ^ ")"
+   | [Filter(e)] -> "Filter(" ^ (ast_to_str e) ^"), "
+   | [ListVBind(s, l)] -> "(" ^ s ^ " over " ^ "[" ^ (ast_to_str l) ^ "]), "
    | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
    | [] -> ""
 
@@ -69,9 +73,6 @@ and op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
-    | Var(sv) -> ("Var(" ^ sv ^ ")")
-    | Lambda(e1, e2) -> "Lambda(" ^ (e1) ^ "," ^ (ast_to_str e2) ^ ")"
-    | Let(e1,e2) -> "Let(" ^ (assign_to_str e1) ^ "," ^ (ast_to_str e2) ^ ")"
     | _ -> ast_to_str s
 
 and ty_to_str ty =
