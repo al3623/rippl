@@ -139,7 +139,7 @@ let rec transform_comps expr = match expr with
 
 let rec find_lambdas nested = function
 	| Let(Assign(ln, Lambda(p, e8)), e9) ->
-		let (lsc, lst) = get_closure_vars e8 (StringSet.add p !top_level_sc) true  in
+		let (lsc, lst) = get_closure_vars e8 (StringSet.add p !top_level_sc) true true in
 		let (_, rest_st) = if not nested then find_lambdas nested e9
 								else (lsc, WildCard (* let helper construct this *) ) in
 
@@ -201,7 +201,7 @@ let rec find_lambdas nested = function
 
     | Lambda(p2, e10) -> 
     	if nested then 
-			let (sc10, st10) = get_closure_vars e10 (StringSet.add p2 !top_level_sc) nested in
+			let (sc10, st10) = get_closure_vars e10 (StringSet.add p2 !top_level_sc) nested true in
 
 			let anon_name = get_fresh "$anon" in
 			let new_expr = Let(Assign(anon_name, Lambda(p2, st10)), Var(anon_name)) in
@@ -231,10 +231,10 @@ and find_lambdas_clause nested = function
 
     	(StringSet.empty, ListVBind(e1, st2))
 
-and get_closure_vars exp scope nested= match exp with
+and get_closure_vars exp scope nested last_lam = match exp with
 	| Let(Assign(nl, Lambda(_,_)), e1) -> 
 		let (il_scope, il_structure) = find_lambdas nested exp in
-		let (rest_scope, rest_structure) = get_closure_vars e1 (StringSet.add nl scope) nested in
+		let (rest_scope, rest_structure) = get_closure_vars e1 (StringSet.add nl scope) nested false in
 
 		let complete_il_structure = 
 		(match il_structure with 
@@ -245,8 +245,8 @@ and get_closure_vars exp scope nested= match exp with
 
 	| Let(Assign(na, e6), e1) -> 
 		let new_scope = (StringSet.add na scope) in 
-		let (sc1, st1) = (get_closure_vars e6 new_scope nested) in
-		let (sc2, st2) = (get_closure_vars e1 new_scope nested) in
+		let (sc1, st1) = (get_closure_vars e6 new_scope nested false) in
+		let (sc2, st2) = (get_closure_vars e1 new_scope nested false) in
 		let new_expr = Let(Assign(na, st1), st2) in
 
 		((StringSet.union sc1 sc2), new_expr)
@@ -258,31 +258,31 @@ and get_closure_vars exp scope nested= match exp with
 		(new_scope, Var(s1))
 
 	| App(e4, e5) ->
-		let (sc1, st1) = (get_closure_vars e4 scope nested) in
-		let (sc2, st2) = (get_closure_vars e5 scope nested) in
+		let (sc1, st1) = (get_closure_vars e4 scope nested false) in
+		let (sc2, st2) = (get_closure_vars e5 scope nested false) in
 
 		(StringSet.union sc1 sc2, App(st1, st2))
 
 	| InfList(e1) ->
-    	let (sc1, st1) = (get_closure_vars e1 scope nested) in
+    	let (sc1, st1) = (get_closure_vars e1 scope nested false) in
 
     	(sc1, InfList(st1))
 
 
     | ListRange(e1, e2) ->
-		let (sc1, st1) = (get_closure_vars e1 scope nested) in
-		let (sc2, st2) = (get_closure_vars e2 scope nested) in
+		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
+		let (sc2, st2) = (get_closure_vars e2 scope nested false) in
 
     	((StringSet.union sc1 sc2), ListRange(st1, st2))
 
     | ListComp(e1, e2) -> (match e2 with
     	| [] ->
-    		let (sc1, st1) = (get_closure_vars e1 scope nested) in
+    		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
 
     		(sc1, ListComp(st1, []))
 
     	| cl ->
-    		let (sc1, st1) = (get_closure_vars e1 scope nested) in
+    		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
     		let (trav_sc, trav_st) = List.fold_left (list_helperc_cl nested scope) (StringSet.empty, []) cl in
 
     		((StringSet.union sc1 trav_sc), ListComp(st1, List.rev trav_st)))
@@ -295,22 +295,27 @@ and get_closure_vars exp scope nested= match exp with
 
     		(trav_sc , ListLit((List.rev trav_st))) 
 
-	| Lambda(e2, e3) -> 
-		let (il_scope, il_structure) = find_lambdas nested exp in
-		(*let anon_name = (match il_structure with
-			| Let(Assign(an, Lambda(_, _)), Var(_)) -> an
-			| _ -> raise(Failure "what the FUCK")) in *)
-		let set_diff = (StringSet.diff il_scope scope) in
+	| Lambda(p, e3) ->
+		if last_lam then
+			let new_scope = (StringSet.add p scope) in
+			let (sc1, st1) = (get_closure_vars e3 new_scope nested true) in
+			(sc1, (Lambda(p, st1)))
+		else
+			let (il_scope, il_structure) = find_lambdas nested exp in
+			(*let anon_name = (match il_structure with
+				| Let(Assign(an, Lambda(_, _)), Var(_)) -> an
+				| _ -> raise(Failure "what the FUCK")) in *)
+			let set_diff = (StringSet.diff il_scope scope) in
 
 		(*Hashtbl.add lamb_to_cl anon_name (anon_name, set_diff);*)
 
-		(set_diff, il_structure)
+			(set_diff, il_structure)
 
 	| other -> (StringSet.empty, other)
 
 
 and list_helperc_ex nested scope exl ex =
-	let (sc, st) = get_closure_vars ex scope nested in
+	let (sc, st) = get_closure_vars ex scope nested false in
 
 	((StringSet.union sc (fst exl), st :: (snd exl)))
 
@@ -321,7 +326,7 @@ and list_helperc_cl nested scope clal cl =
 
 and get_closure_vars_clause exp scope nested = match exp with
 	| Filter(e1) ->
-    	let (sc1, st1) = get_closure_vars e1 scope nested in
+    	let (sc1, st1) = get_closure_vars e1 scope nested false in
 
     	(sc1, Filter(st1))
 
