@@ -173,7 +173,9 @@ let rec ti env = function
                 let t' = generalize (applyenv s1 env) t1 in 
                 let env'' = (TyEnvMap.add x t' env') in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
-                (composeSubst s1 s2, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2), t2)
+                (composeSubst s1 s2
+				, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2)
+				, t2)
 	| Lambda( n, e ) -> 
 		let tv = newTyVar n in 
         let env' = remove env n in 
@@ -189,6 +191,18 @@ let rec ti env = function
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
+	| Ite(e1,e2,e3) ->
+		let (s1,tx1,t1) as ix1 = ti env e1 in
+		(*first expr must be boolean*)
+		let boolSubst = mgu Bool t1 in 
+		let (s2,tx2,t2) as ix2 = ti (applyenv boolSubst env) e2 in
+		let s' = composeSubst boolSubst s2 in
+		let (s3,tx2,t3) as ix3 = ti (applyenv s' env) e3 in
+		let s'' = mgu t2 t3 in
+		let fullSubst = composeSubst s' s'' in
+		(fullSubst
+		, IIte(fullSubst, ix1,ix2,ix3)
+		, apply fullSubst t2)
 	| Add -> (nullSubst, IAdd, Tarrow(Int, Tarrow(Int,Int)))
         | Sub -> (nullSubst, ISub, Tarrow(Int, Tarrow(Int,Int)))
         | Mult -> (nullSubst, IMult, Tarrow(Int, Tarrow(Int,Int)))
@@ -216,7 +230,20 @@ let rec ti env = function
         | And -> (nullSubst, IAnd, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Or -> (nullSubst, IOr, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
-
+		| Cons -> let polyty = newTyVar "a" in
+			(nullSubst, ICons, Tarrow(polyty, 
+			Tarrow (TconList polyty, TconList polyty)))
+		| Cat -> let polyty = newTyVar "a" in
+			(nullSubst, ICat, Tarrow(TconList polyty, 
+				Tarrow (TconList polyty, TconList polyty)))
+		| Len -> let polyty = newTyVar "a" in
+			(nullSubst, ILen, Tarrow(TconList polyty, Int))
+		| Head -> let polyty = newTyVar "a" in
+			(nullSubst, IHead,
+			(Tarrow(TconList polyty, polyty)))
+		| Tail -> let polyty = newTyVar "a" in
+			(nullSubst, ITail, 
+			Tarrow(TconList polyty, TconList polyty))
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 (*let rec type_clauses env = function

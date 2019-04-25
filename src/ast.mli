@@ -7,6 +7,8 @@ type expr =
     | Less | LessF | Greater | GreaterF
     | And | Or | Not 
     | Cons | Cat | Len | Head | Tail
+	(* Tuple operations *)
+	(* Maybe operations *)
     | Var of string
     | Let of (assign * expr)
     | Lambda of (string * expr)
