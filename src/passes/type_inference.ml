@@ -163,12 +163,17 @@ let rec ti env = function
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
 	(*| ListComp(e, clauses) ->*)
-    | Var n -> let sigma = TyEnvMap.find_opt n env in 
+        | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
-    (*| Let (x, e2) ->  *)
+        | Let(Assign(x, e1), e2) -> let (s1,tex1,t1) as ix1 = ti env e1 in 
+                let env' = remove env x in
+                let t' = generalize (applyenv s1 env) t1 in 
+                let env'' = (TyEnvMap.add x t' env') in 
+                let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
+                (composeSubst s1 s2, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2), t2)
 	| Lambda( n, e ) -> 
 		let tv = newTyVar n in 
         let env' = remove env n in 
@@ -213,7 +218,7 @@ let rec ti env = function
         | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
 
         (* TODO: rest of add things *)
-    | _ -> raise (Failure "not yet implemented in type inference") 
+        | _ -> raise (Failure "not yet implemented in type inference") 
 (*let rec type_clauses env = function
 	| ListVBind (var, blist) ->
 	| Filter e ->*)
