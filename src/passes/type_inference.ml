@@ -55,7 +55,6 @@ let getElem = function
 let getElems mp = List.map getElem (TyEnvMap.bindings mp)
 
 
-
 (*	get elements of the map (not the keys), 
 	and map ftv over them then make a new set with those ftvs*)
 let ftvenv env = 
@@ -88,7 +87,8 @@ let instantiate = function
 
 let varBind u t = match u, t with
     | u, Tvar(x) -> nullSubst
-    | u, t when SS.mem u (ftv t) -> raise(Failure("Occur check fails "))
+    | u, t when SS.mem u (ftv t) -> raise
+		(Failure ("Cannot bind "^u^" to "^(ty_to_str t)) )
     | _,_ -> SubstMap.add u t SubstMap.empty
 
 let rec mgu ty1 ty2 = 
@@ -187,7 +187,7 @@ let rec ti env = function
         let (s1, tex1, t1) as ix1 = ti env'' e in
         (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
 	| App(e1,e2) -> 
-		let tv = newTyVar "a" in
+		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
 		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in

@@ -102,6 +102,7 @@ expr:
     | expr LEQF expr        { App (App(LeqF, $1), $3) }
     | expr GEQ expr         { App (App(Geq, $1), $3) }
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
+	| expr MOD expr			{ App (App(Mod, $1), $3) }
 
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
