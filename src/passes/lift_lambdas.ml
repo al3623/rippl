@@ -118,7 +118,8 @@ let rec transform_comps expr = match expr with
 
 let rec find_lambdas nested = function
 	| Let(Assign(ln, Lambda(p, e8)), e9) ->
-		let (lsc, lst) = get_closure_vars e8 (StringSet.add p !top_level_sc) true true in
+		let (lsc, lst) = get_closure_vars e8 
+		(StringSet.add ln (StringSet.add p !top_level_sc)) true true in
 		let mangled_name = get_fresh ("$" ^ ln) in
 		Hashtbl.add lamb_to_cl ln (mangled_name, lsc);
 		let (_, rest_st) = if not nested then find_lambdas nested e9

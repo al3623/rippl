@@ -170,10 +170,11 @@ let rec ti env = function
                 | None -> raise(Failure("unbound variable" ^ n))
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
-        | Let(Assign(x, e1), e2) -> let (s1,tex1,t1) as ix1 = ti env e1 in 
-                let env' = remove env x in
+        | Let(Assign(x, e1), e2) -> 
+				let (s1,tex1,t1) as ix1 = ti env e1 in
+				(print_endline ("let assign ty: "^ (ty_to_str t1))); 
                 let t' = generalize (applyenv s1 env) t1 in 
-                let env'' = (TyEnvMap.add x t' env') in 
+                let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
                 (composeSubst s1 s2
 				, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2)
