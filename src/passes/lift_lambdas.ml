@@ -89,7 +89,7 @@ let rec transform_comps expr = match expr with
 		let wrapped_constr = add_params trans_constr (List.rev c_vars) in
 		(*print_endline ("-----wrapped:----\n" ^ ast_to_str wrapped_constr ^ "\n------");*)
 		let new_name = get_fresh "$anon" in
-		ListComp(Let(Assign(new_name, wrapped_constr), Var(new_name)), (List.rev wrapped_cls))
+		ListComp((wrapped_constr), (List.rev wrapped_cls))
 
 		
 	| other -> other
@@ -170,11 +170,11 @@ let rec find_lambdas nested = function
 
     | ListComp(e1, e2) -> (match e2 with
 	    | [] ->
-	    	let (_, st1) = find_lambdas nested e1 in
+	    	let (_, st1) = find_lambdas true e1 in
 	    	(StringSet.empty, ListComp(st1, []))
 	    | _ ->
-	    	let (_, st1) = find_lambdas nested e1 in
-	    	let trav_list = List.fold_left (list_helperf_cla nested) [] e2 in
+	    	let (_, st1) = find_lambdas true e1 in
+	    	let trav_list = List.fold_left (list_helperf_cla true) [] e2 in
 	    	(StringSet.empty, ListComp(st1, trav_list)))
 
 
@@ -388,11 +388,11 @@ let rec mangle_close e nested tl_seen = match e with
 			let cl_vars = StringSet.elements (snd closure_info) in
 			let clv_to_mang = List.fold_left (fun mp c -> StringMap.add c (get_fresh ("$" ^ c)) mp) StringMap.empty cl_vars in
 			Printf.printf "lb name: %s ;lets close stuff in %s\n" n (ast_to_str mc_lbody);
-			let mang_body = repl_body mc_lbody clv_to_mang nested in
+			let mang_body = repl_body mc_lbody clv_to_mang tl_seen in
 			let w_lambda = wrap_lambda (Lambda(lparam, mang_body)) cl_vars clv_to_mang in
 			let man_in = mangle_close inexp nested true in
 			let man2_in_expr = if (not (nested || tl_seen))
-				then (repl_body man_in StringMap.empty nested)
+				then (repl_body man_in StringMap.empty tl_seen)
 				else man_in in
 			Let(Assign(n, w_lambda), man2_in_expr)
 		| other -> Let(Assign(n, other), (mangle_close inexp nested tl_seen)))
