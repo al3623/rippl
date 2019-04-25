@@ -112,7 +112,9 @@ let rec mgu ty1 ty2 =
     | t1, t2 -> raise(Failure ((ty_to_str ty1) ^ " types do not unify " ^
 (ty_to_str ty2)))
 
-
+let printSubst s = SubstMap.iter 
+					(fun key -> fun ty ->
+					print_endline (key ^ ": " ^ (ty_to_str ty))) s
 
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
@@ -181,7 +183,7 @@ let rec ti env = function
         let env' = remove env n in 
         let env'' = SubstMap.union collision env' 
 			(SubstMap.singleton n (Tforall([], tv)) ) in
-        let (s1, tex1, t1) as ix1 = ti env'' e in 
+        let (s1, tex1, t1) as ix1 = ti env'' e in
         (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
 	| App(e1,e2) -> 
 		let tv = newTyVar "a" in
@@ -194,7 +196,7 @@ let rec ti env = function
 	| Ite(e1,e2,e3) ->
 		let (s1,tx1,t1) as ix1 = ti env e1 in
 		(*first expr must be boolean*)
-		let boolSubst = mgu Bool t1 in 
+		let boolSubst = composeSubst (mgu Bool t1) s1 in 
 		let (s2,tx2,t2) as ix2 = ti (applyenv boolSubst env) e2 in
 		let s' = composeSubst boolSubst s2 in
 		let (s3,tx2,t3) as ix3 = ti (applyenv s' env) e3 in
