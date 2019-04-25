@@ -20,7 +20,7 @@ tx =
     | TCons | TCat | TLen | THead | TTail
     | TVar of string
     | TLet of (tassign * typed_expr)
-    | TLambda of (typed_expr * typed_expr)
+    | TLambda of (string * typed_expr)
     | TApp of (typed_expr * typed_expr)
     | TIte of (typed_expr * typed_expr * typed_expr)
 	| TListComp of (typed_expr * tclause list)
@@ -28,9 +28,9 @@ tx =
 	| TInfList of typed_expr
     | TListLit of typed_expr list
 and tclause = 
-	| TListVBind of (typed_expr * typed_expr)
+	| TListVBind of (string * typed_expr)
 	| TFilter of typed_expr
-and tassign = TAssign of (typed_expr * typed_expr)
+and tassign = TAssign of (string * typed_expr)
 
 type typed_decl =
     | TypedVdef of (string * typed_expr)

@@ -62,10 +62,10 @@ let _ =
     let m_program = Lift_lambdas.transform_main program in
     let program_ll = Lift_lambdas.close_and_lift m_program in
     List.iter print_decls program_ll;
-	  (*let pair_program = Pair_annots.pair_av program_ll in
+	let pair_program = Pair_annots.pair_av program_ll in
     let pair_iprogram = Type_inference.type_paired_program pair_program in
-		let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
-		    print_all_types pair_tprogram;  
+	let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
+	let _ = print_all_types pair_tprogram in
     let m = Codegen.translate pair_tprogram in
 	    Llvm_analysis.assert_valid_module m;
     let ls = Llvm.string_of_llmodule m in
@@ -75,6 +75,7 @@ let _ =
         close_out oc;
 		if (command ("llc -relocation-model=pic " ^ file) != 0)
 			then raise (Failure "llc: non-zero exit code") 
-		else if (command ("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o") != 0)
+		else if (command 
+			("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o thunk.o") != 0)
 			then raise (Failure "gcc: non-zero exit code")
-		else ()*)
+		else ()
