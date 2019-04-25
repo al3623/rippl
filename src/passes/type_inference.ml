@@ -252,10 +252,38 @@ let rec ti env = function
 	| ListVBind (var, blist) ->
 	| Filter e ->*)
 
-let rec type_paired_program = function
-	| ((annot, (Vdef (name,exp)))::xs) -> 
-		let iexpr = ti TyEnvMap.empty exp in
-		let tpair = (annot, (InferredVdef (name, iexpr) ) ) in
-		tpair :: (type_paired_program xs)
-        | ((_, Annot _) :: _) -> raise(Failure("no"))
-	| [] -> []
+let tiVdefPair env = function
+	| (_,Vdef(name,expr)) -> 
+		let (substs, ix, ty) = ti env expr in
+		let newSubst = SubstMap.singleton name ty in
+		(composeSubst newSubst substs, ix, ty)
+	| (_,Annot(_)) -> raise (Failure "cannot tiVdef on annotation")
+
+let rec unzip_thruple l =
+	let f (l1,l2,l3) (x,y,z) = (x::l1,y::l2,z::l3) in
+	List.fold_left f ([],[],[]) (List.rev l)
+
+let type_paired_program annotvdef_list =
+	let vdef_names = List.fold_left 
+		(fun l -> fun ((Annot(n,_)),_) -> n::l) 
+		[] annotvdef_list in
+	let moduleEnv = List.fold_left 
+		(fun env -> fun name -> 
+			let var = newTyVar name in
+			TyEnvMap.add name var env) 
+		TyEnvMap.empty vdef_names in
+	let annotIVdefs = List.map
+		(fun (annot,Vdef(n,exp)) -> 
+			(annot, InferredVdef(n, ti moduleEnv exp))) 
+		annotvdef_list in
+	let substList = List.fold_left
+		(fun l -> fun (_, InferredVdef(_,(subst,_,_))) -> subst::l)
+		[] annotIVdefs in
+	let allSubsts = List.fold_left
+		(fun s1 -> fun s2 -> composeSubst s1 s2)
+		(List.hd substList) substList in
+	let annotIVdefs' = List.map
+		(fun (a, InferredVdef(n,(s,ix,ty))) -> 
+			(a,InferredVdef(n,(s,ix, apply allSubsts ty)))) annotIVdefs in
+		annotIVdefs'
+
