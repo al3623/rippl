@@ -2,6 +2,9 @@ module L = Llvm
 open Ast
 open Tast
 open Lib
+open Structs
+open Thunk
+open Mymap
 
 module StringMap = Map.Make(String)
 
@@ -22,12 +25,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
     in
     
     (* convert Tlambda -> Tlambda_def *)
+	(* TODO: Fix this *) 
     let tldef_convert (tlambda: tx) (name: string) = match tlambda with
-        | TLambda(e1, e2) -> 
-            { tlname = name; tltyp = snd e1; trtyp = snd e2; tlexp = e1; trexp = e2 }
+        | TLambda(var, e2) ->  
+            { tlname = name
+				; tltyp = (*snd e1*) Tvar "A"
+				; trtyp = snd e2
+				; tlexp = (TVar(var), Tvar "A")
+				; trexp = e2 }
         | _ -> raise (Failure "not Tlambda")
     
-    in 
+    in
 
     (* list of tlambda_def's *)
     let lambdas: (tlambda_def list) =

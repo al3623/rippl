@@ -78,7 +78,7 @@ let rec map_from_list = function
     | [] -> SubstMap.empty
     | (t1, t2) :: tl -> SubstMap.add t1 t2 (map_from_list tl)
 
-let instantiate tval = function
+let instantiate = function
     | Tforall(vars, t) -> 
 		let nvars = List.map (fun var -> newTyVar(var)) vars in 
 		let s = map_from_list (zip vars nvars) in 
@@ -132,22 +132,40 @@ let simple_generalize ty =
     if (List.length gen_list) = 0 then ty else (Tforall (gen_list,ty))
 
 (* Takes an AST and returns a TAST (typed AST) *)
-let rec ti s = function
+let rec ti env = function
     | IntLit i -> (nullSubst, IIntLit i, Int)
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
     | BoolLit b -> (nullSubst, IBoolLit b,Bool)
-    | ListLit l -> let iexpr_list = List.map (ti s) l in
+    | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
 		| ix_list -> 
 			let fullSubst = 
-			fold_left (fun s1 (s2,_,_) -> composeSubst s1 s2) s ix_list in
+			fold_left (fun s1 (s2,_,_) -> composeSubst s1 s2) env ix_list in
 			let merged_ix_list = List.map 
-				(fun (s,e,t) -> (s,e, apply fullSubst t)) ix_list in
+				(fun (env,e,t) -> (env,e, apply fullSubst t)) ix_list in
 			let (_,_,ty) = List.hd merged_ix_list in
 			(fullSubst, IListLit(merged_ix_list), TconList ty)
 		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
+	| ListRange(e1, e2) -> 
+		let (subst1, tex1, ty1) = ti env e1 in
+		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in
+		let subst3 = mgu (apply subst2 ty1) ty2 in
+		let subst4 = mgu (apply subst3 ty1) Int in
+		(subst4, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
+			TconList Int)
+	| InfList e ->
+		let (subst, tex, ty) = ti env e in
+		let subst' = mgu (apply subst ty) Int in
+		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
+	(*| ListComp ->*)
+    | Var n -> let sigma = TyEnvMap.find_opt n env in 
+                (match sigma with
+                | None -> raise(Failure("unbound variable" ^ n))
+                | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
+                )
+    (*| Let (x, e2) ->  *)
 (*  | Lambda( n, e ) -> let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union env' (Map.singleton (n Tforall([], tv))) in

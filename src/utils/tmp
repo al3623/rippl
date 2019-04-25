@@ -1,0 +1,115 @@
+open Ast
+
+let rec timestab n =
+	if n = 0
+	then ""
+	else "\t" ^ (timestab (n-1))
+
+let rec ast_to_str exp tabs =
+	let tab_level = timestab tabs in
+    match exp with
+    | Ite(e1,e2,e3) -> "if (" ^ (ast_to_str e1 tabs) ^ 
+					")\n"^tab_level^"then (" ^ (ast_to_str e2 (tabs + 1)) ^ 
+					")\n"^tab_level^"else(" ^ (ast_to_str e3 (tabs + 1)) ^ ")"
+    | Let(e1,e2) -> "let (" ^ (assign_to_str e1 (tabs + 1)) ^ 
+					") in \n"^tab_level^"(" ^ (ast_to_str e2 (tabs)) ^ ")"
+    | Lambda(e1,e2) -> "fun " ^ (e1) ^ " -> \n"^tab_level^"(" 
+		^ (ast_to_str e2 (tabs + 1)) ^ ")"
+    | App(App(op, arg1), arg2) -> "((" ^ (op_to_str op tabs) ^ ")~" 
+		^ (ast_to_str arg1 tabs) ^ ")~" ^ (ast_to_str arg2 tabs)
+    | App(op, e) ->  "(" ^ (op_to_str op tabs) ^ ")~" ^ (ast_to_str e tabs)
+    | Var(s) -> s
+
+    (* Lists *)
+    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
+    | ListRange(e1, e2) -> "[" ^ (ast_to_str e1 tabs) ^ "..." ^ (ast_to_str e2 tabs) ^ "]"
+    | InfList(e) -> "[" ^ (ast_to_str e tabs) ^ "...]"
+    | ListComp(e, c) -> "[" ^ (ast_to_str e tabs) ^ "|" ^ (clauses_to_str c tabs) ^ "]"
+
+    | BoolLit(b) -> string_of_bool b
+    | CharLit(c) -> String.make 1 c
+    | IntLit n -> string_of_int n
+    | FloatLit f -> string_of_float f
+    
+    | WildCard -> "_"
+    | _ -> ""
+
+and assign_to_str ast tabs =
+	match ast with
+	| Assign (e1,e2)
+    -> (e1) ^ "=" ^ (ast_to_str e2 tabs)
+
+and clauses_to_str clauses tabs =
+   match clauses with
+   | [Filter(e)] -> "Filter(" ^ (ast_to_str e tabs) ^"), "
+   | [ListVBind(s, l)] -> "(" ^ s ^ " over " ^ "[" ^ (ast_to_str l tabs) ^ "]), "
+   | h::t -> (clauses_to_str [h] tabs) ^ (clauses_to_str t tabs)
+   | [] -> ""
+
+and op_to_str s tabs =
+    match s with
+    (* Boolean Operators *)
+    | Or -> "or"
+    | And -> "and"
+    | Not -> "not"
+    | Eq -> "=="
+    | EqF -> "==."
+    | Neq -> "!="
+    | NeqF -> "!=."
+    | Less -> "<"
+    | LessF -> "<."
+    | Greater -> ">"
+    | GreaterF -> ">."
+    | Leq -> "<="
+    | LeqF -> "<=."
+    | Geq -> ">="
+    | GeqF -> ">=."
+    (* Math Operations *)
+    | Add -> "+"
+    | Sub -> "-"
+    | Mult -> "*"
+    | Div -> "/"
+    | AddF -> "+."
+    | SubF -> "-."
+    | MultF -> "*."
+    | DivF -> "/."
+    | Pow -> "^"
+    | PowF -> "^."
+    | Neg -> "neg"
+    (* List Operations *)
+    | Cons -> "cons"
+    | Cat -> "cat"
+    | Head -> "head"
+    | Tail -> "tail"
+    | Len -> "len"
+    | _ -> ast_to_str s tabs
+
+and ty_to_str ty =
+    match ty with
+    | Bool -> "Bool"
+    | Int -> "Int"
+    | Char -> "Char"
+    | Float -> "Float"
+    | TconList(t) -> "["^ (ty_to_str t) ^ "]"
+    | TconTuple(t1,t2) -> "(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+    | Tmaybe(t) -> "Maybe " ^ (ty_to_str t) ^ ")"
+    | Tvar(t) -> t
+    | Tarrow(t1,t2) -> (ty_to_str t1) ^ " -> " ^ (ty_to_str t2)
+    | Tforall(_,t) -> ty_to_str t
+
+
+and char_list_to_str cl =
+    match cl with
+    | [] -> ""
+    | [Ast.CharLit c] -> String.make 1 c
+    | charlist -> let convert x = match x with 
+        | Ast.CharLit c -> c 
+        | _ -> 'F'
+        in List.fold_left (^) "" (List.map (String.make 1) (List.map convert charlist))
+
+let rec print_annot_pairs lst = match lst with
+	| (Annot(n1, t), Vdef(n2, e)) :: tl ->
+		print_endline ("a_name: " ^ n1 ^ ", v_name: " ^ n2 ^ ", type:" ^ (ty_to_str t));
+		print_annot_pairs tl
+	| [] -> print_endline "done"
+	| _ -> print_endline "what" 
