@@ -1,15 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
-struct Thunk {
-	struct Thunk * (* f)(struct Thunk *,void *);
-	int num_args;
-	int filled_args;
-	void **args;
-//	int *types;
-	void *value;
-};
+#include "thunk.h"
+#include "lib.h"
 
 struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *), 
 //	int[] types,
@@ -26,6 +17,14 @@ struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *),
 	thunk->value = NULL;
 
 	return thunk;
+}
+
+struct Thunk *init_thunk_literal(void *data) {
+	struct Thunk *lit = init_thunk(NULL, 1);
+	(lit->args)[0] = data;
+	lit->filled_args = 1;
+	lit->value = data;
+	return lit;
 }
 
 void *add(int x, int y) {
@@ -66,29 +65,38 @@ struct Thunk *add_thunk(struct Thunk *thunk, void *arg) {
 	return new_thunk;
 }
 
-struct Thunk *invoke(struct Thunk *t, void *arg) {
+struct Thunk *apply(struct Thunk *t, void *arg) {
 	struct Thunk* (*f) (struct Thunk *thunk, void *a) = t->f;
 	return f(t,arg);	
 }
 
+
+void *invoke(struct Thunk *t) {
+	void *val = t->value;
+	if (!t) {
+		fprintf(stderr, "can't extract value from partially applied function");
+		exit(1);
+	}
+	return val;
+}
+/*
 int main() {
 	int types[] = {0, 0};
 
 	struct Thunk *orig_thunk = init_thunk(add_thunk, 2);
-	struct Thunk *orig2 = init_thunk(add_thunk, 2);
 	
 	int five = 5;
 	int zero = 0;
 	int two = 2;
 
-	struct Thunk *add5 = invoke(orig_thunk, &five);	
+	struct Thunk *add5 = apply(orig_thunk, &five);	
 	fprintf(stderr, "in add5: %d\n", *(int *)((add5->args)[0]));
-	struct Thunk *add2 = invoke(orig_thunk, &two);
+	struct Thunk *add2 = apply(orig_thunk, &two);
 	fprintf(stderr, "in add5: %d\n", *(int *)((add5->args)[0]));
 	
-	struct Thunk *add50 = invoke(add5, &zero);
-	struct Thunk *add52 = invoke(add5, &two);
-	struct Thunk *add20 = invoke(add2, &zero);
+	struct Thunk *add50 = apply(add5, &zero);
+	struct Thunk *add52 = apply(add5, &two);
+	struct Thunk *add20 = apply(add2, &zero);
 
 	int seven_ = *(int *)(add52->value);
 	int five_ = *(int *)(add50->value);
@@ -99,4 +107,4 @@ int main() {
 	printf("%d\n",two_);
 
 	return 0;
-}
+} */
