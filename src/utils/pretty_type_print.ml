@@ -4,7 +4,7 @@ let rec ast_to_str exp =
     match exp with
     | Ite(e1,e2,e3) -> "if (" ^ (ast_to_str e1) ^ 
 					")\nthen (" ^ (ast_to_str e2) ^ 
-					")\n else(" ^ (ast_to_str e3) ^ ")"
+					")\nelse(" ^ (ast_to_str e3) ^ ")"
     | Let(e1,e2) -> "let (" ^ (assign_to_str e1) ^ 
 					")\nin (" ^ (ast_to_str e2) ^ ")"
     | Lambda(e1,e2) -> "fun " ^ (e1) ^ " -> \n(" ^ (ast_to_str e2) ^ ")"

@@ -1,0 +1,6 @@
+collatz = fun x ->
+	if (x == 1 )
+	then 1
+	else if (x % 2 == 0)
+		then (collatz~(x / 2))
+		else (collatz~(3 * x + 1))

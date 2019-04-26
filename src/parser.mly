@@ -16,7 +16,9 @@
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
 %token MAYBE JUST NONE APP
-
+%token MAP FILTER
+%token FIRST SEC
+%token IS_NOTHING FROM_JUST
 
 %token <char> CHARLIT
 %token <int> INTLIT
@@ -24,11 +26,14 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
+%left MAP FILTER
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left IN
 %left RARROW
 %left APP
-%left MAYBE
+%nonassoc JUST /* TODO: JUST FIRST SEC IS_NOTHING FROM_JUST MAP FILTER */
+%nonassoc FIRST SEC
+%nonassoc IS_NOTHING FROM_JUST
 %left ELSE
 
 %left ASSIGN
@@ -62,7 +67,6 @@ ty:
     | FLOATTYPE                     { Float }
     | LBRACK ty RBRACK              { TconList($2) }
     | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
-    | MAYBE ty                      { Tmaybe($2) }
     | IDENT                         { Tvar($1) }
     | ty RARROW ty                  { Tarrow($1,$3) }
 
@@ -102,6 +106,7 @@ expr:
     | expr LEQF expr        { App (App(LeqF, $1), $3) }
     | expr GEQ expr         { App (App(Geq, $1), $3) }
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
+	| expr MOD expr			{ App (App(Mod, $1), $3) }
 
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
