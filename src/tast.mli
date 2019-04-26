@@ -17,7 +17,7 @@ tx =
     | TEq | TEqF | TNeq | TNeqF | TGeq | TGeqF | TLeq | TLeqF
     | TLess | TLessF | TGreater | TGreaterF
     | TAnd | TOr | TNot 
-    | TCons | TCat | TLen | THead | TTail | TMap | TFFilter
+    | TCons | TCat | TLen | THead | TTail
 	| TFirst | TSec 
 	| TTuple of (typed_expr * typed_expr)
 	| TIs_none | TFrom_just | TJust of expr | TNone
