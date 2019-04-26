@@ -23,4 +23,4 @@ clean:
 	rm -rf *.o *.s *.byte exe a.out
 
 .PHONY: all
-all: clean scanner.native
+all: clean default
