@@ -18,7 +18,7 @@
 %token MAYBE JUST NONE APP
 %token MAP FILTER
 %token FIRST SEC
-%token IS_NOTHING FROM_JUST
+%token IS_NONE FROM_JUST
 
 %token <char> CHARLIT
 %token <int> INTLIT
@@ -33,7 +33,7 @@
 %left APP
 %nonassoc JUST /* TODO: JUST FIRST SEC IS_NOTHING FROM_JUST MAP FILTER */
 %nonassoc FIRST SEC
-%nonassoc IS_NOTHING FROM_JUST
+%nonassoc IS_NONE FROM_JUST
 %left ELSE
 
 %left ASSIGN
@@ -133,6 +133,9 @@ expr:
 
     /* PARENTHESIZED EXPRESSIONS */
     | LPAREN expr RPAREN %prec PAREN {$2}
+	
+	/* TUPLES */
+	| LPAREN expr COMMA expr RPAREN { Tuple($2,$4) }
     
 literals:
     /* PRIMITIVE LITERALS */
