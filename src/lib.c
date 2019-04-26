@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include "lib.h"
+#include "thunk.h"
+#include <string.h>
+
+int *makeInt(int x) {
 	int *i = malloc(4);
 	*i = x;
 	return i;
@@ -270,6 +276,14 @@ struct List *tail(struct List *list) {
 	memcpy(newlist, list, sizeof(struct List));
 	
 	// TODO: copy all the nodes
+	struct Node *curr = list->head;
+	if (!curr)
+		return newlist;
+
+	curr = curr->next;
+	while (curr) {
+		struct Thunk *data = curr->data;
+	}
 
 	return newlist;
 }
@@ -281,7 +295,7 @@ int *length(struct List *list) {
 		count++;
 		curr = curr->next;
 	}
-	int res = malloc(sizeof(int));
+	int *res = malloc(sizeof(int));
 	*res = count;
 	return res;
 }
