@@ -288,14 +288,12 @@ struct List *tail(struct List *list) {
 	return newlist;
 }
 
-int *length(struct List *list) {
+int length(struct List *list) {
 	struct Node *curr = list->head;	
 	int count = 0;
 	while (curr) {
 		count++;
 		curr = curr->next;
 	}
-	int *res = malloc(sizeof(int));
-	*res = count;
-	return res;
+	return count;
 }

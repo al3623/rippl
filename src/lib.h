@@ -85,6 +85,6 @@ struct List *cons(void *d, struct List *list);
 struct List *cat(struct List *l1, struct List *l2); 
 void *head(struct List *list);
 struct List *tail(struct List *list);
-int *length(struct List *list);
+int length(struct List *list);
 
 #endif
