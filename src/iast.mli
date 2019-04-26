@@ -18,7 +18,7 @@ ix =
     | IEq | IEqF | INeq | INeqF | IGeq | IGeqF | ILeq | ILeqF
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
-    | ICons | ICat | ILen | IHead | ITail | IMap | IFFilter
+    | ICons | ICat | ILen | IHead | ITail 
 	| IFirst | ISec
 	| ITuple of (inferred_expr * inferred_expr)
 	| IIs_none | IFrom_just | IJust of inferred_expr | None

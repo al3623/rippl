@@ -76,8 +76,6 @@ rule token =
             | "tail"            { TAIL }
             | "cat"             { CAT }
             | "len"             { LEN }
-			| "map"				{ MAP }
-			| "filter"			{ FILTER }
 			(* TUPLE OPERATORS *)
 			| "first"			{ FIRST }
 			| "sec"				{ SEC }
