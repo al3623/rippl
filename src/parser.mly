@@ -136,6 +136,8 @@ expr:
 	
 	/* TUPLES */
 	| LPAREN expr COMMA expr RPAREN { Tuple($2,$4) }
+	| FIRST expr					{ App(First, $2) }
+	| SEC expr						{ App(Sec, $2) }
     
 literals:
     /* PRIMITIVE LITERALS */
