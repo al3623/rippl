@@ -84,7 +84,7 @@ rule token =
 			(* MAYBE OPERATORS *)
 			| "none"			{ NONE }
 			| "just"			{ JUST }
-			| "is_nothing"		{ IS_NOTHING }
+			| "is_none"			{ IS_NONE }
 			| "from_just"		{ FROM_JUST }
             (* ASSIGN *)
             | '='               { ASSIGN }

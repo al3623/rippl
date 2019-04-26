@@ -18,8 +18,9 @@ tx =
     | TLess | TLessF | TGreater | TGreaterF
     | TAnd | TOr | TNot 
     | TCons | TCat | TLen | THead | TTail | TMap | TFFilter
-	| TFirst | TSec
-	| TIs_nothing | TFrom_just | TJust of expr
+	| TFirst | TSec 
+	| TTuple of (typed_expr * typed_expr)
+	| TIs_none | TFrom_just | TJust of expr | TNone
     | TVar of string
     | TLet of (tassign * typed_expr)
     | TLambda of (string * typed_expr)
