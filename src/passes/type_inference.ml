@@ -215,7 +215,7 @@ let rec ti env = function
         | GreaterF -> (nullSubst, IGreaterF, Tarrow(Float,Tarrow(Float,Bool)))
         | And -> (nullSubst, IAnd, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Or -> (nullSubst, IOr, Tarrow(Bool,Tarrow(Bool,Bool)))
-        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
+        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))  
 
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
