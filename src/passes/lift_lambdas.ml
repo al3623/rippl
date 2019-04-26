@@ -349,7 +349,7 @@ let rec repl_body body cl_to_mang nested = match body with
 				| Some(m) -> m
 				| _ -> s1) in
 			let wrapped_var = wrap_app (Var(new_name)) params_to_wrap in
-			Printf.printf "Before: %s; After: %s \n" s1 (ast_to_str wrapped_var);
+			(*Printf.printf "Before: %s; After: %s \n" s1 (ast_to_str wrapped_var);*)
 			wrapped_var
 
 		| _ -> ( (* not a lambda, let's check if it's a closure variable *)
@@ -387,7 +387,7 @@ let rec mangle_close e nested tl_seen = match e with
 			(*let mangled_lname = (fst closure_info) in*)
 			let cl_vars = StringSet.elements (snd closure_info) in
 			let clv_to_mang = List.fold_left (fun mp c -> StringMap.add c (get_fresh ("$" ^ c)) mp) StringMap.empty cl_vars in
-			Printf.printf "lb name: %s ;lets close stuff in %s\n" n (ast_to_str mc_lbody);
+			(*Printf.printf "lb name: %s ;lets close stuff in %s\n" n (ast_to_str mc_lbody);*)
 			let mang_body = repl_body mc_lbody clv_to_mang tl_seen in
 			let w_lambda = wrap_lambda (Lambda(lparam, mang_body)) cl_vars clv_to_mang in
 			let man_in = mangle_close inexp nested true in
@@ -477,11 +477,11 @@ let lift_decl curr_list d = match d with
             let wraplc_ast = transform_comps e in
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
-            print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");
+            (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
             let mang_ast = mangle_close nl_ast false false in
-            print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");
+            (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
-            print_map 0;
+            (*print_map 0;*)
             curr_list @ (l_decs @ [Vdef(n, lifted)])
     | annot -> curr_list @ [annot]
 
