@@ -142,6 +142,13 @@ let rec ti env = function
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
     | BoolLit b -> (nullSubst, IBoolLit b,Bool)
+	| Tuple (e1,e2) -> 
+		let (s1,tex1,ty1) as ix1 = ti env e1 in
+		let (s2,tex2,ty2) as ix2 = ti (applyenv s1 env) e2 in
+		let s3 = composeSubst s1 s2 in
+		(s3
+		, ITuple(ix1,ix2)
+		, TconTuple(apply s3 ty1, apply s3 ty2))
     | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
