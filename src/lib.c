@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include "lib.h"
-#include "thunk.h"
-
-int *makeInt(int x) {
 	int *i = malloc(4);
 	*i = x;
 	return i;
@@ -262,3 +257,31 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
+struct List *cons(void *d, struct List *list);
+struct List *cat(struct List *l1, struct List *l2); 
+
+void *head(struct List *list) {
+	struct Thunk *data = (list->head)->data;
+	// TODO: if no value, invoke and return value
+}
+
+struct List *tail(struct List *list) {
+	struct List *newlist = malloc(sizeof(struct List));
+	memcpy(newlist, list, sizeof(struct List));
+	
+	// TODO: copy all the nodes
+
+	return newlist;
+}
+
+int *length(struct List *list) {
+	struct Node *curr = list->head;	
+	int count = 0;
+	while (curr) {
+		count++;
+		curr = curr->next;
+	}
+	int res = malloc(sizeof(int));
+	*res = count;
+	return res;
+}
