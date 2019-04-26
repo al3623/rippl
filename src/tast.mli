@@ -17,7 +17,9 @@ tx =
     | TEq | TEqF | TNeq | TNeqF | TGeq | TGeqF | TLeq | TLeqF
     | TLess | TLessF | TGreater | TGreaterF
     | TAnd | TOr | TNot 
-    | TCons | TCat | TLen | THead | TTail
+    | TCons | TCat | TLen | THead | TTail | TMap | TFFilter
+	| TFirst | TSec
+	| TIs_nothing | TFrom_just | TJust of expr
     | TVar of string
     | TLet of (tassign * typed_expr)
     | TLambda of (string * typed_expr)

@@ -55,7 +55,6 @@ let getElem = function
 let getElems mp = List.map getElem (TyEnvMap.bindings mp)
 
 
-
 (*	get elements of the map (not the keys), 
 	and map ftv over them then make a new set with those ftvs*)
 let ftvenv env = 
@@ -88,7 +87,8 @@ let instantiate = function
 
 let varBind u t = match u, t with
     | u, Tvar(x) -> nullSubst
-    | u, t when SS.mem u (ftv t) -> raise(Failure("Occur check fails "))
+    | u, t when SS.mem u (ftv t) -> raise
+		(Failure ("Cannot bind "^u^" to "^(ty_to_str t)) )
     | _,_ -> SubstMap.add u t SubstMap.empty
 
 let rec mgu ty1 ty2 = 
@@ -112,7 +112,9 @@ let rec mgu ty1 ty2 =
     | t1, t2 -> raise(Failure ((ty_to_str ty1) ^ " types do not unify " ^
 (ty_to_str ty2)))
 
-
+let printSubst s = SubstMap.iter 
+					(fun key -> fun ty ->
+					print_endline (key ^ ": " ^ (ty_to_str ty))) s
 
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
@@ -168,27 +170,42 @@ let rec ti env = function
                 | None -> raise(Failure("unbound variable" ^ n))
                 | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
                 )
-        | Let(Assign(x, e1), e2) -> let (s1,tex1,t1) as ix1 = ti env e1 in 
-                let env' = remove env x in
+        | Let(Assign(x, e1), e2) -> 
+				let (s1,tex1,t1) as ix1 = ti env e1 in
+				(print_endline ("let assign ty: "^ (ty_to_str t1))); 
                 let t' = generalize (applyenv s1 env) t1 in 
-                let env'' = (TyEnvMap.add x t' env') in 
+                let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
-                (composeSubst s1 s2, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2), t2)
+                (composeSubst s1 s2
+				, ILet(composeSubst s1 s2, IAssign(x, ix1), ix2)
+				, t2)
 	| Lambda( n, e ) -> 
 		let tv = newTyVar n in 
         let env' = remove env n in 
         let env'' = SubstMap.union collision env' 
 			(SubstMap.singleton n (Tforall([], tv)) ) in
-        let (s1, tex1, t1) as ix1 = ti env'' e in 
+        let (s1, tex1, t1) as ix1 = ti env'' e in
         (s1, ILambda (s1, n, ix1), Tarrow( (apply s1 tv), t1 ))
 	| App(e1,e2) -> 
-		let tv = newTyVar "a" in
+		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
 		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
+	| Ite(e1,e2,e3) ->
+		let (s1,tx1,t1) as ix1 = ti env e1 in
+		(*first expr must be boolean*)
+		let boolSubst = composeSubst (mgu Bool t1) s1 in 
+		let (s2,tx2,t2) as ix2 = ti (applyenv boolSubst env) e2 in
+		let s' = composeSubst boolSubst s2 in
+		let (s3,tx2,t3) as ix3 = ti (applyenv s' env) e3 in
+		let s'' = mgu t2 t3 in
+		let fullSubst = composeSubst s' s'' in
+		(fullSubst
+		, IIte(fullSubst, ix1,ix2,ix3)
+		, apply fullSubst t2)
 	| Add -> (nullSubst, IAdd, Tarrow(Int, Tarrow(Int,Int)))
         | Sub -> (nullSubst, ISub, Tarrow(Int, Tarrow(Int,Int)))
         | Mult -> (nullSubst, IMult, Tarrow(Int, Tarrow(Int,Int)))
@@ -215,18 +232,59 @@ let rec ti env = function
         | GreaterF -> (nullSubst, IGreaterF, Tarrow(Float,Tarrow(Float,Bool)))
         | And -> (nullSubst, IAnd, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Or -> (nullSubst, IOr, Tarrow(Bool,Tarrow(Bool,Bool)))
-        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))  
-
+        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
+		| Cons -> let polyty = newTyVar "a" in
+			(nullSubst, ICons, Tarrow(polyty, 
+			Tarrow (TconList polyty, TconList polyty)))
+		| Cat -> let polyty = newTyVar "a" in
+			(nullSubst, ICat, Tarrow(TconList polyty, 
+				Tarrow (TconList polyty, TconList polyty)))
+		| Len -> let polyty = newTyVar "a" in
+			(nullSubst, ILen, Tarrow(TconList polyty, Int))
+		| Head -> let polyty = newTyVar "a" in
+			(nullSubst, IHead,
+			(Tarrow(TconList polyty, polyty)))
+		| Tail -> let polyty = newTyVar "a" in
+			(nullSubst, ITail, 
+			Tarrow(TconList polyty, TconList polyty))
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 (*let rec type_clauses env = function
 	| ListVBind (var, blist) ->
 	| Filter e ->*)
 
-let rec type_paired_program = function
-	| ((annot, (Vdef (name,exp)))::xs) -> 
-		let iexpr = ti TyEnvMap.empty exp in
-		let tpair = (annot, (InferredVdef (name, iexpr) ) ) in
-		tpair :: (type_paired_program xs)
-        | ((_, Annot _) :: _) -> raise(Failure("no"))
-	| [] -> []
+let tiVdefPair env = function
+	| (_,Vdef(name,expr)) -> 
+		let (substs, ix, ty) = ti env expr in
+		let newSubst = SubstMap.singleton name ty in
+		(composeSubst newSubst substs, ix, ty)
+	| (_,Annot(_)) -> raise (Failure "cannot tiVdef on annotation")
+
+let rec unzip_thruple l =
+	let f (l1,l2,l3) (x,y,z) = (x::l1,y::l2,z::l3) in
+	List.fold_left f ([],[],[]) (List.rev l)
+
+let type_paired_program annotvdef_list =
+	let vdef_names = List.fold_left 
+		(fun l -> fun ((Annot(n,_)),_) -> n::l) 
+		[] annotvdef_list in
+	let moduleEnv = List.fold_left 
+		(fun env -> fun name -> 
+			let var = newTyVar name in
+			TyEnvMap.add name var env) 
+		TyEnvMap.empty vdef_names in
+	let annotIVdefs = List.map
+		(fun (annot,Vdef(n,exp)) -> 
+			(annot, InferredVdef(n, ti moduleEnv exp))) 
+		annotvdef_list in
+	let substList = List.fold_left
+		(fun l -> fun (_, InferredVdef(_,(subst,_,_))) -> subst::l)
+		[] annotIVdefs in
+	let allSubsts = List.fold_left
+		(fun s1 -> fun s2 -> composeSubst s1 s2)
+		(List.hd substList) substList in
+	let annotIVdefs' = List.map
+		(fun (a, InferredVdef(n,(s,ix,ty))) -> 
+			(a,InferredVdef(n,(s,ix, apply allSubsts ty)))) annotIVdefs in
+		annotIVdefs'
+

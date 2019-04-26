@@ -1,23 +1,30 @@
 open Ast
 
-let rec ast_to_str exp =
+let rec timestab n =
+	if n = 0
+	then ""
+	else "\t" ^ (timestab (n-1))
+
+let rec ast_to_str exp tabs =
+	let tab_level = timestab tabs in
     match exp with
-    | Ite(e1,e2,e3) -> "if (" ^ (ast_to_str e1) ^ 
-					")\nthen (" ^ (ast_to_str e2) ^ 
-					")\nelse(" ^ (ast_to_str e3) ^ ")"
-    | Let(e1,e2) -> "let (" ^ (assign_to_str e1) ^ 
-					")\nin (" ^ (ast_to_str e2) ^ ")"
-    | Lambda(e1,e2) -> "fun " ^ (e1) ^ " -> \n(" ^ (ast_to_str e2) ^ ")"
-    | App(App(op, arg1), arg2) -> "((" ^ op_to_str op ^ ")~" 
-		^ (ast_to_str arg1) ^ ")~" ^ (ast_to_str arg2)
-    | App(op, e) ->  "(" ^ (op_to_str op) ^ ")~" ^ (ast_to_str e)
+    | Ite(e1,e2,e3) -> "if (" ^ (ast_to_str e1 tabs) ^ 
+					")\n"^tab_level^"then (" ^ (ast_to_str e2 (tabs + 1)) ^ 
+					")\n"^tab_level^"else(" ^ (ast_to_str e3 (tabs + 1)) ^ ")"
+    | Let(e1,e2) -> "let (" ^ (assign_to_str e1 (tabs + 1)) ^ 
+					") in \n"^tab_level^"(" ^ (ast_to_str e2 (tabs)) ^ ")"
+    | Lambda(e1,e2) -> "fun " ^ (e1) ^ " -> \n"^tab_level^"(" 
+		^ (ast_to_str e2 (tabs + 1)) ^ ")"
+    | App(App(op, arg1), arg2) -> "((" ^ (op_to_str op tabs) ^ ")~" 
+		^ (ast_to_str arg1 tabs) ^ ")~" ^ (ast_to_str arg2 tabs)
+    | App(op, e) ->  "(" ^ (op_to_str op tabs) ^ ")~" ^ (ast_to_str e tabs)
     | Var(s) -> s
 
     (* Lists *)
     | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
-    | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
-    | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
-    | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
+    | ListRange(e1, e2) -> "[" ^ (ast_to_str e1 tabs) ^ "..." ^ (ast_to_str e2 tabs) ^ "]"
+    | InfList(e) -> "[" ^ (ast_to_str e tabs) ^ "...]"
+    | ListComp(e, c) -> "[" ^ (ast_to_str e tabs) ^ "|" ^ (clauses_to_str c tabs) ^ "]"
 
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
@@ -27,17 +34,19 @@ let rec ast_to_str exp =
     | WildCard -> "_"
     | _ -> ""
 
-and assign_to_str = function | Assign (e1,e2)
-    -> (e1) ^ "=" ^ (ast_to_str e2)
+and assign_to_str ast tabs =
+	match ast with
+	| Assign (e1,e2)
+    -> (e1) ^ "=" ^ (ast_to_str e2 tabs)
 
-and clauses_to_str clauses =
+and clauses_to_str clauses tabs =
    match clauses with
-   | [Filter(e)] -> "Filter(" ^ (ast_to_str e) ^"), "
-   | [ListVBind(s, l)] -> "(" ^ s ^ " over " ^ "[" ^ (ast_to_str l) ^ "]), "
-   | h::t -> (clauses_to_str [h]) ^ clauses_to_str t
+   | [Filter(e)] -> "Filter(" ^ (ast_to_str e tabs) ^"), "
+   | [ListVBind(s, l)] -> "(" ^ s ^ " over " ^ "[" ^ (ast_to_str l tabs) ^ "]), "
+   | h::t -> (clauses_to_str [h] tabs) ^ (clauses_to_str t tabs)
    | [] -> ""
 
-and op_to_str s =
+and op_to_str s tabs =
     match s with
     (* Boolean Operators *)
     | Or -> "or"
@@ -73,7 +82,7 @@ and op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
-    | _ -> ast_to_str s
+    | _ -> ast_to_str s tabs
 
 and ty_to_str ty =
     match ty with
