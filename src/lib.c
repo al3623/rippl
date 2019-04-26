@@ -263,19 +263,33 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
-struct List *cons(void *d, struct List *list);
-struct List *cat(struct List *l1, struct List *l2); 
+struct List *cons(void *data, struct List *list) {
+	struct Node *newnode = makeNode(data);
+	
+	struct List *newlist = malloc(sizeof(struct List));	
+	memcpy(newlist, list, sizeof(struct List));
+	
+	// TODO: deep copy of rest of list??????????
+
+	return newlist;	
+}
+
+struct List *cat(struct List *l1, struct List *l2) {
+	return NULL;
+}
 
 void *head(struct List *list) {
-	struct Thunk *data = (list->head)->data;
-	// TODO: if no value, invoke and return value
+	struct Thunk *data = (list->head)->data;	
+	void *value = invoke(data);
+	return value;
 }
 
 struct List *tail(struct List *list) {
 	struct List *newlist = malloc(sizeof(struct List));
 	memcpy(newlist, list, sizeof(struct List));
+	newlist->head = NULL;
+	newlist->last_eval = NULL;
 	
-	// TODO: copy all the nodes
 	struct Node *curr = list->head;
 	if (!curr)
 		return newlist;
@@ -283,8 +297,20 @@ struct List *tail(struct List *list) {
 	curr = curr->next;
 	while (curr) {
 		struct Thunk *data = curr->data;
-	}
 
+		// TODO: check this deep copy	
+		struct Node *newnode = malloc(sizeof(struct Node));
+		newnode->next = NULL;	
+		struct Thunk *newdata = malloc(sizeof(struct Thunk));
+		memcpy(newdata,data,sizeof(struct Thunk));	
+		newdata->args = malloc(newdata->num_args * sizeof(void *));
+		memcpy(newdata->args, data->args, newdata->num_args * sizeof(void *));
+		newnode->data = newdata;
+
+		appendNode(newlist,newnode);
+
+		curr = curr->next;
+	}
 	return newlist;
 }
 
