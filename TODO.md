@@ -1,34 +1,21 @@
 # TODO
 
-## Conflicts to Anticipate
-1. Lambdas string * expr, not expr * expr 
-2. Match against name mangled main in codegen rather than just "main"
-3. **to implement** parse application of binary operators differently so we can have partial application
-4. Remove lambda from main
-5. Compiler.ml
-6. remove_substs pass to turn iast into tast
-7. ITE in codegen
-8. Much of codegen.ml has been refactored into lib.ml
-9. Application precedence moved in parser
-10. tast and iast import miast
+## To Go Over
+1. Codegen for lifted vdefs and how to use struct Thunks
+2. Changed closure for lifting to take care of lifting
 
 ## Front-end
-1. Create global variable and "fresh_ty_var" that generates fresh type variable for inference
-2. Implement the rest of type inference in "infer_type" in passes/type_inference.ml
-    - [use this as a source for type inference algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.65.7733&rep=rep1&type=pdf)
-    - add the equivalent of TypeEnv (type environment) as function argument
-    - ~write equivalent mgu (most general union) function~
-    - ~write equivalent apply function~
-    - ~write equivalent ftv function (free type variable)~
-    - ~create Subst struct/type~
-3. Lift local named functions to the global scope
-4. Perform lambda lifting (lift unnamed functions to toplevel lambda vdefs)
-    - first capture unbound variables in lambda -> lambda args
-    - [lambda lifting tutorial in Haskell](https://gist.github.com/jozefg/652f1d7407b7f0266ae9)
-    - [high-level wiki algorithm on lifting](https://en.wikipedia.org/wiki/Lambda_lifting#Algorithm)
+1. Parse tuple operators (first, sec)
+2. Parse maybe operators (just, is_nothing, from_just)
+3. Parse list operators (map, filter)
+4. Write type inference for list comprehensions
+5. Add (first, sec, just, is_nothing, from_just, map, filter) types to inference
+6. IMPORTANT: parsing does weird stuff with application in Ite (see test6.rpl in tests/inference/inference_tests)
 
 ## Backend
-1. Create struct to represent list comprehensions
-2. Create struct to represent thunks
-3. Rewrite codgen to generate loop to print lists
-4. Write codegen to pattern match ITE and generate code
+1. ~Create struct to represent list comprehensions~
+2. ~Create struct to represent thunks~
+3. ~Rewrite codgen to generate loop to print lists~
+4. ~Write codegen to pattern match ITE and generate code~
+5. Implement cons, head, tail, cat, len, in lib.c and lib.ml
+6. Implement first, sec, is_nothing, from_just in lib.c and lib.ml
