@@ -3,14 +3,16 @@
 ## To Go Over
 1. Codegen for lifted vdefs and how to use struct Thunks
 2. Changed closure for lifting to take care of lifting
+3. We might not be able to expose map and filter primitives due to parsing conflicts
 
 ## Front-end
-1. Parse tuple operators (first, sec)
-2. Parse maybe operators (just, is_nothing, from_just)
+1. ~Parse tuple operators (first, sec)~ test precedence
+2. ~Parse maybe operators (just, is_nothing, from_just)~ test precedence
 3. Parse list operators (map, filter)
 4. Write type inference for list comprehensions
 5. Add (first, sec, just, is_nothing, from_just, map, filter) types to inference
 6. IMPORTANT: parsing does weird stuff with application in Ite (see test6.rpl in tests/inference/inference_tests)
+7. Write type inference for tuples and maybes
 
 ## Backend
 1. ~Create struct to represent list comprehensions~
