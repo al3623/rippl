@@ -2,25 +2,24 @@
 #include "thunk.h"
 #include "lib.h"
 
-struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *), 
-//	int[] types,
+struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *,void *),
+	void *(*eval)(struct Thunk  *), 
 	int num_args) {
 	
 	struct Thunk *thunk = malloc(sizeof(struct Thunk));
 
 	thunk->f = f;
+	thunk->eval = eval;
 	thunk->num_args = num_args;
 	thunk->filled_args = 0;
-	thunk->args = malloc(num_args * sizeof(void *));
-//	thunk->types = malloc(num_args *sizeof(int));
-//	memcpy(thunk->types, types, sizeof(int)*num_args);
+	thunk->args = malloc(num_args * sizeof(struct Thunk*));
 	thunk->value = NULL;
 
 	return thunk;
 }
 
 struct Thunk *init_thunk_literal(void *data) {
-	struct Thunk *lit = init_thunk(NULL, 1);
+	struct Thunk *lit = init_thunk(NULL, NULL, 1);
 	(lit->args)[0] = data;
 	lit->filled_args = 1;
 	lit->value = data;

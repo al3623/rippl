@@ -3,9 +3,10 @@
 
 struct Thunk {
 	struct Thunk *(* f)(struct Thunk *, void *);
+	void *(* eval)(struct Thunk *);
 	int num_args;
 	int filled_args;
-	void **args;
+	struct Thunk **args;
 	void *value;
 };
 

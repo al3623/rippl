@@ -14,7 +14,7 @@ let i32_t      	 = L.i32_type    context
 		struct Thunk *( *f)(struct Thunk *,void * );
 		int num_args;
 		int filled_args;
-		void **args;
+		struct Thunk **args;
 		void *value;
 	};
 *)
@@ -22,7 +22,9 @@ let struct_thunk_type : L.lltype = L.named_struct_type context "Thunk"
 
 let call_func_type : L.lltype = L.function_type (L.pointer_type struct_thunk_type)
 	[| L.pointer_type struct_thunk_type ; L.pointer_type i8_t |]
- 
+
+let eval_func_type : L.lltype = L.function_type (L.pointer_type i8_t)
+	[|  L.pointer_type struct_thunk_type |] 
 (* 
 	struct Node {
 		struct Thunk *data;
@@ -102,12 +104,14 @@ let _ =
 
 let _ =
 	L.struct_set_body struct_thunk_type
-	[| L.pointer_type struct_node_type		
-		(* struct Thunk *( *f)(struct Thunk *, void * )*)
-		;(L.pointer_type call_func_type)
+	[| 	(* struct Thunk *( *f)(struct Thunk *, void * )*)
+		(L.pointer_type call_func_type)
+		(* (void *( *eval)(struct Thunk * ) *)
+		; (L.pointer_type eval_func_type)	
 		; i32_t									(* int num_args *) 
 		; i32_t									(* int filled_args *)
-		; L.pointer_type (L.pointer_type i8_t)	(* void **args *)
+		; L.pointer_type 
+			(L.pointer_type struct_thunk_type)	(* struct Thunk **args *)
 		; L.pointer_type i8_t					(* void *value *)
 	|] false
 
