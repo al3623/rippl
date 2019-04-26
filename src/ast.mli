@@ -9,8 +9,9 @@ type expr =
     | Cons | Cat | Len | Head | Tail | Map | FFilter
 	(* Tuple operations *)
 	| First | Sec
+	| Tuple of (expr * expr)
 	(* Maybe operations *)
-	| Is_nothing | From_just | Just of expr
+	| Is_none | From_just | Just of expr | None
     | Var of string
     | Let of (assign * expr)
     | Lambda of (string * expr)

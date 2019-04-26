@@ -92,8 +92,8 @@ let rec ty_to_str ty =
     | Tmaybe(t) -> "Tmaybe(" ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
     | Tarrow(t1,t2) -> "Arrow(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
+	| Tforall(_,t) -> "Tforall(" ^ (ty_to_str t) ^ ")"
 
-   (* | Tforall(t) -> "Tforall(" ^ (ty_to_str t) ^ ")" *)
 let rec find_main prog =
         match prog with
             | x :: xs -> (
