@@ -34,6 +34,18 @@ struct List *map(struct List *list, struct Thunk *func) {
 	return new;
 }
 
+struct List *map_list(struct List *apps, struct List *vals) {
+	struct List *new = makeEmptyList(INT);		// incorrect
+	struct Node *curr_app = apps->head;
+
+	while (curr_app) {
+
+		curr_app = curr_app->next;
+	}
+	
+	return new;
+}
+
 struct List *filter(struct List *list, struct Thunk *filter) {
 	struct List *new = makeEmptyList(list->content_type);
 	struct Node *curr = list->head;
@@ -59,14 +71,14 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 
 		if (passed) {
 			struct Node *newNode = malloc(sizeof(struct Node));
-			struct Thunk *newThunk = malloc(sizeof(struct Thunk));
+/*			struct Thunk *newThunk = malloc(sizeof(struct Thunk));
 			memcpy(newThunk, curr->data, sizeof(struct Thunk));
 			newThunk->args = malloc(sizeof(struct Thunk *) * 
 				(curr->data)->num_args);
 			memcpy(newThunk->args, (curr->data)->args, 
 				sizeof(struct Thunk *) * (curr->data)->num_args);
-
-			newNode->data = newThunk;
+*/
+			newNode->data = curr->data;
 			newNode->next = NULL;
 			appendNode(new,newNode);
 		}
@@ -114,7 +126,6 @@ void *int_nequal_eval(struct Thunk *t) {
 	
 	return result;
 }
-
 
 int main() {
 	int _0 = 0;
@@ -172,4 +183,3 @@ int main() {
 
 	return 0;
 }
-
