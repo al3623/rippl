@@ -2,13 +2,9 @@
 #include "thunk.h"
 #include "lib.h"
 
-struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *, struct Thunk *),
-	void *(*eval)(struct Thunk  *), 
-	int num_args) {
-	
+struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
 	struct Thunk *thunk = malloc(sizeof(struct Thunk));
 
-	thunk->f = f;
 	thunk->eval = eval;
 	thunk->num_args = num_args;
 	thunk->filled_args = 0;
@@ -19,7 +15,7 @@ struct Thunk *init_thunk(struct Thunk *(*f)(struct Thunk *, struct Thunk *),
 }
 
 struct Thunk *init_thunk_literal(void *data) {
-	struct Thunk *lit = init_thunk(NULL, NULL, 1);
+	struct Thunk *lit = init_thunk(NULL, 1);
 	(lit->args)[0] = data;
 	lit->filled_args = 1;
 	lit->value = data;
@@ -38,7 +34,16 @@ void *add(int *x, int *y) {
 	return result;
 }
 
-struct Thunk *add_thunk(struct Thunk *thunk, struct Thunk*arg) {
+void *add_eval(struct Thunk *t) {
+	int *x_ = (int *)((t->args)[0]->value);
+	int *y_ = (int *)((t->args)[1]->value);
+
+	int * result = add(x_,y_);
+	
+	return result;
+}
+
+struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
 	struct Thunk *new_thunk = malloc(sizeof(struct Thunk));
 	memcpy(new_thunk, thunk, sizeof(struct Thunk));
 	new_thunk->args = malloc(new_thunk->num_args * sizeof(struct Thunk*));
@@ -53,20 +58,7 @@ struct Thunk *add_thunk(struct Thunk *thunk, struct Thunk*arg) {
 		exit(1);
 	}
 	return new_thunk;
-}
 
-void *add_eval(struct Thunk *t) {
-	int *x_ = (int *)((t->args)[0]->value);
-	int *y_ = (int *)((t->args)[1]->value);
-
-	int * result = add(x_,y_);
-	
-	return result;
-}
-
-struct Thunk *apply(struct Thunk *t, struct Thunk *arg) {
-	struct Thunk* (*f) (struct Thunk *thunk, struct Thunk *a) = t->f;
-	return f(t,arg);	
 }
 
 
@@ -87,7 +79,7 @@ void *invoke(struct Thunk *t) {
 }
 
 int main() {
-	struct Thunk *orig_thunk = init_thunk(add_thunk, add_eval,2);
+	struct Thunk *orig_thunk = init_thunk(add_eval,2);
 	
 	int _5 = 5;
 	int _0 = 0;

@@ -1,5 +1,6 @@
 #include <string.h>
 #include "lib.h"
+#include "mymap.h"
 #include "thunk.h"
 
 struct List *map(struct List *list, struct Thunk *func) {
@@ -7,7 +8,7 @@ struct List *map(struct List *list, struct Thunk *func) {
 	struct Node *curr = list->head;
 
 	while (curr) {
-		void *data = (curr->data)->value; // always evaluated?
+		struct Thunk *data = (curr->data); // always evaluated?
 		struct Thunk *newThunk = apply(func, data);
 		struct Node *newNode = malloc(sizeof(struct Node));
 		newNode->data = newThunk;
@@ -41,7 +42,14 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 		int passed = *(int *)value;
 
 		if (passed) {
-			struct Node *newNode = makeNode(curr->data->value);
+			struct Node *newNode = malloc(sizeof(struct Node));
+			struct Thunk *newThunk = malloc(sizeof(struct Thunk));
+			memcpy(newThunk, curr->data, sizeof(struct Thunk));
+			newThunk->args = malloc(sizeof(struct Thunk *) * 
+				(curr->data)->num_args);
+			memcpy(newThunk->args, (curr->data)->args, 
+				sizeof(struct Thunk *) * (curr->data)->num_args);
+
 			appendNode(new,newNode);
 		}
 		curr = curr->next;
@@ -49,24 +57,53 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 	return new;
 }
 
+int *int_mult(int *data1, int *data2) {
+	int *result = malloc(sizeof(int));
+
+	int x_ = *data1;
+	int y_ = *data2;
+
+	*result = x_ * y_;
+
+	return result;
+}
+
+void *eval_int_mult(struct Thunk *t) {
+	int *x = ((t->args)[0])->value;
+	int *y = ((t->args)[1])->value;
+
+	void *result = int_mult(x,y);
+	
+	return result;
+}
+
+int *int_nequal(int *data1, int *data2) {
+	int *result = malloc(sizeof(int));
+
+	int x_ = *data1;
+	int y_ = *data2;
+
+	*result = x_ != y_;
+
+	return result;
+}
+
+void *eval_int_nequal(struct Thunk *t) {
+	int *x = ((t->args)[0])->value;
+	int *y = ((t->args)[1])->value;
+
+	void *result = int_mult(x,y);
+	
+	return result;
+}
+
 /*
-int *int_mult(int data1, int data2) {
-	int *result = malloc(sizeof(int));
-	*result = data1 * data2;
-	return result;
-}
-
-int *int_nequal(int data1, int data2) {
-	int *result = malloc(sizeof(int));
-	*result = (data1 != data2);
-	return result;
-}
-
 struct Thunk *int_mult_thunk(struct Thunk *thunk, void*arg) {
 	struct Thunk *new_thunk = malloc(sizeof(struct Thunk));
 	memcpy(new_thunk, thunk, sizeof(struct Thunk));
-	new_thunk->args = malloc(new_thunk->num_args * sizeof(void *));
-	memcpy(new_thunk->args, thunk->args, new_thunk->num_args * sizeof(void *));
+	new_thunk->args = malloc(new_thunk->num_args * sizeof(struct Thunk*));
+	memcpy(new_thunk->args, thunk->args, 
+		new_thunk->num_args * sizeof(struct Thunk *));
 
 	if (new_thunk->filled_args == new_thunk->num_args -1) {
 

@@ -11,7 +11,7 @@ let i32_t      	 = L.i32_type    context
 
 (* 
 	struct Thunk {
-		struct Thunk *( *f)(struct Thunk *,void * );
+		void *( *eval)(struct Thunk * );
 		int num_args;
 		int filled_args;
 		struct Thunk **args;
@@ -104,9 +104,7 @@ let _ =
 
 let _ =
 	L.struct_set_body struct_thunk_type
-	[| 	(* struct Thunk *( *f)(struct Thunk *, void * )*)
-		(L.pointer_type call_func_type)
-		(* (void *( *eval)(struct Thunk * ) *)
+	[| 	(* (void *( *eval)(struct Thunk * ) *)
 		; (L.pointer_type eval_func_type)	
 		; i32_t									(* int num_args *) 
 		; i32_t									(* int filled_args *)
