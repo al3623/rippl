@@ -56,6 +56,7 @@ struct Maybe *makeMaybe(void *data, int ty) {
 
 struct List *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
+	memset(new,0,sizeof(struct List));
 
 	new->start = 0;
 	new->end = 0;
@@ -289,7 +290,7 @@ struct List *cons(void *data, struct List *list) {
 
 struct List *cat(struct List *l1, struct List *l2) {
 	struct List *new = malloc(sizeof(struct List));
-	memcpy(new,l1,sizeof(struct List));
+	memcpy(new,l2,sizeof(struct List));
 	new->head = NULL;
 	new->last_eval = NULL;
 
@@ -354,7 +355,7 @@ int length(struct List *list) {
 	}
 	return count;
 }
-
+/*
 int main() {
 	struct List *front = makeRangeList(1,5);
 	explodeRangeList(front);
@@ -434,5 +435,14 @@ int main() {
 	printPrimList(end_tail);
 	printf("\n");
 
+	printf("cat front end: ");
+	printPrimList(cat_front_end);
+	printf("\n");
+
+	printf("cat front_tail end_tail: ");
+	printPrimList(cat_fronttail_endtail);
+	printf("\n");
+
 	return 0;
 }
+*/
