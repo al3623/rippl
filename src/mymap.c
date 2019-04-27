@@ -126,7 +126,7 @@ void *int_nequal_eval(struct Thunk *t) {
 	
 	return result;
 }
-
+/*
 int main() {
 	int _0 = 0;
 	int _1 = 1;
@@ -182,4 +182,4 @@ int main() {
 	printf("\n");
 
 	return 0;
-}
+}*/
