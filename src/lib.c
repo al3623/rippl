@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "lib.h"
 #include "thunk.h"
+#include "mymap.h"
+#include <string.h>
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -54,6 +56,7 @@ struct Maybe *makeMaybe(void *data, int ty) {
 
 struct List *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
+	memset(new,0,sizeof(struct List));
 
 	new->start = 0;
 	new->end = 0;
@@ -178,6 +181,7 @@ void printPrimList(void *list) {
 	if (ty!= CHAR)
 		printf("[");
 	while (curr) {
+		invoke(curr->data);
 		printAny((curr->data)->value, ty);	
 		curr = curr->next;
 		if (curr && ty != CHAR) {
@@ -262,3 +266,183 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
+struct List *cons(void *data, struct List *list) {
+	struct Node *newhead = makeNode(data);
+	
+	struct List *newlist = malloc(sizeof(struct List));	
+	memcpy(newlist, list, sizeof(struct List));
+	
+	newlist->head = newhead;
+	newlist->last_eval = newhead;
+
+	struct Node *curr = list->head;
+
+	while(curr) {
+		struct Node *newnode = malloc(sizeof(struct Node));
+		newnode->next = NULL;
+		newnode->data = curr->data;
+		appendNode(newlist, newnode);
+		curr = curr->next;
+	}
+
+	return newlist;	
+}
+
+struct List *cat(struct List *l1, struct List *l2) {
+	struct List *new = malloc(sizeof(struct List));
+	memcpy(new,l2,sizeof(struct List));
+	new->head = NULL;
+	new->last_eval = NULL;
+
+	struct Node *curr1 = l1->head;
+	while (curr1) {
+		struct Node *newnode = malloc(sizeof(struct Node));
+		newnode->data = curr1->data;
+		newnode->next = NULL;
+		appendNode(new, newnode);
+		curr1 = curr1->next;
+	}
+
+	struct Node *curr2 = l2->head;
+	while (curr2) {
+		struct Node *newnode = malloc(sizeof(struct Node));
+		newnode->data = curr2->data;
+		newnode->next = NULL;
+		appendNode(new, newnode);
+		curr2 = curr2->next;
+	}
+
+	return new;
+}
+
+void *head(struct List *list) {
+	struct Thunk *data = (list->head)->data;	
+	void *value = invoke(data);
+	return value;
+}
+
+struct List *tail(struct List *list) {
+	struct List *newlist = malloc(sizeof(struct List));
+	memcpy(newlist, list, sizeof(struct List));
+	newlist->head = NULL;
+	newlist->last_eval = NULL;
+	
+	struct Node *curr = list->head;
+	if (!curr)
+		return newlist;
+
+	curr = curr->next;
+	while (curr) {
+		struct Thunk *data = curr->data;
+
+		struct Node *newnode = malloc(sizeof(struct Node));
+		newnode->next = NULL;	
+		newnode->data = curr->data;
+
+		appendNode(newlist,newnode);
+
+		curr = curr->next;
+	}
+	return newlist;
+}
+
+int length(struct List *list) {
+	struct Node *curr = list->head;	
+	int count = 0;
+	while (curr) {
+		count++;
+		curr = curr->next;
+	}
+	return count;
+}
+/*
+int main() {
+	struct List *front = makeRangeList(1,5);
+	explodeRangeList(front);
+	printf("front:\t");
+	printPrimList(front);
+	printf("\n");
+
+	struct List *end = makeRangeList(6,10);
+	explodeRangeList(end);
+	printf("end:\t");
+	printPrimList(end);
+	printf("\n");
+
+	printf("front length: %d\n", length(front));
+	printf("end length: %d\n", length(end));
+
+	printf("front head: %d\n", *(int *)head(front));
+	printf("end head: %d\n", *(int *)head(end));
+
+	struct List *front_tail = tail(front);
+	struct List *end_tail = tail(end);
+	
+	printf("front_tail: ");
+	printPrimList(front_tail);
+	printf("\n");
+
+	printf("end_tail: ");
+	printPrimList(end_tail);
+	printf("\n");
+
+	int _100 = 100;
+
+	struct List *front_cons100 = cons(&_100, front);
+	struct List *end_cons100 = cons(&_100, end);
+
+	printf("front cons 100: ");
+	printPrimList(front_cons100);
+	printf("\n");
+
+	printf("end cons 100: ");
+	printPrimList(end_cons100);
+	printf("\n");
+
+	struct List *cat_front_end = cat(front, end);
+	printf("cat front end: ");
+	printPrimList(cat_front_end);
+	printf("\n");
+
+	struct List *cat_fronttail_endtail = cat(front_tail, end_tail);
+	printf("cat front_tail end_tail: ");
+	printPrimList(cat_fronttail_endtail);
+	printf("\n");
+
+	int _2 = 2;
+	struct Thunk *two = init_thunk_literal(&_2);
+	struct Thunk *mult = init_thunk(int_mult_eval,2);
+	struct Thunk *mult2 = apply(mult, two);
+
+	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
+	printf("map mult2 cat fronttail endtail: ");
+	printPrimList(mult2_cat_fronttail_endtail);
+	printf("\n");
+	
+	printf("front:\t");
+	printPrimList(front);
+	printf("\n");
+
+	printf("end:\t");
+	printPrimList(end);
+	printf("\n");
+
+	printf("front_tail: ");
+	printPrimList(front_tail);
+	printf("\n");
+
+	printf("end_tail: ");
+	printPrimList(end_tail);
+	printf("\n");
+
+	printf("cat front end: ");
+	printPrimList(cat_front_end);
+	printf("\n");
+
+	printf("cat front_tail end_tail: ");
+	printPrimList(cat_fronttail_endtail);
+	printf("\n");
+
+	return 0;
+}
+*/

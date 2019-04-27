@@ -11,14 +11,14 @@
 %}
 
 %token EOF LET IN IF THEN ELSE OVER FUN LBRACK RBRACK LPAREN RPAREN COMMA
-%token LRANGE WILDCARD RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
+%token LRANGE WILDCARD RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD 
+%token PLUSF MINUSF
 %token DIVIDEF TIMESF POWF OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER 
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
 %token MAYBE JUST NONE APP
-%token MAP FILTER
 %token FIRST SEC
-%token IS_NOTHING FROM_JUST
+%token IS_NONE FROM_JUST
 
 %token <char> CHARLIT
 %token <int> INTLIT
@@ -26,14 +26,9 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
-%left MAP FILTER
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left IN
 %left RARROW
-%left APP
-%nonassoc JUST /* TODO: JUST FIRST SEC IS_NOTHING FROM_JUST MAP FILTER */
-%nonassoc FIRST SEC
-%nonassoc IS_NOTHING FROM_JUST
 %left ELSE
 
 %left ASSIGN
@@ -41,7 +36,10 @@
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
 %left POW POWF
-%left CONS HEAD TAIL CAT LEN
+%left CONS CAT
+%nonassoc FIRST SEC LEN TAIL HEAD
+%nonassoc JUST IS_NONE FROM_JUST
+%left APP
 %nonassoc PAREN
 
 %start program
@@ -133,6 +131,19 @@ expr:
 
     /* PARENTHESIZED EXPRESSIONS */
     | LPAREN expr RPAREN %prec PAREN {$2}
+	
+	/* TUPLES */
+	| LPAREN expr COMMA expr RPAREN { Tuple($2,$4) }
+	| FIRST expr					{ App(First, $2) }
+	| SEC expr						{ App(Sec, $2) }
+
+	/* MAYBE */
+	| JUST expr						{ Just($2) }
+	| NONE							{ None }
+	| IS_NONE expr					{ App(Is_none, $2) }
+	| FROM_JUST expr				{ App(From_just, $2) }
+	
+	/* LIST OPERATORS */
     
 literals:
     /* PRIMITIVE LITERALS */

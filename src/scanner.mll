@@ -76,15 +76,13 @@ rule token =
             | "tail"            { TAIL }
             | "cat"             { CAT }
             | "len"             { LEN }
-			| "map"				{ MAP }
-			| "filter"			{ FILTER }
 			(* TUPLE OPERATORS *)
 			| "first"			{ FIRST }
 			| "sec"				{ SEC }
 			(* MAYBE OPERATORS *)
 			| "none"			{ NONE }
 			| "just"			{ JUST }
-			| "is_nothing"		{ IS_NOTHING }
+			| "is_none"			{ IS_NONE }
 			| "from_just"		{ FROM_JUST }
             (* ASSIGN *)
             | '='               { ASSIGN }

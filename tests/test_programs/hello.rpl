@@ -1,1 +1,1 @@
-main = fun _ -> "Hello World!! xD"
+main = "Hello World!! xD"
