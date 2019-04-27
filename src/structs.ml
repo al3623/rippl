@@ -105,7 +105,7 @@ let _ =
 let _ =
 	L.struct_set_body struct_thunk_type
 	[| 	(* (void *( *eval)(struct Thunk * ) *)
-		; (L.pointer_type eval_func_type)	
+		(L.pointer_type eval_func_type)	
 		; i32_t									(* int num_args *) 
 		; i32_t									(* int filled_args *)
 		; L.pointer_type 

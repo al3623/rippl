@@ -179,6 +179,7 @@ void printPrimList(void *list) {
 	if (ty!= CHAR)
 		printf("[");
 	while (curr) {
+		invoke(curr->data);
 		printAny((curr->data)->value, ty);	
 		curr = curr->next;
 		if (curr && ty != CHAR) {

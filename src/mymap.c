@@ -4,12 +4,27 @@
 #include "thunk.h"
 
 struct List *map(struct List *list, struct Thunk *func) {
-	struct List *new = makeEmptyList(list->content_type);	// is this right?
+	struct List *new = makeEmptyList(list->content_type);	// not right type
 	struct Node *curr = list->head;
 
 	while (curr) {
-		struct Thunk *data = (curr->data); // always evaluated?
+		struct Thunk *data = (curr->data);
 		struct Thunk *newThunk = apply(func, data);
+/*
+		fprintf(stderr, "func arg: %d\n",
+			*(int *)((func->args)[0]->value));
+		fprintf(stderr, "app map on: %d\n",
+			*(int *)(data->value));
+
+		fprintf(stderr, "newThunk num_args: %d\n",
+			newThunk->num_args);
+		fprintf(stderr, "newThunk filled_args: %d\n",
+			newThunk->filled_args);
+		fprintf(stderr, "newThunk args[0]: %d\n",
+			*(int *)((newThunk->args)[0]->value));
+		fprintf(stderr, "newThunk args[1]: %d\n",
+			*(int *)((newThunk->args)[1]->value));
+*/
 		struct Node *newNode = malloc(sizeof(struct Node));
 		newNode->data = newThunk;
 		newNode->next = NULL;
@@ -37,6 +52,7 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 			args++;
 			filled_args--;
 		}
+
 		void *value = invoke(passesFilter);
 		
 		int passed = *(int *)value;
@@ -50,6 +66,8 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 			memcpy(newThunk->args, (curr->data)->args, 
 				sizeof(struct Thunk *) * (curr->data)->num_args);
 
+			newNode->data = newThunk;
+			newNode->next = NULL;
 			appendNode(new,newNode);
 		}
 		curr = curr->next;
@@ -59,7 +77,7 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 
 int *int_mult(int *data1, int *data2) {
 	int *result = malloc(sizeof(int));
-
+	
 	int x_ = *data1;
 	int y_ = *data2;
 
@@ -68,12 +86,12 @@ int *int_mult(int *data1, int *data2) {
 	return result;
 }
 
-void *eval_int_mult(struct Thunk *t) {
+void *int_mult_eval(struct Thunk *t) {
 	int *x = ((t->args)[0])->value;
 	int *y = ((t->args)[1])->value;
 
 	void *result = int_mult(x,y);
-	
+
 	return result;
 }
 
@@ -88,92 +106,45 @@ int *int_nequal(int *data1, int *data2) {
 	return result;
 }
 
-void *eval_int_nequal(struct Thunk *t) {
+void *int_nequal_eval(struct Thunk *t) {
 	int *x = ((t->args)[0])->value;
 	int *y = ((t->args)[1])->value;
 
-	void *result = int_mult(x,y);
+	void *result = int_nequal(x,y);
 	
 	return result;
 }
 
-/*
-struct Thunk *int_mult_thunk(struct Thunk *thunk, void*arg) {
-	struct Thunk *new_thunk = malloc(sizeof(struct Thunk));
-	memcpy(new_thunk, thunk, sizeof(struct Thunk));
-	new_thunk->args = malloc(new_thunk->num_args * sizeof(struct Thunk*));
-	memcpy(new_thunk->args, thunk->args, 
-		new_thunk->num_args * sizeof(struct Thunk *));
-
-	if (new_thunk->filled_args == new_thunk->num_args -1) {
-
-		int x1 = *(int *) ((new_thunk->args)[0]);
-		int y1 = *(int *) arg;
-
-		void *res = int_mult(x1,y1);
-
-		new_thunk->value = res;
-	} else if (new_thunk->filled_args < new_thunk->num_args - 1) {
-
-		(new_thunk->args)[new_thunk->filled_args] = arg;
-		new_thunk->filled_args++;
-
-	} else {
-		fprintf(stderr, "not a thunk, can't be applied");
-		exit(1);
-	}
-	return new_thunk;
-}
-
-struct Thunk *int_nequal_thunk(struct Thunk *thunk, void*arg) {
-	struct Thunk *new_thunk = malloc(sizeof(struct Thunk));
-	memcpy(new_thunk, thunk, sizeof(struct Thunk));
-	new_thunk->args = malloc(new_thunk->num_args * sizeof(void *));
-	memcpy(new_thunk->args, thunk->args, new_thunk->num_args * sizeof(void *));
-
-	if (new_thunk->filled_args == new_thunk->num_args -1) {
-
-		int x1 = *(int *) ((new_thunk->args)[0]);
-		int y1 = *(int *) arg;
-
-		void *res = int_nequal(x1,y1);
-
-		new_thunk->value = res;
-	} else if (new_thunk->filled_args < new_thunk->num_args - 1) {
-
-		(new_thunk->args)[new_thunk->filled_args] = arg;
-		new_thunk->filled_args++;
-
-	} else {
-		fprintf(stderr, "not a thunk, can't be applied");
-		exit(1);
-	}
-	return new_thunk;
-}
 
 int main() {
-	int zero = 0;
-	int one = 1;
-	int two = 2;
-	int ten = 10;
+	int _0 = 0;
+	int _1 = 1;
+	int _2 = 2;
+	int _10 = 10;
+
+	struct Thunk *zero = init_thunk_literal(&_0);
+	struct Thunk *one = init_thunk_literal(&_1);
+	struct Thunk *two = init_thunk_literal(&_2);
+	struct Thunk *ten = init_thunk_literal(&_10);
 
 	// (!=)
-	struct Thunk *neq = init_thunk(int_nequal_thunk, 2);
+	struct Thunk *neq = init_thunk(int_nequal_eval, 2);
 	// (*)
-	struct Thunk *mult = init_thunk(int_mult_thunk, 2);
+	struct Thunk *mult = init_thunk(int_mult_eval, 2);
 
 	// (!=).0
-	struct Thunk *neq0 = apply(neq, &zero);
+	struct Thunk *neq0 = apply(neq, zero);
 	// (!=).1
-	struct Thunk *neq1 = apply(neq, &one);
+	struct Thunk *neq1 = apply(neq, one);
 	// (*).2
-	struct Thunk *mult2 = apply(mult, &two);
+	struct Thunk *mult2 = apply(mult, two);
 	// (*).10
-	struct Thunk *mult10 = apply(mult, &ten);
+	struct Thunk *mult10 = apply(mult, ten);
 
 	// unfiltered = [0,1,2,3,4,5]
 	struct List *unfiltered = makeRangeList(0,5);
-	explodeRangeList(unfiltered);	
+	explodeRangeList(unfiltered);
+	printf("original: ");	
 	printRangeList(unfiltered);
 	printf("\n");
 
@@ -189,14 +160,16 @@ int main() {
 	printPrimList(not1);
 	printf("\n");
 
+	printf("map *2 original: ");
 	struct List *map_mult2_unfiltered = map(unfiltered, mult2);
 	printPrimList(map_mult2_unfiltered);
 	printf("\n");
 
+	printf("map *10 not1: ");
 	struct List *map_mult10_not1 = map(not1, mult10);
 	printPrimList(map_mult10_not1);
 	printf("\n");
 
 	return 0;
 }
-*/
+

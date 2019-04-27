@@ -16,9 +16,9 @@ struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
 
 struct Thunk *init_thunk_literal(void *data) {
 	struct Thunk *lit = init_thunk(NULL, 1);
-	(lit->args)[0] = data;
 	lit->filled_args = 1;
 	lit->value = data;
+	(lit->args)[0] = lit;
 	return lit;
 }
 
@@ -73,11 +73,12 @@ void *invoke(struct Thunk *t) {
 			for (i = 0; i < t->num_args; i++) {
 				invoke(t->args[i]);
 			}
-			return t->eval(t);
+			t->value = t->eval(t);
+			return t->value;
 		}
 	}
 }
-
+/*
 int main() {
 	struct Thunk *orig_thunk = init_thunk(add_eval,2);
 	
@@ -110,4 +111,4 @@ int main() {
 	printf("%d\n",two_);
 
 	return 0;
-} 
+}*/ 
