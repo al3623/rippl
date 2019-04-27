@@ -28,7 +28,7 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 		// number of args stored inside list
 		int filled_args = currThunk->filled_args;
 
-		void **args = currThunk->args;
+		struct Thunk **args = currThunk->args;
 		struct Thunk *passesFilter = filter;	
 
 		while (filled_args) {
@@ -49,6 +49,7 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 	return new;
 }
 
+/*
 int *int_mult(int data1, int data2) {
 	int *result = malloc(sizeof(int));
 	*result = data1 * data2;
@@ -161,3 +162,4 @@ int main() {
 
 	return 0;
 }
+*/
