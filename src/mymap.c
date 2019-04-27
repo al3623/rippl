@@ -59,13 +59,6 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 
 		if (passed) {
 			struct Node *newNode = malloc(sizeof(struct Node));
-/*			struct Thunk *newThunk = malloc(sizeof(struct Thunk));
-			memcpy(newThunk, curr->data, sizeof(struct Thunk));
-			newThunk->args = malloc(sizeof(struct Thunk *) * 
-				(curr->data)->num_args);
-			memcpy(newThunk->args, (curr->data)->args, 
-				sizeof(struct Thunk *) * (curr->data)->num_args);
-*/
 			newNode->data = curr->data;
 			newNode->next = NULL;
 			appendNode(new,newNode);
@@ -141,13 +134,13 @@ int main() {
 	struct List *mult2and10 = map(_2and10,mult);
 
 	// (!=).0
-	struct Thunk *neq0 = (neq0and1->head)->data;
+	struct Thunk *neq0 = head(neq0and1);
 	// (!=).1
-	struct Thunk *neq1 = ((tail(neq0and1))->head)->data;
+	struct Thunk *neq1 = head(tail(neq0and1));
 	// (*).2
-	struct Thunk *mult2 = (mult2and10->head)->data;
+	struct Thunk *mult2 = head(mult2and10);
 	// (*).10
-	struct Thunk *mult10 = ((tail(mult2and10))->head)->data;
+	struct Thunk *mult10 = head(tail(mult2and10));
 
 	// unfiltered = [0,1,2,3,4,5]
 	struct List *unfiltered = makeRangeList(0,5);
@@ -179,7 +172,7 @@ int main() {
 	printf("\n");
 
 	struct List *maplist_mult = map_list(mult2and10,unfiltered);
-	printf("map * [2,10] unfiltered: ");
+	printf("map * [2,10] original: ");
 	printPrimList(maplist_mult);
 	printf("\n");
 

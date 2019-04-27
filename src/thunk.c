@@ -50,6 +50,10 @@ struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
 	memcpy(new_thunk->args, thunk->args, 
 		new_thunk->num_args * sizeof(struct Thunk *));
 
+	if (thunk->value == thunk) {
+		new_thunk->value = new_thunk;
+	}
+
 	if (new_thunk->filled_args < new_thunk->num_args) {
 		(new_thunk->args)[new_thunk->filled_args] = arg;
 		new_thunk->filled_args++;
@@ -78,6 +82,7 @@ void *invoke(struct Thunk *t) {
 		}
 	}
 }
+
 /*
 int main() {
 	struct Thunk *orig_thunk = init_thunk(add_eval,2);
