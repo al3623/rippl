@@ -171,7 +171,8 @@ let rec ti env = function
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
-	(*| ListComp(e, clauses) ->*)
+        | ListComp(e, clauses) ->  type_clauses env clauses
+                (*| ListComp(e, clauses) ->*)
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
@@ -256,9 +257,14 @@ let rec ti env = function
 			Tarrow(TconList polyty, TconList polyty))
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
-(*let rec type_clauses env = function
-	| ListVBind (var, blist) ->
-	| Filter e ->*)
+
+
+let rec type_clauses env = function
+        (* make sure that var is the same type as blist *)
+(*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
+	| Filter e -> let (subst, tex, ty) = ti env e in 
+        let subst' = mgu (apply subst ty) Bool in
+        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)
 
 let tiVdefPair env = function
 	| (_,Vdef(name,expr)) -> 
