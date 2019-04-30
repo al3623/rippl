@@ -8,10 +8,10 @@ let ty_code = function
 	| Bool			-> 1
 	| Char			-> 2
 	| Float			-> 3
-	| TconList _	-> 4
-	| TconTuple _ 	-> 5
-	| Tmaybe	_	-> 6
-	| _				-> raise (Failure "no type code: unprintable")
+	| TconList _	        -> 4
+	| TconTuple _ 	        -> 5
+	| Tmaybe _	        -> 6
+	| _			-> raise (Failure "no type code: unprintable")
 
 
 let the_module = L.create_module context "Rippl"
@@ -28,15 +28,6 @@ let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
 let l_char = L.const_int i8_t (Char.code '\n')
 
 (* HEAP ALLOCATE PRIMS *)
-let makeIntVoid_t : L.lltype =
-        L.function_type (L.pointer_type i8_t) [| L.pointer_type i32_t |]
-let makeIntVoid : L.llvalue =
-        L.declare_function "makeIntVoid" makeIntVoid_t the_module
-let makeFloatVoid_t : L.lltype =
-        L.function_type (L.pointer_type i8_t) [| L.pointer_type float_t |]
-let makeFloatVoid : L.llvalue =
-        L.declare_function "makeFloatVoid" makeFloatVoid_t the_module
-
 let makeInt_t : L.lltype =
 	L.function_type (L.pointer_type i32_t) [| i32_t |]
 let makeInt : L.llvalue =
