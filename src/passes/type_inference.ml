@@ -13,6 +13,20 @@ module SubstMap = Map.Make(String);;
 module TyEnvMap = Map.Make(String);;
 
 (* returns a set of free type variables *)
+
+let printEnv env =
+	print_string "[";
+	TyEnvMap.iter (fun key -> fun ty -> 
+		print_string (key ^ " :: " ^ (ty_to_str ty)^", ")) env;
+	print_endline "]"
+
+let printSubsts subst =
+	print_string "{";
+	TyEnvMap.iter (fun key -> fun ty -> 
+		print_string (key ^ " => " ^ (ty_to_str ty)^", ")) subst;
+	print_endline "}"
+
+
 let rec ftv = function
     | Tvar(n) -> SS.add n SS.empty
     | Int -> SS.empty
@@ -142,6 +156,13 @@ let rec ti env = function
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
     | BoolLit b -> (nullSubst, IBoolLit b,Bool)
+	| Tuple (e1,e2) -> 
+		let (s1,tex1,ty1) as ix1 = ti env e1 in
+		let (s2,tex2,ty2) as ix2 = ti (applyenv s1 env) e2 in
+		let s3 = composeSubst s1 s2 in
+		(s3
+		, ITuple(ix1,ix2)
+		, TconTuple(apply s3 ty1, apply s3 ty2))
     | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
@@ -164,11 +185,24 @@ let rec ti env = function
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
+	| None -> let polyty = newTyVar "a" in
+		(nullSubst, INone, Tmaybe polyty)
+	| Just e -> let (s,ix,t) as ixpr = ti env e in
+		(s, IJust ixpr, Tmaybe t)
+	| Tuple (e1,e2) -> 
+		let (s1,ix1,t1) as ixpr1 = ti env e1 in
+		let (s2,ix2,t2) as ixpr2 = ti (applyenv s1 env) e2 in
+		let fullSubst = composeSubst s1 s2 in
+		(fullSubst, ITuple(ixpr1,ixpr2), 
+			TconTuple(apply fullSubst t1, apply fullSubst t2))
 	(*| ListComp(e, clauses) ->*)
+(*        | ListComp(e, clauses) ->  type_clauses env clauses*)
+                (*| ListComp(e, clauses) ->*)
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
-                | Some si -> let t = instantiate si in (nullSubst, IVar n, t)
+                | Some si -> let t = instantiate si in 
+					(nullSubst, IVar n, t)
                 )
         | Let(Assign(x, e1), e2) -> 
 				let (s1,tex1,t1) as ix1 = ti env e1 in
@@ -247,18 +281,42 @@ let rec ti env = function
 		| Tail -> let polyty = newTyVar "a" in
 			(nullSubst, ITail, 
 			Tarrow(TconList polyty, TconList polyty))
+		| First -> let polyty1 = newTyVar "a" in
+					let polyty2 = newTyVar "b" in
+					(nullSubst, IFirst,
+					(Tarrow(TconTuple(polyty1,polyty2),polyty1)))
+		| Sec -> let polyty1 = newTyVar "a" in
+					let polyty2 = newTyVar "b" in
+					(nullSubst, ISec,
+					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
+
+
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
-(*let rec type_clauses env = function
-	| ListVBind (var, blist) ->
-	| Filter e ->*)
 
-let tiVdefPair env = function
-	| (_,Vdef(name,expr)) -> 
-		let (substs, ix, ty) = ti env expr in
-		let newSubst = SubstMap.singleton name ty in
-		(composeSubst newSubst substs, ix, ty)
-	| (_,Annot(_)) -> raise (Failure "cannot tiVdef on annotation")
+
+let rec type_clauses env = function
+        (* make sure that var is the same type as blist *)
+(*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
+	| Filter e -> let (subst, tex, ty) = ti env e in 
+        let subst' = mgu (apply subst ty) Bool in
+        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)
+
+let rec typeUpdateEnv env = function
+	| (annot, Vdef(n,exp))::xs ->
+		let pretype = 
+			let sigma =	TyEnvMap.find_opt n env in 
+                (match sigma with
+                | None -> raise(Failure("unbound variable " ^ n))
+                | Some si -> let t = instantiate si in 
+					t
+                ) in 
+		let (subst,ix,ty) as typed = ti env exp in
+		let topsubst = mgu ty pretype in
+		let fullsubst = composeSubst topsubst subst in
+		(annot, InferredVdef(n,typed))::
+			(typeUpdateEnv (applyenv topsubst env) xs)
+	| [] -> []
 
 let rec unzip_thruple l =
 	let f (l1,l2,l3) (x,y,z) = (x::l1,y::l2,z::l3) in
@@ -273,10 +331,7 @@ let type_paired_program annotvdef_list =
 			let var = newTyVar name in
 			TyEnvMap.add name var env) 
 		TyEnvMap.empty vdef_names in
-	let annotIVdefs = List.map
-		(fun (annot,Vdef(n,exp)) -> 
-			(annot, InferredVdef(n, ti moduleEnv exp))) 
-		annotvdef_list in
+	let annotIVdefs = typeUpdateEnv moduleEnv annotvdef_list in
 	let substList = List.fold_left
 		(fun l -> fun (_, InferredVdef(_,(subst,_,_))) -> subst::l)
 		[] annotIVdefs in
