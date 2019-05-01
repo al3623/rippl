@@ -149,6 +149,7 @@ let rec ti env = function
 		(s3
 		, ITuple(ix1,ix2)
 		, TconTuple(apply s3 ty1, apply s3 ty2))
+    | ListLit [] -> (nullSubst, IListLit [], TconList(newTyVar "a"))
     | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
@@ -171,7 +172,7 @@ let rec ti env = function
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
-        | ListComp(e, clauses) ->  type_clauses env clauses
+        (*| ListComp(e, clauses) ->  type_clauses env clauses*)
                 (*| ListComp(e, clauses) ->*)
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
@@ -258,13 +259,12 @@ let rec ti env = function
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 
-
-let rec type_clauses env = function
+(* let rec type_clauses env = function
         (* make sure that var is the same type as blist *)
 (*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
 	| Filter e -> let (subst, tex, ty) = ti env e in 
         let subst' = mgu (apply subst ty) Bool in
-        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)
+        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)*)
 
 let tiVdefPair env = function
 	| (_,Vdef(name,expr)) -> 
