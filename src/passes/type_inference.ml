@@ -178,6 +178,16 @@ let rec ti env = function
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
 		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
+	| None -> let polyty = newTyVar "a" in
+		(nullSubst, INone, Tmaybe polyty)
+	| Just e -> let (s,ix,t) as ixpr = ti env e in
+		(s, IJust ixpr, Tmaybe t)
+	| Tuple (e1,e2) -> 
+		let (s1,ix1,t1) as ixpr1 = ti env e1 in
+		let (s2,ix2,t2) as ixpr2 = ti (applyenv s1 env) e2 in
+		let fullSubst = composeSubst s1 s2 in
+		(fullSubst, ITuple(ixpr1,ixpr2), 
+			TconTuple(apply fullSubst t1, apply fullSubst t2))
 	(*| ListComp(e, clauses) ->*)
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
@@ -262,6 +272,16 @@ let rec ti env = function
 		| Tail -> let polyty = newTyVar "a" in
 			(nullSubst, ITail, 
 			Tarrow(TconList polyty, TconList polyty))
+		| First -> let polyty1 = newTyVar "a" in
+					let polyty2 = newTyVar "b" in
+					(nullSubst, IFirst,
+					(Tarrow(TconTuple(polyty1,polyty2),polyty1)))
+		| Sec -> let polyty1 = newTyVar "a" in
+					let polyty2 = newTyVar "b" in
+					(nullSubst, ISec,
+					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
+
+
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 (*let rec type_clauses env = function
