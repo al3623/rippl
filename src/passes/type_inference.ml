@@ -23,7 +23,7 @@ let printEnv env =
 let printSubsts subst =
 	print_string "{";
 	TyEnvMap.iter (fun key -> fun ty -> 
-		print_endline (key ^ " => " ^ (ty_to_str ty))) subst;
+		print_string (key ^ " => " ^ (ty_to_str ty)^", ")) subst;
 	print_endline "}"
 
 
@@ -183,7 +183,6 @@ let rec ti env = function
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
                 | Some si -> let t = instantiate si in 
-					print_endline (n ^ ": " ^ (ty_to_str si));
 					(nullSubst, IVar n, t)
                 )
         | Let(Assign(x, e1), e2) -> 
@@ -274,15 +273,12 @@ let rec typeUpdateEnv env = function
 		let pretype = 
 			let sigma =	TyEnvMap.find_opt n env in 
                 (match sigma with
-                | None -> raise(Failure("unbound variable" ^ n))
+                | None -> raise(Failure("unbound variable " ^ n))
                 | Some si -> let t = instantiate si in 
-					print_endline (n ^ ": " ^ (ty_to_str si));
-					si
+					t
                 ) in 
 		let (subst,ix,ty) as typed = ti env exp in
-		print_endline (ty_to_str ty);
 		let topsubst = mgu ty pretype in
-		printSubsts topsubst;
 		let fullsubst = composeSubst topsubst subst in
 		(annot, InferredVdef(n,typed))::
 			(typeUpdateEnv (applyenv topsubst env) xs)
