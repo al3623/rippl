@@ -41,6 +41,11 @@ let rec remove_subst_expr = function
 		(TInfList (remove_subst_expr ix1),t)
     | (_,(IListLit(ix_list)),t) ->
 		(TListLit (List.map remove_subst_expr ix_list),t)
+	| (_,(ITuple(ix1,ix2)),t) ->
+		(TTuple(remove_subst_expr ix1, remove_subst_expr ix2),t)
+	| (_,(IFirst),t) -> (TFirst,t) | (_,(ISec),t) -> (TSec,t)
+	| (_,(IJust ix),t) -> (TJust(remove_subst_expr ix),t)
+	| (_,(INone),t) -> (TNone,t)
 and remove_subst_clause = function
 	| IListVBind(str,ix2) ->
 		TListVBind(str, remove_subst_expr ix2)	
