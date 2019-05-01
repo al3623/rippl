@@ -6,6 +6,8 @@ let rec remove_subst_expr = function
 	| (_,IFloatLit f,t) -> (TFloatLit f, t)
 	| (_,IBoolLit b,t) -> (TBoolLit b,t)
     | (_,ICharLit c,t) -> (TCharLit c,t)
+	| (_,ITuple(ix1,ix2),t) -> 
+		(TTuple(remove_subst_expr ix1, remove_subst_expr ix2), t)
 	| (_,IWildCard,t) -> (TWildCard,t) | (_,IAdd,t) -> (TAdd,t) 
 	| (_,ISub,t) -> (TSub,t) | (_,IMult,t) -> (TMult,t)
 	| (_,IDiv,t) -> (TDiv,t) | (_,IMod,t) -> (TMod,t) | (_,IPow,t) -> (TPow,t) 

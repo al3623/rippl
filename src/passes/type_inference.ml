@@ -156,6 +156,13 @@ let rec ti env = function
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
     | BoolLit b -> (nullSubst, IBoolLit b,Bool)
+	| Tuple (e1,e2) -> 
+		let (s1,tex1,ty1) as ix1 = ti env e1 in
+		let (s2,tex2,ty2) as ix2 = ti (applyenv s1 env) e2 in
+		let s3 = composeSubst s1 s2 in
+		(s3
+		, ITuple(ix1,ix2)
+		, TconTuple(apply s3 ty1, apply s3 ty2))
     | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
@@ -189,6 +196,8 @@ let rec ti env = function
 		(fullSubst, ITuple(ixpr1,ixpr2), 
 			TconTuple(apply fullSubst t1, apply fullSubst t2))
 	(*| ListComp(e, clauses) ->*)
+(*        | ListComp(e, clauses) ->  type_clauses env clauses*)
+                (*| ListComp(e, clauses) ->*)
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
@@ -284,9 +293,14 @@ let rec ti env = function
 
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
-(*let rec type_clauses env = function
-	| ListVBind (var, blist) ->
-	| Filter e ->*)
+
+
+let rec type_clauses env = function
+        (* make sure that var is the same type as blist *)
+(*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
+	| Filter e -> let (subst, tex, ty) = ti env e in 
+        let subst' = mgu (apply subst ty) Bool in
+        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)
 
 let rec typeUpdateEnv env = function
 	| (annot, Vdef(n,exp))::xs ->
