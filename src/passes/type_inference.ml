@@ -102,17 +102,17 @@ let rec mgu ty1 ty2 =
 	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
             let s1 = mgu l l' in
-			print_string "MGU s1: ";
-			printSubst s1; 
+(*			print_string "MGU s1: ";
+			printSubst s1; *)
             let s2 = mgu (apply s1 r) (apply s1 r') in
-			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
+(*			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
 			print_endline("MGU apply r2: " ^ (ty_to_str (apply s1 r')));
 			print_endline("MGU r1: " ^ (ty_to_str r));
 			print_endline("MGU r2: "^ (ty_to_str r')); 
  			print_string "MGU s2: ";
 			printSubst s2;       
 			print_string "MGU ret subst: ";
-			printSubst (composeSubst s1 s2);    
+			printSubst (composeSubst s1 s2);    *)
 			composeSubst s1 s2
     | Tvar(u), t -> varBind u t
     | t, Tvar(u) -> varBind u t
@@ -194,7 +194,7 @@ let rec ti env = function
                 )
         | Let(Assign(x, e1), e2) -> 
 				let (s1,tex1,t1) as ix1 = ti env e1 in
-				(print_endline ("let assign ty: "^ (ty_to_str t1))); 
+(*				(print_endline ("let assign ty: "^ (ty_to_str t1))); *)
                 let t' = generalize (applyenv s1 env) t1 in 
                 let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
@@ -211,15 +211,15 @@ let rec ti env = function
 	| App(e1,e2) -> 
 		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
-		print_endline ("APP t1: " ^ (ty_to_str t1));
+(*		print_endline ("APP t1: " ^ (ty_to_str t1));*)
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
-		print_endline ("APP t2: " ^ (ty_to_str t2));
-		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in
+		let s3 = mgu (apply s2 t1) (Tarrow( t2, tv)) in
+(*		print_endline ("APP t2: " ^ (ty_to_str t2));
 		print_string "APP s3: ";
 		printSubst s3;
 		print_string "APP ret subst: ";
 		printSubst (composeSubst (composeSubst s1 s2) s3);
-		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));
+		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));*)
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)

@@ -1,4 +1,5 @@
 default: compiler.native thunk.o lib.o mymap.o
+	mv compiler.native rippl
 
 compiler.native: compiler.ml codegen.ml
 	ocamlbuild -use-ocamlfind -Is passes,utils compiler.native -pkgs llvm,llvm.analysis
