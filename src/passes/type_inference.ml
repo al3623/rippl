@@ -54,6 +54,11 @@ let getElem = function
 
 let getElems mp = List.map getElem (TyEnvMap.bindings mp)
 
+let printSubst s = print_string "{" ;
+					SubstMap.iter 
+					(fun key -> fun ty ->
+					print_string (key ^ ": " ^ (ty_to_str ty)^", ")) s;
+					print_endline "}"
 
 (*	get elements of the map (not the keys), 
 	and map ftv over them then make a new set with those ftvs*)
@@ -86,7 +91,9 @@ let instantiate = function
     | t -> t
 
 let varBind u t = match u, t with
-    | u, Tvar(x) -> nullSubst
+    | u, Tvar(x) -> if (String.equal u x) 
+					then nullSubst 
+					else SubstMap.add u (Tvar(x)) SubstMap.empty
     | u, t when SS.mem u (ftv t) -> raise
 		(Failure ("Cannot bind "^u^" to "^(ty_to_str t)) )
     | _,_ -> SubstMap.add u t SubstMap.empty
@@ -94,9 +101,19 @@ let varBind u t = match u, t with
 let rec mgu ty1 ty2 = 
 	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
-            let s1 = mgu l l' in 
-            let s2 = mgu (apply s1 r) (apply s1 r') in 
-            composeSubst s1 s2
+            let s1 = mgu l l' in
+			print_string "MGU s1: ";
+			printSubst s1; 
+            let s2 = mgu (apply s1 r) (apply s1 r') in
+			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
+			print_endline("MGU apply r2: " ^ (ty_to_str (apply s1 r')));
+			print_endline("MGU r1: " ^ (ty_to_str r));
+			print_endline("MGU r2: "^ (ty_to_str r')); 
+ 			print_string "MGU s2: ";
+			printSubst s2;       
+			print_string "MGU ret subst: ";
+			printSubst (composeSubst s1 s2);    
+			composeSubst s1 s2
     | Tvar(u), t -> varBind u t
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
@@ -111,10 +128,6 @@ let rec mgu ty1 ty2 =
             composeSubst s1 s2
     | t1, t2 -> raise(Failure ((ty_to_str ty1) ^ " types do not unify " ^
 (ty_to_str ty2)))
-
-let printSubst s = SubstMap.iter 
-					(fun key -> fun ty ->
-					print_endline (key ^ ": " ^ (ty_to_str ty))) s
 
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
@@ -198,8 +211,15 @@ let rec ti env = function
 	| App(e1,e2) -> 
 		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
+		print_endline ("APP t1: " ^ (ty_to_str t1));
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
+		print_endline ("APP t2: " ^ (ty_to_str t2));
 		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in
+		print_string "APP s3: ";
+		printSubst s3;
+		print_string "APP ret subst: ";
+		printSubst (composeSubst (composeSubst s1 s2) s3);
+		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
