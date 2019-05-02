@@ -333,7 +333,7 @@ let rec typeUpdateEnv env = function
 		let newSubst = mgu newTy oldTy in
 		let newPair = (a, InferredVdef(name,
 			(composeSubst newSubst substs, ix,ty))) in
-		newPair::(tiVdefPair (applyenv newSubst env) xs)
+		newPair::(typeUpdateEnv (applyenv newSubst env) xs)
 	| [] -> []
 	| ((_,Annot(_))::xs) -> raise (Failure "cannot tiVdef on annotation")
 
