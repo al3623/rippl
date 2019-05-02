@@ -15,6 +15,7 @@ open Remove_substs
 open Sys
 open String
 open Thunk
+open Unix
 module StringSet = Set.Make(String)
 
 let print_decls d = match d with
@@ -72,6 +73,11 @@ let _ =
 	let all_args = collect_args in
 	let input = List.hd all_args in
 	let length = length input in
+	(
+	if length > 4 
+		then ()
+		else raise (Failure "Usage: <.rpl file> [-t, -l, -p]")
+	);
 	let base = sub input 0 (length-4) in
 	let base_no_path = remove_path base in
 	let extension = sub input (length-3) 3 in
@@ -80,7 +86,7 @@ let _ =
 
 	let _ = if extension = "rpl" 
 			then ()
-			else raise (Failure "Usage: <.rpl file> [-t, -l, -p") in
+			else raise (Failure "Usage: <.rpl file> [-t, -l, -p]") in
 
 	let file_contents = read_full_file input in
     
@@ -104,12 +110,15 @@ let _ =
 	    Llvm_analysis.assert_valid_module m;
     let ls = Llvm.string_of_llmodule m in
     let file = base_no_path ^ ".byte" in
+	let home = Unix.getenv "HOME" in
     let oc = open_out file in
 		fprintf oc "%s\n" ls;
         close_out oc;
 		if (command ("llc -relocation-model=pic " ^ file) != 0)
 			then raise (Failure "llc: non-zero exit code") 
 		else if (command 
-			("gcc -o " ^ base_no_path ^" " ^ file ^ ".s lib.o thunk.o") != 0)
+			("gcc -L"^home^"/rippl/src "
+			^ file ^".s -lall -o"
+			^ base_no_path ) != 0)
 			then raise (Failure "gcc: non-zero exit code")
 		else ()
