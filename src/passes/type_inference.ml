@@ -68,6 +68,11 @@ let getElem = function
 
 let getElems mp = List.map getElem (TyEnvMap.bindings mp)
 
+let printSubst s = print_string "{" ;
+					SubstMap.iter 
+					(fun key -> fun ty ->
+					print_string (key ^ ": " ^ (ty_to_str ty)^", ")) s;
+					print_endline "}"
 
 (*	get elements of the map (not the keys), 
 	and map ftv over them then make a new set with those ftvs*)
@@ -100,7 +105,9 @@ let instantiate = function
     | t -> t
 
 let varBind u t = match u, t with
-    | u, Tvar(x) -> nullSubst
+    | u, Tvar(x) -> if (String.equal u x) 
+					then nullSubst 
+					else SubstMap.add u (Tvar(x)) SubstMap.empty
     | u, t when SS.mem u (ftv t) -> raise
 		(Failure ("Cannot bind "^u^" to "^(ty_to_str t)) )
     | _,_ -> SubstMap.add u t SubstMap.empty
@@ -108,9 +115,19 @@ let varBind u t = match u, t with
 let rec mgu ty1 ty2 = 
 	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
-            let s1 = mgu l l' in 
-            let s2 = mgu (apply s1 r) (apply s1 r') in 
-            composeSubst s1 s2
+            let s1 = mgu l l' in
+(*			print_string "MGU s1: ";
+			printSubst s1; *)
+            let s2 = mgu (apply s1 r) (apply s1 r') in
+(*			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
+			print_endline("MGU apply r2: " ^ (ty_to_str (apply s1 r')));
+			print_endline("MGU r1: " ^ (ty_to_str r));
+			print_endline("MGU r2: "^ (ty_to_str r')); 
+ 			print_string "MGU s2: ";
+			printSubst s2;       
+			print_string "MGU ret subst: ";
+			printSubst (composeSubst s1 s2);    *)
+			composeSubst s1 s2
     | Tvar(u), t -> varBind u t
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
@@ -125,10 +142,6 @@ let rec mgu ty1 ty2 =
             composeSubst s1 s2
     | t1, t2 -> raise(Failure ((ty_to_str ty1) ^ " types do not unify " ^
 (ty_to_str ty2)))
-
-let printSubst s = SubstMap.iter 
-					(fun key -> fun ty ->
-					print_endline (key ^ ": " ^ (ty_to_str ty))) s
 
 (* Collects tvars in a list; doesn't work for tforalls because we 
  * shouldn't need to call it on a tforall *)
@@ -163,6 +176,7 @@ let rec ti env = function
 		(s3
 		, ITuple(ix1,ix2)
 		, TconTuple(apply s3 ty1, apply s3 ty2))
+    | ListLit [] -> (nullSubst, IListLit [], TconList(newTyVar "a"))
     | ListLit l -> let iexpr_list = List.map (ti env) l in
 		(match iexpr_list with
 		(* collect all substs; apply substs on elements and final type *)
@@ -206,7 +220,7 @@ let rec ti env = function
                 )
         | Let(Assign(x, e1), e2) -> 
 				let (s1,tex1,t1) as ix1 = ti env e1 in
-				(print_endline ("let assign ty: "^ (ty_to_str t1))); 
+(*				(print_endline ("let assign ty: "^ (ty_to_str t1))); *)
                 let t' = generalize (applyenv s1 env) t1 in 
                 let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
@@ -223,8 +237,15 @@ let rec ti env = function
 	| App(e1,e2) -> 
 		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
+(*		print_endline ("APP t1: " ^ (ty_to_str t1));*)
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
-		let s3 = mgu (apply s2 t1) (Tarrow (t2, tv)) in
+		let s3 = mgu (apply s2 t1) (Tarrow( t2, tv)) in
+(*		print_endline ("APP t2: " ^ (ty_to_str t2));
+		print_string "APP s3: ";
+		printSubst s3;
+		print_string "APP ret subst: ";
+		printSubst (composeSubst (composeSubst s1 s2) s3);
+		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));*)
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
@@ -294,29 +315,27 @@ let rec ti env = function
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 
-
-let rec type_clauses env = function
+(* let rec type_clauses env = function
         (* make sure that var is the same type as blist *)
 (*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
 	| Filter e -> let (subst, tex, ty) = ti env e in 
         let subst' = mgu (apply subst ty) Bool in
-        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)
+        (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)*)
 
 let rec typeUpdateEnv env = function
-	| (annot, Vdef(n,exp))::xs ->
-		let pretype = 
-			let sigma =	TyEnvMap.find_opt n env in 
-                (match sigma with
-                | None -> raise(Failure("unbound variable " ^ n))
-                | Some si -> let t = instantiate si in 
-					t
-                ) in 
-		let (subst,ix,ty) as typed = ti env exp in
-		let topsubst = mgu ty pretype in
-		let fullsubst = composeSubst topsubst subst in
-		(annot, InferredVdef(n,typed))::
-			(typeUpdateEnv (applyenv topsubst env) xs)
+	| ((a,Vdef(name,expr))::xs) ->
+		let (substs, ix, ty) = ti env expr in
+		let newTy = generalize env ty in
+		let oldTy = 
+                (match TyEnvMap.find_opt name env with
+                | None -> raise(Failure("unbound variable" ^ name))
+                | Some si -> instantiate si) in
+		let newSubst = mgu newTy oldTy in
+		let newPair = (a, InferredVdef(name,
+			(composeSubst newSubst substs, ix,ty))) in
+		newPair::(tiVdefPair (applyenv newSubst env) xs)
 	| [] -> []
+	| ((_,Annot(_))::xs) -> raise (Failure "cannot tiVdef on annotation")
 
 let rec unzip_thruple l =
 	let f (l1,l2,l3) (x,y,z) = (x::l1,y::l2,z::l3) in
@@ -331,7 +350,9 @@ let type_paired_program annotvdef_list =
 			let var = newTyVar name in
 			TyEnvMap.add name var env) 
 		TyEnvMap.empty vdef_names in
+
 	let annotIVdefs = typeUpdateEnv moduleEnv annotvdef_list in
+
 	let substList = List.fold_left
 		(fun l -> fun (_, InferredVdef(_,(subst,_,_))) -> subst::l)
 		[] annotIVdefs in

@@ -1,3 +1,5 @@
-main = 
-	let fib = fun n -> fib~n in 
-	fib
+id = fun x -> let y = x in y
+
+apply = fun a -> fun b -> (id~a, id~b)
+
+main = apply
