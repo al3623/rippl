@@ -286,12 +286,20 @@ let rec ti env = function
         let subst' = mgu (apply subst ty) Bool in
         (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)*)
 
-let tiVdefPair env = function
-	| (_,Vdef(name,expr)) -> 
+let rec tiVdefPair env = function
+	| ((a,Vdef(name,expr))::xs) ->
 		let (substs, ix, ty) = ti env expr in
-		let newSubst = SubstMap.singleton name ty in
-		(composeSubst newSubst substs, ix, ty)
-	| (_,Annot(_)) -> raise (Failure "cannot tiVdef on annotation")
+		let newTy = generalize env ty in
+		let oldTy = 
+                (match TyEnvMap.find_opt name env with
+                | None -> raise(Failure("unbound variable" ^ name))
+                | Some si -> instantiate si) in
+		let newSubst = mgu newTy oldTy in
+		let newPair = (a, InferredVdef(name,
+			(composeSubst newSubst substs, ix,ty))) in
+		newPair::(tiVdefPair (applyenv newSubst env) xs)
+	| [] -> []
+	| ((_,Annot(_))::xs) -> raise (Failure "cannot tiVdef on annotation")
 
 let rec unzip_thruple l =
 	let f (l1,l2,l3) (x,y,z) = (x::l1,y::l2,z::l3) in
@@ -306,10 +314,7 @@ let type_paired_program annotvdef_list =
 			let var = newTyVar name in
 			TyEnvMap.add name var env) 
 		TyEnvMap.empty vdef_names in
-	let annotIVdefs = List.map
-		(fun (annot,Vdef(n,exp)) -> 
-			(annot, InferredVdef(n, ti moduleEnv exp))) 
-		annotvdef_list in
+	let annotIVdefs = tiVdefPair moduleEnv annotvdef_list in 
 	let substList = List.fold_left
 		(fun l -> fun (_, InferredVdef(_,(subst,_,_))) -> subst::l)
 		[] annotIVdefs in
