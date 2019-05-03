@@ -386,7 +386,7 @@ let rec mangle_close e nested tl_seen = match e with
 	| Let(Assign(n, rexp), inexp) -> (match rexp with
 		| Lambda(lparam, lbody) ->
 			let mc_lbody = mangle_close lbody true false in
-			let closure_info = (match Hashtbl.find lamb_to_cl n with
+			let closure_info = (match Hashtbl.find_opt lamb_to_cl n with
 					| Some r -> r
 					| None -> raise (Failure "HERE")) in 
 			(*let mangled_lname = (fst closure_info) in*)
