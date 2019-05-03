@@ -1,7 +1,0 @@
-main :: IO(a) -> IO()
-main _ = "Hello, world!"
-
-(* OR *)
-
-main :: a -> b
-main input = input + 1
