@@ -11,12 +11,14 @@
 %}
 
 %token EOF LET IN IF THEN ELSE OVER FUN LBRACK RBRACK LPAREN RPAREN COMMA
-%token LRANGE WILDCARD RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD PLUSF MINUSF
+%token LRANGE WILDCARD RARROW TLIT FLIT PLUS MINUS DIVIDE TIMES POW MOD 
+%token PLUSF MINUSF
 %token DIVIDEF TIMESF POWF OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER 
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
 %token MAYBE JUST NONE APP
-
+%token FIRST SEC
+%token IS_NONE FROM_JUST
 
 %token <char> CHARLIT
 %token <int> INTLIT
@@ -27,8 +29,6 @@
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left IN
 %left RARROW
-%left APP
-%left MAYBE
 %left ELSE
 
 %left ASSIGN
@@ -36,7 +36,10 @@
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
 %nonassoc UMINUS
 %left POW POWF
-%left CONS HEAD TAIL CAT LEN
+%left CONS CAT
+%nonassoc FIRST SEC LEN TAIL HEAD
+%nonassoc JUST IS_NONE FROM_JUST
+%left APP
 %nonassoc PAREN
 
 %start program
@@ -62,7 +65,6 @@ ty:
     | FLOATTYPE                     { Float }
     | LBRACK ty RBRACK              { TconList($2) }
     | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
-    | MAYBE ty                      { Tmaybe($2) }
     | IDENT                         { Tvar($1) }
     | ty RARROW ty                  { Tarrow($1,$3) }
 
@@ -102,6 +104,7 @@ expr:
     | expr LEQF expr        { App (App(LeqF, $1), $3) }
     | expr GEQ expr         { App (App(Geq, $1), $3) }
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
+	| expr MOD expr			{ App (App(Mod, $1), $3) }
 
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
@@ -128,6 +131,19 @@ expr:
 
     /* PARENTHESIZED EXPRESSIONS */
     | LPAREN expr RPAREN %prec PAREN {$2}
+	
+	/* TUPLES */
+	| LPAREN expr COMMA expr RPAREN { Tuple($2,$4) }
+	| FIRST expr					{ App(First, $2) }
+	| SEC expr						{ App(Sec, $2) }
+
+	/* MAYBE */
+	| JUST expr						{ Just($2) }
+	| NONE							{ None }
+	| IS_NONE expr					{ App(Is_none, $2) }
+	| FROM_JUST expr				{ App(From_just, $2) }
+	
+	/* LIST OPERATORS */
     
 literals:
     /* PRIMITIVE LITERALS */

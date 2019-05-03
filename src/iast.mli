@@ -18,7 +18,10 @@ ix =
     | IEq | IEqF | INeq | INeqF | IGeq | IGeqF | ILeq | ILeqF
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
-    | ICons | ICat | ILen | IHead | ITail
+    | ICons | ICat | ILen | IHead | ITail 
+	| IFirst | ISec
+	| ITuple of (inferred_expr * inferred_expr)
+	| IIs_none | IFrom_just | IJust of inferred_expr | INone
     | IVar of (string)
     | ILet of (Ast.ty SubstMap.t * iassign * inferred_expr)
     | ILambda of (Ast.ty SubstMap.t * string * inferred_expr)

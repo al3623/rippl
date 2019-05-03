@@ -1,9 +1,9 @@
 collatz :: int -> [int]
-collatz x = 
-	let rec_collatz n l =
+collatz = fun x -> 
+	let rec_collatz = fun n -> fun l ->
 		if n == 1 
-			then 1 pre l
-			else if n % 2 == 0
-				then rec_collatz (n / 2) (n cons l)
-				else rec_collatz (3*n + 1) (n cons l)
-	in rec_collatz x []
+			then 1 cons l
+			else if (n % 2 == 0)
+				then rec_collatz~(n / 2)~(n cons l)
+				else rec_collatz~(3*n + 1)~(n cons l)
+	in rec_collatz~x~[]

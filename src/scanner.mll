@@ -10,6 +10,7 @@ rule token =
             | "char"            { CHARTYPE }
             | "float"           { FLOATTYPE }
             | "bool"            { BOOLTYPE }
+            | "maybe"           { MAYBE }
             (* KEYWORDS *) 
             | "let"             { LET }
             | "in"              { IN }
@@ -18,9 +19,6 @@ rule token =
             | "else"            { ELSE }
             | "over"            { OVER }
             | "fun"             { FUN }
-            | "maybe"           { MAYBE }
-            | "just"            { JUST }
-            | "none"            { NONE }
             (* BRACES *)
             | '['               { LBRACK }
             | ']'               { RBRACK }
@@ -78,6 +76,14 @@ rule token =
             | "tail"            { TAIL }
             | "cat"             { CAT }
             | "len"             { LEN }
+			(* TUPLE OPERATORS *)
+			| "first"			{ FIRST }
+			| "sec"				{ SEC }
+			(* MAYBE OPERATORS *)
+			| "none"			{ NONE }
+			| "just"			{ JUST }
+			| "is_none"			{ IS_NONE }
+			| "from_just"		{ FROM_JUST }
             (* ASSIGN *)
             | '='               { ASSIGN }
             (* APPLICATION *)
