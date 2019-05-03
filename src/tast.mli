@@ -20,7 +20,7 @@ tx =
     | TCons | TCat | TLen | THead | TTail
 	| TFirst | TSec 
 	| TTuple of (typed_expr * typed_expr)
-	| TIs_none | TFrom_just | TJust of expr | TNone
+	| TIs_none | TFrom_just | TJust of typed_expr | TNone
     | TVar of string
     | TLet of (tassign * typed_expr)
     | TLambda of (string * typed_expr)
