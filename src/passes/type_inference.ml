@@ -20,12 +20,6 @@ let printEnv env =
 		print_string (key ^ " :: " ^ (ty_to_str ty)^", ")) env;
 	print_endline "]"
 
-let printSubsts subst =
-	print_string "{";
-	TyEnvMap.iter (fun key -> fun ty -> 
-		print_string (key ^ " => " ^ (ty_to_str ty)^", ")) subst;
-	print_endline "}"
-
 
 let rec ftv = function
     | Tvar(n) -> SS.add n SS.empty
@@ -164,7 +158,56 @@ let simple_generalize ty =
     if (List.length gen_list) = 0 then ty else (Tforall (gen_list,ty))
 
 (* Takes an AST and returns a TAST (typed AST) *)
-let rec ti env = function
+let rec ti env expr =
+	let rec ti_vbinds env = function
+		| ((ListVBind(v,e))::xs) -> 
+			let (s,ty,ix) as ixpr = 
+			(match e with 
+			| (ListComp _) as l -> ti env l
+			| (ListRange _) as l -> ti env l
+			| (InfList _) as l -> ti env l
+			| (ListLit _) as l -> ti env l
+			| _ -> raise (Failure( 
+			"list comprehension variable "^v^" is not defined over a list"))) 
+			in (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+		| [] -> []
+	in
+	let rec ti_filters env = function
+		| ((Filter e)::xs) -> 
+			let (s,ty,ix) as ixpr = ti env e in
+			(IFilter ixpr)::(ti_filters (applyenv s env) xs)
+		| [] -> []
+	in
+	let collect_vbinds_filters mixed_list =
+		let rec collect l tuple =
+			match tuple with (vbinds,filters) ->
+			(match l with
+			| (ListVBind(t)::xs) -> collect xs ((ListVBind(t))::vbinds,filters)
+			| (Filter(t) ::xs) -> collect xs (vbinds,(Filter(t))::filters)
+			| [] -> (List.rev vbinds, List.rev filters))
+		in collect mixed_list ([],[]) 
+	in
+	let rec tys_from_vbinds = function
+		| (IListVBind(_,(_,ty,_)))::xs -> ty::(tys_from_vbinds xs)
+		| [] -> []
+	in
+	let rec merge_tys_filter tlist filter_ty = match tlist with
+		| (ty::xs) -> (match filter_ty with
+			| Tarrow(arg,ret) -> 
+				let s1 = mgu arg ty in
+				let s2 = merge_tys_filter xs ret in
+				composeSubst s1 s2
+			| _ -> raise (Failure "improper filter type in list comprehension"))
+		| [] -> (mgu filter_ty Bool)
+	in
+	let type_listcomp env comp = match comp with (ListComp(e,clauses)) ->
+		let (s,ty,ix) as ixpr = ti env e in
+		let (vbinds,filters) = collect_vbinds_filters clauses in
+		let (ivbinds,ifilters) = (ti_vbinds env vbinds,ti_filters env filters) 
+		in ()
+	in
+	(****************************EXPRS******************************) 
+	match expr with
     | IntLit i -> (nullSubst, IIntLit i, Int)
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
@@ -310,14 +353,12 @@ let rec ti env = function
 					let polyty2 = newTyVar "b" in
 					(nullSubst, ISec,
 					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
-
-
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 
-(* let rec type_clauses env = function
+(*let rec type_clauses env = function
         (* make sure that var is the same type as blist *)
-(*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
+	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist
 	| Filter e -> let (subst, tex, ty) = ti env e in 
         let subst' = mgu (apply subst ty) Bool in
         (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)*)
