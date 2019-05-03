@@ -21,7 +21,8 @@ let i32_t      	 = L.i32_type    context
 let struct_thunk_type : L.lltype = L.named_struct_type context "Thunk" 
 
 let call_func_type : L.lltype = L.function_type (L.pointer_type struct_thunk_type)
-	[| L.pointer_type struct_thunk_type ; L.pointer_type i8_t |]
+	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
+	(* [| L.pointer_type struct_thunk_type ; L.pointer_type i8_t |] *)
 
 let eval_func_type : L.lltype = L.function_type (L.pointer_type i8_t)
 	[|  L.pointer_type struct_thunk_type |] 
@@ -37,7 +38,7 @@ let struct_node_type : L.lltype = L.named_struct_type context "Node"
 	struct Tuple {
 		int t1;
 		int t2;
-		struct Thunk *first;
+		struct Thunk *firs;
 		struct Thunk *second;
 	}; 
 *)
