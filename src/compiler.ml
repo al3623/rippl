@@ -101,7 +101,6 @@ let _ =
 		then List.iter print_decls program_ll
 		else ());
 	let pair_program = Pair_annots.pair_av program_ll in
->>>>>>> db48d5a28fef7d3f44b61040e55036b8e68fd090
     let pair_iprogram = Type_inference.type_paired_program pair_program in
 	let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
 	(if printTypes
