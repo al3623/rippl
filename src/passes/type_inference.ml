@@ -34,8 +34,9 @@ let rec ftv = function
     | Tmaybe (t) -> ftv t
 
 let rec apply s = function
-    | Tvar(n) -> (match SubstMap.find_opt n s with
-        | Some t -> t
+    | Tvar(n) -> 
+		(match SubstMap.find_opt n s with
+        | Some t -> (*(print_endline ("APPLY LOOKUP: "^n^":"^(ty_to_str t)));*)t
         | None -> Tvar(n)
     )
     | Tarrow (t1, t2) -> Tarrow ( apply  s t1, apply s t2 )
@@ -198,6 +199,18 @@ let rec ti env expr =
 		| [] -> []
 		| _ -> raise (Failure "error in tys_from_filters")
 	in
+	let rec substs_from_vbinds = function
+		| (IListVBind(_,(s,_,_)))::xs -> composeSubst s (substs_from_vbinds xs)
+		| [] -> nullSubst
+		| _ -> raise 
+			(Failure "list comprehension variable is not defined over list")
+	in 
+	let rec substs_from_filters = function
+		| (IFilter(s,_,_))::xs -> composeSubst s (substs_from_filters xs)
+		| [] -> nullSubst
+		| _ -> raise (Failure "error in tys_from_filters")
+
+	in
 	let rec merge_tys_filter tlist filter_ty = match tlist with
 		| (ty::xs) -> (match filter_ty with
 			| Tarrow(arg,ret) -> 
@@ -221,13 +234,16 @@ let rec ti env expr =
 		let (s,ix,ty) as ixpr = ti env e in
 		let (vbinds,filters) = collect_vbinds_filters clauses in
 		let (ivbinds,ifilters) =(ti_vbinds env vbinds,ti_filters env filters) in
-		let vbind_tys = tys_from_vbinds ivbinds in 
+		let vbind_tys = tys_from_vbinds ivbinds in
+		let vsubsts = substs_from_vbinds ivbinds in
+		let fsubsts = substs_from_filters ifilters in 
 		let filter_tys = tys_from_filters ifilters in 
-		let filtsubst = List.fold_left 
+		let filtsubst = composeSubst fsubsts (List.fold_left 
 			(fun su -> fun t -> composeSubst (merge_tys_filter vbind_tys t) su)
-			nullSubst filter_tys in
+			nullSubst filter_tys) in
 		let (esubst,ety) = merge_tys_expr vbind_tys ty in
-		let allsubst = composeSubst filtsubst esubst in
+		let allsubst = composeSubst vsubsts (composeSubst filtsubst esubst) in
+(*		print_string "COMP allsubst: "; printSubst allsubst;*)
 		let ret_ty = apply allsubst ety in 
 		(* should we apply substs to the inferred vbinds and filters? prob ye *)
 		(allsubst,IListComp(allsubst,ixpr,(ivbinds@ifilters)), TconList(ret_ty))
@@ -259,18 +275,28 @@ let rec ti env expr =
 		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
-	(*	printSubst subst1;*)
-		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in
-	(*	printSubst subst2;*)
+(*		print_string "RANGE subst1: ";
+		printSubst subst1;*)
+		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in	
+(*		print_string "RANGE subst2: ";
+		printSubst subst2;*)
 		let subst3 = mgu (apply subst2 ty1) ty2 in
-	(*	printSubst subst3;*)
+(*		print_string "RANGE subst3: ";
+		printSubst subst3;*)
 		let subst4 = mgu (apply subst3 ty2) Int in
-	(*	printSubst subst4;*)
+(*		print_string "RANGE subst4: ";
+		printSubst subst4;*)
 		let fullsubst = composeSubst subst1 (composeSubst subst2 
 			(composeSubst subst3 subst4)) in
-	(*	printSubst fullsubst;*)
-		(fullsubst, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
-			TconList Int)
+(*		print_string "RANGE fullsubst: ";
+		printSubst fullsubst;
+		print_endline ("RANGE ty1: "^(ty_to_str (apply fullsubst ty1)));
+		print_endline ("RANGE ty2: "^(ty_to_str (apply fullsubst ty2)));*)
+		(fullsubst
+			, IListRange(subst4, 
+				(subst1,tex1,apply fullsubst ty1), 
+				(subst2,tex2,apply fullsubst ty2))
+			, TconList Int)
 	| InfList e ->
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
