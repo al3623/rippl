@@ -20,12 +20,6 @@ let printEnv env =
 		print_string (key ^ " :: " ^ (ty_to_str ty)^", ")) env;
 	print_endline "]"
 
-let printSubsts subst =
-	print_string "{";
-	TyEnvMap.iter (fun key -> fun ty -> 
-		print_string (key ^ " => " ^ (ty_to_str ty)^", ")) subst;
-	print_endline "}"
-
 
 let rec ftv = function
     | Tvar(n) -> SS.add n SS.empty
@@ -40,8 +34,9 @@ let rec ftv = function
     | Tmaybe (t) -> ftv t
 
 let rec apply s = function
-    | Tvar(n) -> (match SubstMap.find_opt n s with
-        | Some t -> t
+    | Tvar(n) -> 
+		(match SubstMap.find_opt n s with
+        | Some t -> (*(print_endline ("APPLY LOOKUP: "^n^":"^(ty_to_str t)));*)t
         | None -> Tvar(n)
     )
     | Tarrow (t1, t2) -> Tarrow ( apply  s t1, apply s t2 )
@@ -164,7 +159,97 @@ let simple_generalize ty =
     if (List.length gen_list) = 0 then ty else (Tforall (gen_list,ty))
 
 (* Takes an AST and returns a TAST (typed AST) *)
-let rec ti env = function
+let rec ti env expr =
+	let rec ti_vbinds env = function
+		| ((ListVBind(v,e))::xs) -> 
+			let (s,ix,ty) as ixpr = 
+			(match e with 
+			| (ListComp _) as l -> ti env l
+			| (ListRange _) as l -> ti env l
+			| (InfList _) as l -> ti env l
+			| (ListLit _) as l -> ti env l
+			| _ -> raise (Failure( 
+			"list comprehension variable "^v^" is not defined over a list"))) 
+			in (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+		| [] -> []
+	in
+	let rec ti_filters env = function
+		| ((Filter e)::xs) -> 
+			let (s,ix,ty) as ixpr = ti env e in
+			(IFilter ixpr)::(ti_filters (applyenv s env) xs)
+		| [] -> []
+	in
+	let collect_vbinds_filters mixed_list =
+		let rec collect l tuple =
+			match tuple with (vbinds,filters) ->
+			(match l with
+			| (ListVBind(t)::xs) -> collect xs ((ListVBind(t))::vbinds,filters)
+			| (Filter(t) ::xs) -> collect xs (vbinds,(Filter(t))::filters)
+			| [] -> (List.rev vbinds, List.rev filters))
+		in collect mixed_list ([],[]) 
+	in
+	let rec tys_from_vbinds = function
+		| (IListVBind(_,(_,_,(TconList ty))))::xs -> ty::(tys_from_vbinds xs)
+		| [] -> []
+		| _ -> raise 
+			(Failure "list comprehension variable is not defined over list")
+	in
+	let rec tys_from_filters = function
+		| (IFilter(_,_,ty))::xs -> ty::(tys_from_filters xs)
+		| [] -> []
+		| _ -> raise (Failure "error in tys_from_filters")
+	in
+	let rec substs_from_vbinds = function
+		| (IListVBind(_,(s,_,_)))::xs -> composeSubst s (substs_from_vbinds xs)
+		| [] -> nullSubst
+		| _ -> raise 
+			(Failure "list comprehension variable is not defined over list")
+	in 
+	let rec substs_from_filters = function
+		| (IFilter(s,_,_))::xs -> composeSubst s (substs_from_filters xs)
+		| [] -> nullSubst
+		| _ -> raise (Failure "error in tys_from_filters")
+
+	in
+	let rec merge_tys_filter tlist filter_ty = match tlist with
+		| (ty::xs) -> (match filter_ty with
+			| Tarrow(arg,ret) -> 
+				let s1 = mgu arg ty in
+				let s2 = merge_tys_filter xs ret in
+				composeSubst s1 s2
+			| _ -> raise (Failure "improper filter type in list comprehension"))
+		| [] -> (mgu filter_ty Bool)
+	in
+	let rec merge_tys_expr tlist expr_ty = match tlist with
+		|(ty::xs) -> (match expr_ty with
+			| Tarrow(arg,ret) ->
+				let s1 = mgu arg ty in
+				let (s2,ret_ty) = merge_tys_expr xs ret in
+				let s3 = composeSubst s1 s2 in
+				(s3, apply s3 ret_ty)
+			| _ -> raise (Failure "improper variable bindings in list comp"))
+		| [] -> (nullSubst,expr_ty)
+	in
+	let type_listcomp env comp = match comp with (ListComp(e,clauses)) ->
+		let (s,ix,ty) as ixpr = ti env e in
+		let (vbinds,filters) = collect_vbinds_filters clauses in
+		let (ivbinds,ifilters) =(ti_vbinds env vbinds,ti_filters env filters) in
+		let vbind_tys = tys_from_vbinds ivbinds in
+		let vsubsts = substs_from_vbinds ivbinds in
+		let fsubsts = substs_from_filters ifilters in 
+		let filter_tys = tys_from_filters ifilters in 
+		let filtsubst = composeSubst fsubsts (List.fold_left 
+			(fun su -> fun t -> composeSubst (merge_tys_filter vbind_tys t) su)
+			nullSubst filter_tys) in
+		let (esubst,ety) = merge_tys_expr vbind_tys ty in
+		let allsubst = composeSubst vsubsts (composeSubst filtsubst esubst) in
+(*		print_string "COMP allsubst: "; printSubst allsubst;*)
+		let ret_ty = apply allsubst ety in 
+		(* should we apply substs to the inferred vbinds and filters? prob ye *)
+		(allsubst,IListComp(allsubst,ixpr,(ivbinds@ifilters)), TconList(ret_ty))
+	in
+	(****************************EXPRS******************************) 
+	match expr with
     | IntLit i -> (nullSubst, IIntLit i, Int)
     | FloatLit f -> (nullSubst, IFloatLit f,Float)
     | CharLit c -> (nullSubst, ICharLit c,Char)
@@ -190,11 +275,28 @@ let rec ti env = function
 		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
-		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in
+(*		print_string "RANGE subst1: ";
+		printSubst subst1;*)
+		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in	
+(*		print_string "RANGE subst2: ";
+		printSubst subst2;*)
 		let subst3 = mgu (apply subst2 ty1) ty2 in
-		let subst4 = mgu (apply subst3 ty1) Int in
-		(subst4, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
-			TconList Int)
+(*		print_string "RANGE subst3: ";
+		printSubst subst3;*)
+		let subst4 = mgu (apply subst3 ty2) Int in
+(*		print_string "RANGE subst4: ";
+		printSubst subst4;*)
+		let fullsubst = composeSubst subst1 (composeSubst subst2 
+			(composeSubst subst3 subst4)) in
+(*		print_string "RANGE fullsubst: ";
+		printSubst fullsubst;
+		print_endline ("RANGE ty1: "^(ty_to_str (apply fullsubst ty1)));
+		print_endline ("RANGE ty2: "^(ty_to_str (apply fullsubst ty2)));*)
+		(fullsubst
+			, IListRange(subst4, 
+				(subst1,tex1,apply fullsubst ty1), 
+				(subst2,tex2,apply fullsubst ty2))
+			, TconList Int)
 	| InfList e ->
 		let (subst, tex, ty) = ti env e in
 		let subst' = mgu (apply subst ty) Int in
@@ -209,9 +311,7 @@ let rec ti env = function
 		let fullSubst = composeSubst s1 s2 in
 		(fullSubst, ITuple(ixpr1,ixpr2), 
 			TconTuple(apply fullSubst t1, apply fullSubst t2))
-	(*| ListComp(e, clauses) ->*)
-(*        | ListComp(e, clauses) ->  type_clauses env clauses*)
-                (*| ListComp(e, clauses) ->*)
+	| ListComp(_) as comp -> type_listcomp env comp 
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
                 | None -> raise(Failure("unbound variable" ^ n))
@@ -310,14 +410,12 @@ let rec ti env = function
 					let polyty2 = newTyVar "b" in
 					(nullSubst, ISec,
 					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
-
-
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 
-(* let rec type_clauses env = function
+(*let rec type_clauses env = function
         (* make sure that var is the same type as blist *)
-(*	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist*)
+	| ListVBind (var, blist) -> let (subst, tex, ty) = ti env blist
 	| Filter e -> let (subst, tex, ty) = ti env e in 
         let subst' = mgu (apply subst ty) Bool in
         (subst', IFilter(subst', tex, apply subst' ty), apply subst' ty)*)

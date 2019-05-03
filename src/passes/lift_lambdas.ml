@@ -18,7 +18,7 @@ let print_map _ =
 		Printf.printf " [ ";
 		StringSet.iter (fun s1 -> Printf.printf "%s, " s1) (snd c);
 		Printf.printf " ]\n" in
-	Hashtbl.iter (fun x c -> Printf.printf "lambda: %s; " x; print_closure c;) lamb_to_cl
+	Hashtbl.iter (fun x c -> Printf.printf "lambda: %s; \n" x; print_closure c;) lamb_to_cl
 
 
 (* If main has a lambda wrapping its code, remove the lamba *)
@@ -189,7 +189,7 @@ let rec find_lambdas nested = function
 
 			(sc10, new_expr)
 		else
-			(StringSet.empty, Lambda(p2, e10))
+			(StringSet.empty, Lambda(p2, (snd (find_lambdas false e10))))
 
     | other -> (StringSet.empty, other)
 
@@ -334,8 +334,10 @@ let rec wrap_app la vars = match vars with
 	| [] -> la
 
 let rec wrap_lambda lam cl cl_to_mang = match cl with
-	| hd :: tl ->
-		Lambda((StringMap.find hd cl_to_mang), (wrap_lambda lam tl cl_to_mang))
+	| hd :: tl -> let var = (match StringMap.find_opt hd cl_to_mang with
+							| Some v -> v
+							| None -> raise (Failure (hd^" not found"))) in
+		Lambda(var, (wrap_lambda lam tl cl_to_mang))
 	| [] -> lam 
 
 let rec repl_body body cl_to_mang nested = match body with
@@ -384,7 +386,9 @@ let rec mangle_close e nested tl_seen = match e with
 	| Let(Assign(n, rexp), inexp) -> (match rexp with
 		| Lambda(lparam, lbody) ->
 			let mc_lbody = mangle_close lbody true false in
-			let closure_info = Hashtbl.find lamb_to_cl n in
+			let closure_info = (match Hashtbl.find_opt lamb_to_cl n with
+					| Some r -> r
+					| None -> raise (Failure ("couldn't find " ^ n))) in 
 			(*let mangled_lname = (fst closure_info) in*)
 			let cl_vars = StringSet.elements (snd closure_info) in
 			let clv_to_mang = List.fold_left (fun mp c -> StringMap.add c (get_fresh ("$" ^ c)) mp) StringMap.empty cl_vars in
@@ -479,11 +483,11 @@ let lift_decl curr_list d = match d with
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
-            let mang_ast = mangle_close nl_ast false false in
+            let mang_ast = (*print_map 0; *)mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
             (*print_map 0;*)
-            curr_list @ (l_decs @ [Vdef(n, lifted)])
+            l_decs @ curr_list @ [Vdef(n, lifted)]
     | annot -> curr_list @ [annot]
 
 let get_top_sc plist = 
