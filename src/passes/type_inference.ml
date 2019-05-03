@@ -259,10 +259,17 @@ let rec ti env expr =
 		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
+	(*	printSubst subst1;*)
 		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in
+	(*	printSubst subst2;*)
 		let subst3 = mgu (apply subst2 ty1) ty2 in
-		let subst4 = mgu (apply subst3 ty1) Int in
-		(subst4, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
+	(*	printSubst subst3;*)
+		let subst4 = mgu (apply subst3 ty2) Int in
+	(*	printSubst subst4;*)
+		let fullsubst = composeSubst subst1 (composeSubst subst2 
+			(composeSubst subst3 subst4)) in
+	(*	printSubst fullsubst;*)
+		(fullsubst, IListRange(subst4, (subst1,tex1,ty1), (subst2,tex2,ty2)), 
 			TconList Int)
 	| InfList e ->
 		let (subst, tex, ty) = ti env e in
