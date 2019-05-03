@@ -159,6 +159,7 @@ lists:
 	| LBRACK list_range RBRACK { $2 }
 	| LBRACK inf_list RBRACK { $2 }
 	| LBRACK list_comp RBRACK { $2 }
+	| IDENT {Var($1)}
 
 prim_list:
     | 						{ [] }
