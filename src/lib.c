@@ -267,95 +267,6 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
-struct List *cons(void *data, struct List *list) {
-	struct Node *newhead = makeNode(data);
-	
-	struct List *newlist = malloc(sizeof(struct List));	
-	memcpy(newlist, list, sizeof(struct List));
-	
-	newlist->head = newhead;
-	newlist->last_eval = newhead;
-
-	struct Node *curr = list->head;
-
-	while(curr) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->next = NULL;
-		newnode->data = curr->data;
-		appendNode(newlist, newnode);
-		curr = curr->next;
-	}
-
-	return newlist;	
-}
-
-struct List *cat(struct List *l1, struct List *l2) {
-	struct List *new = malloc(sizeof(struct List));
-	memcpy(new,l2,sizeof(struct List));
-	new->head = NULL;
-	new->last_eval = NULL;
-
-	struct Node *curr1 = l1->head;
-	while (curr1) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->data = curr1->data;
-		newnode->next = NULL;
-		appendNode(new, newnode);
-		curr1 = curr1->next;
-	}
-
-	struct Node *curr2 = l2->head;
-	while (curr2) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->data = curr2->data;
-		newnode->next = NULL;
-		appendNode(new, newnode);
-		curr2 = curr2->next;
-	}
-
-	return new;
-}
-
-void *head(struct List *list) {
-	struct Thunk *data = (list->head)->data;	
-	void *value = invoke(data);
-	return value;
-}
-
-struct List *tail(struct List *list) {
-	struct List *newlist = malloc(sizeof(struct List));
-	memcpy(newlist, list, sizeof(struct List));
-	newlist->head = NULL;
-	newlist->last_eval = NULL;
-	
-	struct Node *curr = list->head;
-	if (!curr)
-		return newlist;
-
-	curr = curr->next;
-	while (curr) {
-		struct Thunk *data = curr->data;
-
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->next = NULL;	
-		newnode->data = curr->data;
-
-		appendNode(newlist,newnode);
-
-		curr = curr->next;
-	}
-	return newlist;
-}
-
-int length(struct List *list) {
-	struct Node *curr = list->head;	
-	int count = 0;
-	while (curr) {
-		count++;
-		curr = curr->next;
-	}
-	return count;
-}
 /*
 int main() {
 	struct List *front = makeRangeList(1,5);
@@ -412,9 +323,9 @@ int main() {
 
 	int _2 = 2;
 	struct Thunk *two = init_thunk_literal(&_2);
-	struct Thunk mult[1];
-	init_thunk(mult,int_mult_eval,2);
-	struct Thunk *mult2 = apply(mult, two);
+	struct Thunk mul[1];
+	init_thunk(mul,mult_eval,2);
+	struct Thunk *mult2 = apply(mul, two);
 
 	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
 	printf("map mult2 cat fronttail endtail: ");

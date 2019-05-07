@@ -81,10 +81,4 @@ void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
 struct Node *evalNextNodeComp(void *list, int num_vbinds);
 
-struct List *cons(void *d, struct List *list);
-struct List *cat(struct List *l1, struct List *l2); 
-void *head(struct List *list);
-struct List *tail(struct List *list);
-int length(struct List *list);
-
 #endif
