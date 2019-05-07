@@ -355,7 +355,7 @@ int length(struct List *list) {
 	}
 	return count;
 }
-/*
+
 int main() {
 	struct List *front = makeRangeList(1,5);
 	explodeRangeList(front);
@@ -411,7 +411,8 @@ int main() {
 
 	int _2 = 2;
 	struct Thunk *two = init_thunk_literal(&_2);
-	struct Thunk *mult = init_thunk(int_mult_eval,2);
+	struct Thunk mult[1];
+	init_thunk(mult,int_mult_eval,2);
 	struct Thunk *mult2 = apply(mult, two);
 
 	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
@@ -445,4 +446,4 @@ int main() {
 
 	return 0;
 }
-*/
+

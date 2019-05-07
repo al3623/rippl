@@ -2,8 +2,8 @@
 #include "thunk.h"
 #include "lib.h"
 
-struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
-	struct Thunk *thunk = malloc(sizeof(struct Thunk));
+struct Thunk *init_thunk(struct Thunk *thunk,
+	void *(*eval)(struct Thunk  *), int num_args) {
 
 	thunk->eval = eval;
 	thunk->num_args = num_args;
@@ -15,7 +15,9 @@ struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
 }
 
 struct Thunk *init_thunk_literal(void *data) {
-	struct Thunk *lit = init_thunk(NULL, 1);
+	struct Thunk *lit = malloc(sizeof(struct Thunk));
+	lit = init_thunk(lit,NULL, 1);
+
 	lit->filled_args = 1;
 	lit->value = data;
 	(lit->args)[0] = lit;

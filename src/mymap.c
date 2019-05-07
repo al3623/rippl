@@ -111,7 +111,7 @@ void *int_nequal_eval(struct Thunk *t) {
 	
 	return result;
 }
-
+/*
 int main() {
 	int _2 = 2;
 
@@ -129,11 +129,13 @@ int main() {
 	struct Thunk *ten = ((tail(_2and10))->head)->data;
 
 	// (!=)
-	struct Thunk *neq = init_thunk(int_nequal_eval, 2);
+	struct Thunk neq[1];
+	init_thunk(neq,int_nequal_eval, 2);
 	struct List *neq0and1 = map(_0and1,neq);
 
 	// (*)
-	struct Thunk *mult = init_thunk(int_mult_eval, 2);
+	struct Thunk mult[1];
+	init_thunk(mult,int_mult_eval, 2);
 	struct List *mult0and1 = map(_0and1,mult);
 	struct List *mult2and10 = map(_2and10,mult);
 
@@ -181,4 +183,4 @@ int main() {
 	printf("\n");
 
 	return 0;
-}
+}*/
