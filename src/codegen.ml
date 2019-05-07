@@ -126,8 +126,19 @@ let translate (decl_lst: (decl * typed_decl) list) =
               Some _ -> ()
             | None -> ignore (instr builder) 
     in
+    
+    let thunks: L.llvalue StringMap.t =
+        let declare_thunk m (lmd: tlambda_def) =
+            let name = "$thunk_"^lmd.tlname in
+                let lval = L.declare_global struct_thunk_type name the_module in
+                    StringMap.add name lval m
+        in
+        List.fold_left declare_thunk StringMap.empty lm_defs 
 
-    (* build thunk for each function and put into map*)
+    in
+
+    (* build thunk for each function and put into map *)
+    (*
     let thunks: L.llvalue StringMap.t =
         let build_thunk m (lmd: tlambda_def) =
             (* get number of args of function *)
@@ -151,9 +162,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
             StringMap.add thunk_name thunk_lval m
         in
         List.fold_left build_thunk StringMap.empty lm_defs
-    in
+    *)
     
-    let rec build_expr (texp: typed_expr) builder =
+    let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
         (* convert tx to llvm pointer *)
         let make_ptr t = match t with
               TIntLit i -> L.build_call makeInt 
@@ -162,8 +173,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 [| L.const_float float_t f |] "float" builder
             | TCharLit c -> L.build_call makeChar
                 [| L.const_int i8_t (Char.code c) |] "char" builder
-            | TBoolLit b -> L.build_call makeBool
-                [| L.const_int i1_t b |] "bool" builder
+            | TBoolLit b -> let x = if b then 1 else 0 in
+                L.build_call makeBool [| L.const_int i1_t x |] "bool" builder
 
             | _ -> raise (Failure "make_ptr")
         in
@@ -178,9 +189,26 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 initThunkLiteral [| c |] "char_lit_thunk" builder
             | TBoolLit _ -> let b = make_ptr tex in L.build_call
                 initThunkLiteral [| b |] "bool_lit_thunk" builder
-            
+            | TVar s -> (match (StringMap.find_opt s scope) with
+                  Some lval -> lval
+                | None -> (match (StringMap.find_opt s global_vars) with
+                      Some l -> l
+                    | None -> (match (StringMap.find_opt s fn_decls) with
+                          Some l_ -> fst l_
+                        | None -> raise (Failure (s^ " not found in scope"))
+                            ))
+            )
+            | TLet (ta, t) -> (match ta with
+                                  TAssign (s, te) -> let v1 = build_expr te builder scope in
+                                        let new_scope = StringMap.add s v1 scope in
+                                        build_expr t builder new_scope
+            )
             (* Application *)
-            | TApp((t1,_), _) as tapp ->
+            | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
+                let lv2 = build_expr t2 builder scope in
+                L.build_call apply [| lv1; lv2 |] "apply" builder
+            
+(*
                 (* get args *)
                 let rec get_args t = match t with 
                       TApp((x,_),(arg,_)) -> 
@@ -271,14 +299,13 @@ let translate (decl_lst: (decl * typed_decl) list) =
             )
 
             | _ -> raise (Failure "build_expr: not implemented")
+ *)
     in
     (* build eval function body *)
     let build_evalfn_body (lm_def: tlambda_def) =
         let (eval_fn, _) = StringMap.find ("$eval_"^ lm_def.tlname) 
                 eval_decls in
         let builder = L.builder_at_end context (L.entry_block eval_fn) in
-        
-        let param = L.params eval_fn in
         
         (* get arg values from thunk struct *)
 
@@ -304,8 +331,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 StringMap.add n local m;
         *)
 
-        let thunk_fn =
-        
         (* get final expression in function *)
         let e = 
             let rec fin_ex = function
@@ -313,16 +338,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | x -> x
         in fin_ex (fst lm_def.trexp) 
         in
-
-        let b = match e with
-              TApp((TApp(op, v1),_), (v2,_)) -> (match op with
-                  TAdd -> 
-                | _ -> raise (Failure "build_fn_body binop")
-                )
-            | TApp((u,_), (v,_)) ->
-            | _ -> raise (Failure "build_fn_body")
-
-
 
         let fn_builder = builder in
         add_terminal fn_builder (L.build_ret (L.const_pointer_null 
@@ -333,6 +348,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | _ -> raise(Failure "print_expr: Not implemented")
     in
 
+
+
+(*    
     (* build non-function Vdefs *)
     let build_tdecl (tdecl: (decl * typed_decl)) builder =
         match tdecl with
@@ -345,6 +363,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
     
     (* build non-function Vdefs *)
     let _ = List.iter build_tdecl var_lst in
+
+*)
 
 (*
     let rec build_decl (tdecl: (decl * typed_decl)) =
