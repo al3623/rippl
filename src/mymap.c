@@ -28,7 +28,9 @@ struct List *map_list(struct List *apps, struct List *vals) {
 	while (curr_app_node) {
 		struct Thunk *curr_app = curr_app_node->data;
 		struct List *applied = map(vals, curr_app);
-		new = cat(new,applied);
+		struct Thunk *stupid_thunk_list_wrapper_applied = init_thunk_literal(applied);
+		struct Thunk *stupid_thunk_list_wrapper_new = init_thunk_literal(new);
+		new = cat(stupid_thunk_list_wrapper_new,stupid_thunk_list_wrapper_applied);
 		curr_app_node = curr_app_node->next;
 	}
 	
@@ -69,19 +71,30 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 	return new;
 }
 
-/*
+
 int main() {
 	int _2 = 2;
+	struct Thunk *_2_thunk = init_thunk_literal(&_2);
+
+	struct Thunk tail_init_thunk[1];
+	init_thunk(tail_init_thunk,tail_eval,1);
+
+	struct Thunk cons_init_thunk[1];
+	init_thunk(cons_init_thunk,cons_eval,2);
 
 	struct List *_0and1 = makeRangeList(0,1);
 	explodeRangeList(_0and1);
+	struct Thunk *_0and1_thunk = init_thunk_literal(_0and1);
 
-	struct List *_2and10 = makeRangeList(10,10);
-	explodeRangeList(_2and10);
-	_2and10 = cons(&_2, _2and10);
+	struct List *_10 = makeRangeList(10,10);
+	explodeRangeList(_10);
+	struct Thunk *_10_thunk = init_thunk_literal(_10);
 
+	struct Thunk *_2and10_thunk = apply(apply(cons_init_thunk,_2_thunk),
+		_10_thunk);
+/*
 	struct Thunk *zero = (_0and1->head)->data;
-	struct Thunk *one = ((tail(_0and1))->head)->data;
+	struct Thunk *one = ((tail(_0and1_thunk))->head)->data;
 
 	struct Thunk *two = (_2and10->head)->data;
 	struct Thunk *ten = ((tail(_2and10))->head)->data;
@@ -139,6 +152,6 @@ int main() {
 	printf("map * [2,10] original: ");
 	printPrimList(maplist_mult);
 	printf("\n");
-
+*/
 	return 0;
-}*/
+}
