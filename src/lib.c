@@ -355,7 +355,7 @@ int length(struct List *list) {
 	}
 	return count;
 }
-
+/*
 int main() {
 	struct List *front = makeRangeList(1,5);
 	explodeRangeList(front);
@@ -446,4 +446,4 @@ int main() {
 
 	return 0;
 }
-
+*/
