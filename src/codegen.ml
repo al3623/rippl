@@ -126,8 +126,19 @@ let translate (decl_lst: (decl * typed_decl) list) =
               Some _ -> ()
             | None -> ignore (instr builder) 
     in
+    
+    let thunks: L.llvalue StringMap.t =
+        let declare_thunk m (lmd: tlambda_def) =
+            let name = "$thunk_"^lmd.tlname in
+                let lval = L.declare_global struct_thunk_type name the_module in
+                    StringMap.add name lval m
+        in
+        List.fold_left declare_thunk StringMap.empty lm_defs 
+
+    in
 
     (* build thunk for each function and put into map *)
+    (*
     let thunks: L.llvalue StringMap.t =
         let build_thunk m (lmd: tlambda_def) =
             (* get number of args of function *)
@@ -151,7 +162,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             StringMap.add thunk_name thunk_lval m
         in
         List.fold_left build_thunk StringMap.empty lm_defs
-    in
+    *)
     
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
         (* convert tx to llvm pointer *)
@@ -178,7 +189,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 initThunkLiteral [| c |] "char_lit_thunk" builder
             | TBoolLit _ -> let b = make_ptr tex in L.build_call
                 initThunkLiteral [| b |] "bool_lit_thunk" builder
-            | TVar s -> match (StringMap.find_opt s scope) with
+            | TVar s -> (match (StringMap.find_opt s scope) with
                   Some lval -> lval
                 | None -> (match (StringMap.find_opt s global_vars) with
                       Some l -> l
@@ -186,16 +197,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
                           Some l_ -> fst l_
                         | None -> raise (Failure (s^ " not found in scope"))
                             ))
-
-            | TLet(ta, t) -> let a = match ta with
-                                  (s, te) ->  
-
+            )
+            | TLet (ta, t) -> (match ta with
+                                  TAssign (s, te) -> let v1 = build_expr te builder scope in
+                                        let new_scope = StringMap.add s v1 scope in
+                                        build_expr t builder new_scope
+            )
             (* Application *)
             | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
             
-                                
 (*
                 (* get args *)
                 let rec get_args t = match t with 
