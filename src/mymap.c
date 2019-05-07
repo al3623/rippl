@@ -68,46 +68,50 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 	return new;
 }
 
-int *int_mult(int *data1, int *data2) {
-	int *result = malloc(sizeof(int));
+int *int_mult(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+	void *data1 = x_thunk->value;
+	void *data2 = y_thunk->value;
 	
-	int x_ = *data1;
-	int y_ = *data2;
+	int x_ = *(int *)data1;
+	int y_ = *(int *)data2;
 
+	int *result = malloc(sizeof(int));
 	*result = x_ * y_;
 
 	return result;
 }
 
 void *int_mult_eval(struct Thunk *t) {
-	int *x = ((t->args)[0])->value;
-	int *y = ((t->args)[1])->value;
+	struct Thunk *x = ((t->args)[0]);
+	struct Thunk *y = ((t->args)[1]);
 
 	void *result = int_mult(x,y);
 
 	return result;
 }
 
-int *int_nequal(int *data1, int *data2) {
+int *int_nequal(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+	void *data1 = x_thunk->value;
+	void *data2 = y_thunk->value;	
+
+	int x_ = *(int *)data1;
+	int y_ = *(int *)data2;
+
 	int *result = malloc(sizeof(int));
-
-	int x_ = *data1;
-	int y_ = *data2;
-
 	*result = x_ != y_;
 
 	return result;
 }
 
 void *int_nequal_eval(struct Thunk *t) {
-	int *x = ((t->args)[0])->value;
-	int *y = ((t->args)[1])->value;
+	struct Thunk *x = ((t->args)[0]);
+	struct Thunk *y = ((t->args)[1]);
 
 	void *result = int_nequal(x,y);
 	
 	return result;
 }
-/*
+
 int main() {
 	int _2 = 2;
 
@@ -177,4 +181,4 @@ int main() {
 	printf("\n");
 
 	return 0;
-}*/
+}
