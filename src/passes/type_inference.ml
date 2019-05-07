@@ -127,6 +127,10 @@ let rec mgu ty1 ty2 =
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
     | Bool, Bool -> nullSubst
+	(* Lol does this work *)
+	| Float, Int -> nullSubst 
+	| Int, Float -> nullSubst
+	(* probably not *)
     | Float, Float -> nullSubst
     | Char, Char -> nullSubst
     | TconList(t), TconList(t') -> mgu t t'
@@ -426,7 +430,7 @@ let rec typeUpdateEnv env = function
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
-                | None -> raise(Failure("unbound variable" ^ name))
+                | None -> raise(Failure("unbound variable " ^ name))
                 | Some si -> instantiate si) in
 		let newSubst = mgu newTy oldTy in
 		let newPair = (a, InferredVdef(name,

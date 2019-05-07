@@ -39,6 +39,7 @@ iterateReal = fun b ->
 	let realLine = [(iterateMandelbrot~0~0~0~b~p) | p over realRange] in
 	realLine cat "\n"
 
+{-
 iterateComplex :: [char]
 iterateComplex =
 	let range = [x /. 100.0 | x over [-100...100]] in
@@ -48,4 +49,4 @@ iterateComplex =
 			then " "
 			else (iterateReal~(head r)) cat (iterComplexRec~(tail r)) )
 	in iterComplexRec~complexRange
-
+-}
