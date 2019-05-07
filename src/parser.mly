@@ -159,7 +159,6 @@ lists:
 	| LBRACK list_range RBRACK { $2 }
 	| LBRACK inf_list RBRACK { $2 }
 	| LBRACK list_comp RBRACK { $2 }
-	| IDENT {Var($1)}
 
 prim_list:
     | 						{ [] }
@@ -182,3 +181,4 @@ clauses:
 clause:
     | expr { Filter($1) } /*boolean filter for list comp*/
     | IDENT OVER lists { ListVBind($1,$3) } /*variable binding for list comp*/
+	| IDENT OVER IDENT { ListVBind($1,Var($3)) }
