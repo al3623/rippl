@@ -22,21 +22,24 @@ struct Thunk *init_thunk_literal(void *data) {
 	return lit;
 }
 
-void *add(int *x, int *y) {
+void *add(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+	void *x = x_thunk->value;
+	void *y = y_thunk->value;
 	// CODEGEN SPECIFIC: malloc result based on type
-	int *result = malloc(sizeof(int));
-
-	int x_ = *x;
-	int y_ = *y;
+	
+	int x_ = *(int *)x;
+	int y_ = *(int *)y;
 	int local = x_ + y_;
+
+	int *result = malloc(sizeof(int));
 	
 	*result = local;
 	return result;
 }
 
 void *add_eval(struct Thunk *t) {
-	int *x_ = (int *)((t->args)[0]->value);
-	int *y_ = (int *)((t->args)[1]->value);
+	struct Thunk *x_ = ((t->args)[0]);
+	struct Thunk *y_ = ((t->args)[1]);
 
 	int * result = add(x_,y_);
 	
@@ -82,7 +85,6 @@ void *invoke(struct Thunk *t) {
 		}
 	}
 }
-
 /*
 int main() {
 	struct Thunk *orig_thunk = init_thunk(add_eval,2);
@@ -116,4 +118,4 @@ int main() {
 	printf("%d\n",two_);
 
 	return 0;
-}*/ 
+}*/
