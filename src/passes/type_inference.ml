@@ -318,7 +318,7 @@ let rec ti env expr =
 	| ListComp(_) as comp -> type_listcomp env comp 
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
-                | None -> raise(Failure("unbound variable" ^ n))
+                | None -> raise(Failure("unbound variable " ^ n))
                 | Some si -> let t = instantiate si in 
 					(nullSubst, IVar n, t)
                 )
