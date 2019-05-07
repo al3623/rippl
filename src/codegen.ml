@@ -5,6 +5,7 @@ open Lib
 open Structs
 open Thunk
 open Mymap
+open Natives
 
 module StringMap = Map.Make(String)
 
