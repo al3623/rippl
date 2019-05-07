@@ -3,6 +3,7 @@
 #include "thunk.h"
 #include "mymap.h"
 #include <string.h>
+#include "natives.h"
 
 int *makeInt(int x) {
 	int *i = malloc(4);
@@ -355,7 +356,7 @@ int length(struct List *list) {
 	}
 	return count;
 }
-/*
+
 int main() {
 	struct List *front = makeRangeList(1,5);
 	explodeRangeList(front);
@@ -446,4 +447,4 @@ int main() {
 
 	return 0;
 }
-*/
+

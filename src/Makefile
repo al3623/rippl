@@ -7,9 +7,11 @@ compiler.native: compiler.ml codegen.ml
 parser.native: parser.mly ast.mli scanner.mll
 	ocamlbuild parser.native
 
-liball.a: lib.o thunk.o mymap.o
-	ar -crs liball.a thunk.o mymap.o lib.o
+liball.a: lib.o thunk.o mymap.o natives.o
+	ar -crs liball.a thunk.o mymap.o lib.o natives.o
 	ranlib liball.a
+
+natives.o: natives.c lib.h thunk.h mymap.h
 
 lib.o: lib.c lib.h thunk.h
 

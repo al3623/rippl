@@ -1,6 +1,7 @@
 #include <string.h>
 #include "thunk.h"
 #include "lib.h"
+#include "natives.h"
 
 struct Thunk *init_thunk(struct Thunk *thunk,
 	void *(*eval)(struct Thunk  *), int num_args) {
@@ -22,30 +23,6 @@ struct Thunk *init_thunk_literal(void *data) {
 	lit->value = data;
 	(lit->args)[0] = lit;
 	return lit;
-}
-
-void *add(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *x = x_thunk->value;
-	void *y = y_thunk->value;
-	// CODEGEN SPECIFIC: malloc result based on type
-	
-	int x_ = *(int *)x;
-	int y_ = *(int *)y;
-	int local = x_ + y_;
-
-	int *result = malloc(sizeof(int));
-	
-	*result = local;
-	return result;
-}
-
-void *add_eval(struct Thunk *t) {
-	struct Thunk *x_ = ((t->args)[0]);
-	struct Thunk *y_ = ((t->args)[1]);
-
-	int * result = add(x_,y_);
-	
-	return result;
 }
 
 struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
