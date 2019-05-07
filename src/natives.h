@@ -11,3 +11,5 @@ void *mult_eval(struct Thunk *t);
 int *neq(struct Thunk *x_thunk, struct Thunk *y_thunk);
 void *neq_eval(struct Thunk *t);
 
+int *sub(struct Thunk *x_thunk, struct Thunk *y_thunk);
+void *sub_eval(struct Thunk *t);

@@ -70,3 +70,28 @@ void *int_nequal_eval(struct Thunk *t) {
 	return result;
 }
 
+void *sub(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+	void *x = x_thunk->value;
+	void *y = y_thunk->value;
+	// CODEGEN SPECIFIC: malloc result based on type
+	
+	int x_ = *(int *)x;
+	int y_ = *(int *)y;
+	int local = x_ - y_;
+
+	int *result = malloc(sizeof(int));
+	
+	*result = local;
+	return result;
+}
+
+void *sub_eval(struct Thunk *t) {
+	struct Thunk *x_ = ((t->args)[0]);
+	struct Thunk *y_ = ((t->args)[1]);
+
+	int * result = sub(x_,y_);
+	
+	return result;
+}
+
+
