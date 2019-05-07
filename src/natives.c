@@ -26,7 +26,7 @@ void *add_eval(struct Thunk *t) {
 	return result;
 }
 
-int *int_mult(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+int *mult(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	void *data1 = x_thunk->value;
 	void *data2 = y_thunk->value;
 	
@@ -39,16 +39,16 @@ int *int_mult(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	return result;
 }
 
-void *int_mult_eval(struct Thunk *t) {
+void *mult_eval(struct Thunk *t) {
 	struct Thunk *x = ((t->args)[0]);
 	struct Thunk *y = ((t->args)[1]);
 
-	void *result = int_mult(x,y);
+	void *result = mult(x,y);
 
 	return result;
 }
 
-int *int_nequal(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+int *neq(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	void *data1 = x_thunk->value;
 	void *data2 = y_thunk->value;	
 
@@ -61,11 +61,11 @@ int *int_nequal(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	return result;
 }
 
-void *int_nequal_eval(struct Thunk *t) {
+void *neq_eval(struct Thunk *t) {
 	struct Thunk *x = ((t->args)[0]);
 	struct Thunk *y = ((t->args)[1]);
 
-	void *result = int_nequal(x,y);
+	void *result = neq(x,y);
 	
 	return result;
 }

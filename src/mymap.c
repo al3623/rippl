@@ -87,15 +87,15 @@ int main() {
 	struct Thunk *ten = ((tail(_2and10))->head)->data;
 
 	// (!=)
-	struct Thunk neq[1];
-	init_thunk(neq,int_nequal_eval, 2);
-	struct List *neq0and1 = map(_0and1,neq);
+	struct Thunk ne[1];
+	init_thunk(ne,neq_eval, 2);
+	struct List *neq0and1 = map(_0and1,ne);
 
 	// (*)
-	struct Thunk mult[1];
-	init_thunk(mult,int_mult_eval, 2);
-	struct List *mult0and1 = map(_0and1,mult);
-	struct List *mult2and10 = map(_2and10,mult);
+	struct Thunk mul[1];
+	init_thunk(mul,mult_eval, 2);
+	struct List *mult0and1 = map(_0and1,mul);
+	struct List *mult2and10 = map(_2and10,mul);
 
 	// (!=).0
 	struct Thunk *neq0 = head(neq0and1);
