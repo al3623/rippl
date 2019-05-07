@@ -5,9 +5,9 @@
 int *add(struct Thunk *x_thunk, struct Thunk *y_thunk);
 int *add_eval(struct Thunk *t);
 
-int *int_mult(struct Thunk *x_thunk, struct Thunk *y_thunk);
-void *int_mult_eval(struct Thunk *t);
+int *mult(struct Thunk *x_thunk, struct Thunk *y_thunk);
+void *mult_eval(struct Thunk *t);
 
-int *int_nequal(struct Thunk *x_thunk, struct Thunk *y_thunk);
-void *int_nequal_eval(struct Thunk *t);
+int *neq(struct Thunk *x_thunk, struct Thunk *y_thunk);
+void *neq_eval(struct Thunk *t);
 
