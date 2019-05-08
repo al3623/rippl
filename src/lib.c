@@ -55,7 +55,7 @@ struct Maybe *makeMaybe(void *data, int ty) {
 	return may;
 }
 
-struct List *makeEmptyList(int ty) {
+struct Thunk *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
 	memset(new,0,sizeof(struct List));
 
@@ -66,10 +66,11 @@ struct List *makeEmptyList(int ty) {
 	new->type = LITLIST;
 	new->content_type = ty;
 
-	return new;
+	
+	return init_thunk_literal(new);
 }
 
-struct List *makeRangeList(int start, int end) {
+struct Thunk *makeRangeList(int start, int end) {
 	struct List *list = malloc(sizeof(struct List));
 	list->start = start;
 	list->end = end;
@@ -81,10 +82,12 @@ struct List *makeRangeList(int start, int end) {
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
-	return list;
+	explodeRangeList(list);
+
+	return init_thunk_literal(list);
 }
 
-struct List *makeInfinite(int start) {
+struct Thunk *makeInfinite(int start) {
 	struct List *list = malloc(sizeof(struct List));
 
 	list->content_type = INT;
@@ -98,7 +101,7 @@ struct List *makeInfinite(int start) {
 	list->head = makeNode(data);	
 	
 	list->last_eval = list->head;
-	return list;
+	return init_thunk_literal(list);
 }
 
 struct Node *makeNode(void *data) {
@@ -155,8 +158,9 @@ void printAny(void *thing, int ty) {
 	}
 }
 
-void printList(void *list) {
-	struct List *llist = (struct List*) list;
+void printList(void *list_thunk) {
+	// TODO lol does this work 
+/*	struct List *list = invoke(list_thunk);
 
 	int type = llist->type;	
 	struct Node *curr = llist->head;		
@@ -168,16 +172,16 @@ void printList(void *list) {
 		printInfinteList(list);
 	} else if (type == COMP) {
 		//TODO
-	} else /* LISTLIT */ {
+	} else  {
 		printPrimList(list);
-	}
+	}*/
 }
 
-void printPrimList(void *list) {
-	struct List *llist = (struct List*) list;
+void printPrimList(struct Thunk *list_thunk) {
+	struct List *list = invoke(list_thunk);
 	
-	int ty = llist->content_type;
-	struct Node *curr = llist->head;
+	int ty = list->content_type;
+	struct Node *curr = list->head;
 
 	if (ty!= CHAR)
 		printf("[");
