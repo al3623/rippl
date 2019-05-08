@@ -102,7 +102,7 @@ let makerangelist start_end name = match start_end with
 	| _ -> raise (Failure "type error in range list")
 
 let makeEmptyList_t : L.lltype =
-	L.function_type (L.pointer_type struct_list_type)
+	L.function_type (L.pointer_type struct_thunk_type)
 	[|  i32_t |] 
 let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
