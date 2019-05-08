@@ -60,19 +60,19 @@ void printAny(void *thing, int ty);
 void printList(void *list);
 void printTuple(void *tup);
 void printMaybe(void *may);
-void printPrimList(void *list);
+void printPrimList(struct Thunk *list);
 void printRangeList(void *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
-int *makeInt(int x);
-void *makeBool(char x);
-void *makeChar(char x);
-float *makeFloat(float x);
-struct Node *makeNode(void *data);
-struct List *makeEmptyList(int ty);
-struct List *makeInfinite(int start);
-struct List *makeRangeList(int start, int end);
+struct Thunk *makeInt(int x);
+struct Thunk *makeBool(char x);
+struct Thunk *makeChar(char x);
+struct Thunk *makeFloat(float x);
+struct Node *makeNode(struct Thunk *data);
+struct Thunk *makeEmptyList(int ty);
+struct Thunk *makeInfinite(int start);
+struct Thunk *makeRangeList(int start, int end);
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
 struct Maybe *makeMaybe(void *data, int ty);
 
@@ -80,11 +80,5 @@ void explodeRangeList(void *list);
 void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
 struct Node *evalNextNodeComp(void *list, int num_vbinds);
-
-struct List *cons(void *d, struct List *list);
-struct List *cat(struct List *l1, struct List *l2); 
-void *head(struct List *list);
-struct List *tail(struct List *list);
-int length(struct List *list);
 
 #endif

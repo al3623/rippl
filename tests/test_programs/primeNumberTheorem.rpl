@@ -1,14 +1,13 @@
 isPrime :: int -> bool
-isPrime n =
+isPrime = fun n ->
 	let max = n / 2 in
 	let range = [2...max] in
 	let divisors = [x | x over range, n % x == 0] in
 	len divisors == 0	
 
 
-
 primeNumberTheorem :: int -> int
-primeNumberTheorem n =
+primeNumberTheorem = fun n ->
 	let range = [(n+1)...2*n] in
 	let oddRange = [x | x over range, x % 2 != 0] in
 	foldl (fun prev -> fun curr -> if isPrime prev then prev else curr) 

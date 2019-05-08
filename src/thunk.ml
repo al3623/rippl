@@ -6,8 +6,10 @@ open Lib
 
 let initThunk_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-                [| L.pointer_type eval_func_type; i32_t |]
-		(* [| L.pointer_type eval_func_type ; L.pointer_type i8_t |] *)
+		[| L.pointer_type struct_thunk_type
+			; L.pointer_type eval_func_type 
+			; L.pointer_type i8_t|]
+
 let initThunk : L.llvalue =
 	L.declare_function "init_thunk" initThunk_t the_module
 

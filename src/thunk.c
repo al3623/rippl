@@ -1,9 +1,10 @@
 #include <string.h>
 #include "thunk.h"
 #include "lib.h"
+#include "natives.h"
 
-struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
-	struct Thunk *thunk = malloc(sizeof(struct Thunk));
+struct Thunk *init_thunk(struct Thunk *thunk,
+	void *(*eval)(struct Thunk  *), int num_args) {
 
 	thunk->eval = eval;
 	thunk->num_args = num_args;
@@ -15,32 +16,13 @@ struct Thunk *init_thunk(void *(*eval)(struct Thunk  *), int num_args) {
 }
 
 struct Thunk *init_thunk_literal(void *data) {
-	struct Thunk *lit = init_thunk(NULL, 1);
+	struct Thunk *lit = malloc(sizeof(struct Thunk));
+	lit = init_thunk(lit,NULL, 1);
+
 	lit->filled_args = 1;
 	lit->value = data;
 	(lit->args)[0] = lit;
 	return lit;
-}
-
-void *add(int *x, int *y) {
-	// CODEGEN SPECIFIC: malloc result based on type
-	int *result = malloc(sizeof(int));
-
-	int x_ = *x;
-	int y_ = *y;
-	int local = x_ + y_;
-	
-	*result = local;
-	return result;
-}
-
-void *add_eval(struct Thunk *t) {
-	int *x_ = (int *)((t->args)[0]->value);
-	int *y_ = (int *)((t->args)[1]->value);
-
-	int * result = add(x_,y_);
-	
-	return result;
 }
 
 struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
@@ -82,7 +64,6 @@ void *invoke(struct Thunk *t) {
 		}
 	}
 }
-
 /*
 int main() {
 	struct Thunk *orig_thunk = init_thunk(add_eval,2);
@@ -116,4 +97,4 @@ int main() {
 	printf("%d\n",two_);
 
 	return 0;
-}*/ 
+}*/

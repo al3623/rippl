@@ -68,7 +68,7 @@ let makeNode : L.llvalue =
 (* TODO: make node *)
 
 let makeEmptyList_t : L.lltype =
-	L.function_type (L.pointer_type struct_list_type)
+	L.function_type (L.pointer_type struct_thunk_type)
 	[| i32_t |]
 let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
@@ -78,7 +78,7 @@ let makeemptylist ty name =
 	name builder
 
 let makeInfinite_t : L.lltype =
-	L.function_type (L.pointer_type struct_list_type)
+	L.function_type (L.pointer_type struct_thunk_type)
 	[| i32_t |]
 let makeInfinite : L.llvalue =
 	L.declare_function "makeInfinite" makeInfinite_t the_module
@@ -90,7 +90,7 @@ let makeinfinite start name = match start with
 	| _ -> raise (Failure "type error in infinite list")
 
 let makeRangeList_t : L.lltype =
-	L.function_type (L.pointer_type struct_list_type)
+	L.function_type (L.pointer_type struct_thunk_type)
 	[| i32_t ; i32_t |]
 let makeRangeList : L.llvalue =
 	L.declare_function "makeRangeList" makeRangeList_t the_module
@@ -125,7 +125,7 @@ let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
 
 let printPrimList_t : L.lltype =
-	L.function_type i32_t [| L.pointer_type struct_list_type |]
+	L.function_type i32_t [| L.pointer_type struct_thunk_type |]
 let printPrimList : L.llvalue =
 	L.declare_function "printPrimList" printPrimList_t the_module
 
