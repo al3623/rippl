@@ -133,24 +133,24 @@ int main() {
 	// printf("%p\n",neq_eval);
 	// printf("%p\n",neq0->eval);
 
+	struct Thunk *neq1 = invoke(apply(head_init_thunk,apply(tail_init_thunk,neq0and1_thunk)));
+
+	printf("not 0 filter: ");	
 	struct List *not0 = filter(unfiltered,neq0);
 	printPrimList(not0);
 	printf("\n");
+
+	printf("not 1 filter: ");	
+	struct List *not1 = filter(unfiltered,neq1);
+	printPrimList(not1);
+	printf("\n");
 /*
-	// (!=).0
-	struct Thunk *neq0 = head(neq0and1);
 	// (!=).1
 	struct Thunk *neq1 = head(tail(neq0and1));
 	// (*).2
 	struct Thunk *mult2 = head(mult2and10);
 	// (*).10
 	struct Thunk *mult10 = head(tail(mult2and10));
-
-	// not0 = x over unfiltered, x != 0
-	struct List *not0 = filter(unfiltered, neq0);
-	printf("!= 0 filter: ");
-	printPrimList(not0);
-	printf("\n");
 
 	// not1 = y over unfiltered, y != 1
 	struct List *not1 = filter(unfiltered, neq1);
