@@ -6,7 +6,7 @@
 #include "natives.h"
 
 struct Thunk *makeInt(int x) {
-	int *i = malloc(4);
+	int *i = malloc(sizeof(int));
 	*i = x;
 	return init_thunk_literal(i);
 }
@@ -16,13 +16,13 @@ struct Thunk *makeBool(char x) {
 }	
 
 struct Thunk *makeChar(char x) {
-	char *b = malloc(1);
+	char *b = malloc(sizeof(char));
 	*b = x;
 	return init_thunk_literal(b);
 }
 
 struct Thunk *makeFloat(float x) {
-	float *f = malloc(8);
+	float *f = malloc(sizeof(float));
 	*f = x;
 	return init_thunk_literal(f);
 }

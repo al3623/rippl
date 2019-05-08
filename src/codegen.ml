@@ -386,7 +386,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         (* call invoke on thunk *)
         let _ = L.build_call invoke [| lv |] "invoke" builder in
         (* print *)
-        (match vtype with
+        let _ = (match vtype with
             | TconList(t) -> (match t with
                 | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "" builder
                 | _ -> raise (Failure "what the fuck kind of list is this"))
@@ -395,7 +395,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
             | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
             | _ -> raise(Failure "ahhhhh")
-        )
+        ) in
+        L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder
+
 
     in
 
