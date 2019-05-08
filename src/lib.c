@@ -132,7 +132,9 @@ void evalNextNode(void *list) {
 	}
 }
 
-struct List *appendNode(struct List *list, struct Node *node) {
+struct Thunk *appendNode(struct Thunk *list_thunk, struct Node *node) {
+	struct List *list = invoke(list_thunk);
+
 	if (!(list->head)) {
 		list->head = node;
 		list->last_eval = node;
@@ -140,7 +142,7 @@ struct List *appendNode(struct List *list, struct Node *node) {
 		(list->last_eval)->next = node;
 		list->last_eval = node;
 	}
-	return list;
+	return init_thunk_literal(list);
 }
 
 
