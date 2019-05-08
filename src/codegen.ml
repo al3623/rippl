@@ -228,8 +228,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     | h :: t -> let estar = makestar h in
                         let nodestar = L.build_call makeNode
                             [| estar |] "makeNode" builder in
-                        let nextlist = L.build_call appendNode
-                            [| prevlist ; nodestar |] "appendNode" builder in
+                        let nextlist = L.build_call appendNodeThunk
+                            [| prevlist ; nodestar |] "appendNodeThunk" builder in
                         build_list t nextlist
                     | [] -> prevlist
                 )

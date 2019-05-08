@@ -143,6 +143,9 @@ struct List *appendNode(struct List *list, struct Node *node) {
 	return list;
 }
 
+struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
+	return init_thunk_literal(appendNode(invoke(list),node));
+}
 
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {
