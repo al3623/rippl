@@ -28,8 +28,10 @@ struct List *map_list(struct List *apps, struct List *vals) {
 	while (curr_app_node) {
 		struct Thunk *curr_app = curr_app_node->data;
 		struct List *applied = map(vals, curr_app);
+
 		struct Thunk *stupid_thunk_list_wrapper_applied = init_thunk_literal(applied);
 		struct Thunk *stupid_thunk_list_wrapper_new = init_thunk_literal(new);
+
 		new = cat(stupid_thunk_list_wrapper_new,stupid_thunk_list_wrapper_applied);
 		curr_app_node = curr_app_node->next;
 	}
@@ -82,6 +84,15 @@ int main() {
 	struct Thunk cons_init_thunk[1];
 	init_thunk(cons_init_thunk,cons_eval,2);
 
+	struct Thunk head_init_thunk[1];
+	init_thunk(head_init_thunk,head_eval,1);
+
+	struct Thunk neq_init_thunk[1];
+	init_thunk(neq_init_thunk,neq_eval,2);
+	
+	struct Thunk mult_init_thunk[1];
+	init_thunk(mult_init_thunk, mult_eval,2);
+
 	struct List *_0and1 = makeRangeList(0,1);
 	explodeRangeList(_0and1);
 	struct Thunk *_0and1_thunk = init_thunk_literal(_0and1);
@@ -92,24 +103,40 @@ int main() {
 
 	struct Thunk *_2and10_thunk = apply(apply(cons_init_thunk,_2_thunk),
 		_10_thunk);
+	invoke(_2and10_thunk);
+	
+	printPrimList(_2and10_thunk->value);
+	printf("\n");
+
+	struct Thunk *two_thunk = apply(head_init_thunk,_2and10_thunk);
+	int *two = invoke(two_thunk);
+	printf("head [2,10]: %d\n", *two);
+	struct Thunk *ten_thunk = apply(head_init_thunk,apply(tail_init_thunk,_2and10_thunk));
+	int *ten = invoke(ten_thunk);
+	printf("head tail [2,10]: %d\n", *ten);
+
+	struct List *neq0and1 = map(_0and1,neq_init_thunk);
+	struct Thunk *neq0and1_thunk = init_thunk_literal(neq0and1);
+	struct List *mult0and1 = map(_0and1,mult_init_thunk);
+	struct Thunk *mult0and1_thunk = init_thunk_literal(mult0and1);
+	struct List *mult2and10 = map(_2and10_thunk->value,mult_init_thunk);
+	struct Thunk *mult2and10_thunk = init_thunk_literal(mult2and10);
+
+	struct List *unfiltered = makeRangeList(0,5);
+	explodeRangeList(unfiltered);
+	struct Thunk *unfiltered_thunk = init_thunk_literal(unfiltered);
+	printf("original: ");
+	printPrimList(unfiltered_thunk->value);
+	printf("\n");
+
+	struct Thunk *neq0 = invoke(apply(head_init_thunk,neq0and1_thunk));
+	// printf("%p\n",neq_eval);
+	// printf("%p\n",neq0->eval);
+
+	struct List *not0 = filter(unfiltered,neq0);
+	printPrimList(not0);
+	printf("\n");
 /*
-	struct Thunk *zero = (_0and1->head)->data;
-	struct Thunk *one = ((tail(_0and1_thunk))->head)->data;
-
-	struct Thunk *two = (_2and10->head)->data;
-	struct Thunk *ten = ((tail(_2and10))->head)->data;
-
-	// (!=)
-	struct Thunk ne[1];
-	init_thunk(ne,neq_eval, 2);
-	struct List *neq0and1 = map(_0and1,ne);
-
-	// (*)
-	struct Thunk mul[1];
-	init_thunk(mul,mult_eval, 2);
-	struct List *mult0and1 = map(_0and1,mul);
-	struct List *mult2and10 = map(_2and10,mul);
-
 	// (!=).0
 	struct Thunk *neq0 = head(neq0and1);
 	// (!=).1
@@ -118,13 +145,6 @@ int main() {
 	struct Thunk *mult2 = head(mult2and10);
 	// (*).10
 	struct Thunk *mult10 = head(tail(mult2and10));
-
-	// unfiltered = [0,1,2,3,4,5]
-	struct List *unfiltered = makeRangeList(0,5);
-	explodeRangeList(unfiltered);
-	printf("original: ");	
-	printRangeList(unfiltered);
-	printf("\n");
 
 	// not0 = x over unfiltered, x != 0
 	struct List *not0 = filter(unfiltered, neq0);
