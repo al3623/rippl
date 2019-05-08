@@ -24,3 +24,6 @@ let apply : L.llvalue =
 
 let invoke : L.llvalue =
 	L.declare_function "invoke" eval_func_type the_module
+
+
+let struct_thunk = L.declare_global struct_thunk_type "Thunk" the_module
