@@ -158,6 +158,19 @@ void printAny(void *thing, int ty) {
 	}
 }
 
+void printAnyThunk(struct Thunk *primThunk, int ty) {
+	void *thing = primThunk->value;
+	if (ty <= FLOAT) {
+		printPrim(thing, ty);
+	} else if (ty == LIST) {
+		printList(thing);
+	} else if (ty == TUPLE) {
+		printTuple(thing);
+	} else if (ty == MAYBE) {
+		printMaybe(thing);
+	}
+}
+
 void printList(void *list_thunk) {
 	// TODO lol does this work 
 /*	struct List *list = invoke(list_thunk);

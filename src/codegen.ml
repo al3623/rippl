@@ -382,11 +382,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 (L.pointer_type i8_t)))
     in
     
-    let print_expr (lv: L.llvalue) = 
+    let print_expr (lv: L.llvalue) (vtype: ty) =
         (* call invoke on thunk *)
         let _ = L.build_call invoke [| lv |] "invoke" builder in
         (* print *)
-        L.build_call printPrimList [| lv |] "printPrimList" builder
+        (match vtype with
+            | TconList(t) -> (match t with
+                | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "printPrimList" builder
+                | _ -> raise (Failure "what the fuck kind of list is this"))
+            | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "printAnyThunk" builder
+            | _ -> raise(Failure "ahhhhh")
+        )
 
     in
 
@@ -412,7 +418,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 (* build expr *)
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                if name = "main" then ignore (print_expr v) else ()
+                if name = "main" then ignore (print_expr v (snd texp)) else ()
     in
     let _ = List.iter build_decl decl_lst in
     ignore (L.build_ret (L.const_int i32_t 0) builder);
