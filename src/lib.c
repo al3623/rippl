@@ -132,9 +132,7 @@ void evalNextNode(void *list) {
 	}
 }
 
-struct Thunk *appendNode(struct Thunk *list_thunk, struct Node *node) {
-	struct List *list = invoke(list_thunk);
-
+struct List *appendNode(struct List *list, struct Node *node) {
 	if (!(list->head)) {
 		list->head = node;
 		list->last_eval = node;
@@ -142,9 +140,12 @@ struct Thunk *appendNode(struct Thunk *list_thunk, struct Node *node) {
 		(list->last_eval)->next = node;
 		list->last_eval = node;
 	}
-	return init_thunk_literal(list);
+	return list;
 }
 
+struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
+	return init_thunk_literal(appendNode(invoke(list),node));
+}
 
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {

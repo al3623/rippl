@@ -108,10 +108,15 @@ let makeEmptyList : L.llvalue =
 	L.declare_function "makeEmptyList" makeEmptyList_t the_module
 
 let appendNode_t : L.lltype =
-	L.function_type (L.pointer_type struct_thunk_type)
-	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_node_type |]
+	L.function_type (L.pointer_type struct_list_type)
+	[| L.pointer_type struct_list_type ; L.pointer_type struct_node_type |]
 let appendNode : L.llvalue =
 	L.declare_function "appendNode" appendNode_t the_module
+let appendNodeThunk_t : L.lltype = 
+	L.function_type (L.pointer_type struct_thunk_type)
+	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_node_type |]
+let appendNodeThunk : L.llvalue =
+	L.declare_function "appendNodeThunk" appendNodeThunk_t the_module
 
 (* PRINTING *)	
 let printf_t : L.lltype = 
