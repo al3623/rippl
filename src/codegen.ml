@@ -175,7 +175,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TCharLit c -> L.build_call makeChar
                 [| L.const_int i8_t (Char.code c) |] "char" builder
             | TBoolLit b -> let x = if b then 1 else 0 in
-                L.build_call makeBool [| L.const_int i1_t x |] "bool" builder
+                L.build_call makeBool [| L.const_int i8_t x |] "bool" builder
 
             | _ -> raise (Failure "make_ptr")
         in
@@ -183,14 +183,14 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let tex = fst texp in 
         let typ = snd texp in match tex with
             (* literals - build thunk literals *)
-              TIntLit _ -> let n = make_ptr tex in L.build_call 
-                initThunkLiteral [| n |] "int_lit_thunk" builder
-            | TFloatLit _ -> let f = make_ptr tex in L.build_call 
-                initThunkLiteral [| f |] "float_lit_thunk" builder
-            | TCharLit _ -> let c = make_ptr tex in L.build_call 
-                initThunkLiteral [| c |] "char_lit_thunk" builder
-            | TBoolLit _ -> let b = make_ptr tex in L.build_call
-                initThunkLiteral [| b |] "bool_lit_thunk" builder
+              TIntLit n -> L.build_call makeInt [| L.const_int i32_t n |] 
+                "makeInt" builder
+            | TFloatLit f -> L.build_call makeFloat [| L.const_float float_t f |] 
+                "makeFloat" builder
+            | TCharLit c -> L.build_call makeChar [| L.const_int i8_t (Char.code c) |] 
+                "makeChar" builder
+            | TBoolLit b -> L.build_call makeBool [| L.const_int i8_t (if b then 1 else 0) |] 
+                "makeBool" builder
             | TVar s -> (match (StringMap.find_opt s scope) with
                   Some lval -> lval
                 | None -> (match (StringMap.find_opt s global_vars) with
@@ -217,7 +217,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                 L.build_call makeChar [| _char |] "makeChar" builder
                         | (TIntLit i, _) -> let _int = L.const_int i32_t i in
                                 L.build_call makeInt [| _int |] "makeInt" builder
-                        | (TBoolLit b, _) -> let _bool = L.const_int i1_t (if b then 1 else 0) in
+                        | (TBoolLit b, _) -> let _bool = L.const_int i8_t (if b then 1 else 0) in
                                 L.build_call makeBool [| _bool |] "makeBool" builder
                         | (TFloatLit f, _) -> let _float = L.const_float float_t f in
                                 L.build_call makeFloat [| _float |] "makeFloat" builder
@@ -388,9 +388,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
         (* print *)
         (match vtype with
             | TconList(t) -> (match t with
-                | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "printPrimList" builder
+                | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "" builder
                 | _ -> raise (Failure "what the fuck kind of list is this"))
-            | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "printAnyThunk" builder
+            | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "" builder
+            | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
+            | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
+            | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
             | _ -> raise(Failure "ahhhhh")
         )
 
