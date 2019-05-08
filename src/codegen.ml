@@ -175,21 +175,22 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TCharLit c -> L.build_call makeChar
                 [| L.const_int i8_t (Char.code c) |] "char" builder
             | TBoolLit b -> let x = if b then 1 else 0 in
-                L.build_call makeBool [| L.const_int i1_t x |] "bool" builder
+                L.build_call makeBool [| L.const_int i8_t x |] "bool" builder
 
             | _ -> raise (Failure "make_ptr")
         in
 
-        let tex = fst texp in match tex with
+        let tex = fst texp in 
+        let typ = snd texp in match tex with
             (* literals - build thunk literals *)
-              TIntLit _ -> let n = make_ptr tex in L.build_call 
-                initThunkLiteral [| n |] "int_lit_thunk" builder
-            | TFloatLit _ -> let f = make_ptr tex in L.build_call 
-                initThunkLiteral [| f |] "float_lit_thunk" builder
-            | TCharLit _ -> let c = make_ptr tex in L.build_call 
-                initThunkLiteral [| c |] "char_lit_thunk" builder
-            | TBoolLit _ -> let b = make_ptr tex in L.build_call
-                initThunkLiteral [| b |] "bool_lit_thunk" builder
+              TIntLit n -> L.build_call makeInt [| L.const_int i32_t n |] 
+                "makeInt" builder
+            | TFloatLit f -> L.build_call makeFloat [| L.const_float float_t f |] 
+                "makeFloat" builder
+            | TCharLit c -> L.build_call makeChar [| L.const_int i8_t (Char.code c) |] 
+                "makeChar" builder
+            | TBoolLit b -> L.build_call makeBool [| L.const_int i8_t (if b then 1 else 0) |] 
+                "makeBool" builder
             | TVar s -> (match (StringMap.find_opt s scope) with
                   Some lval -> lval
                 | None -> (match (StringMap.find_opt s global_vars) with
@@ -199,6 +200,42 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | None -> raise (Failure (s^ " not found in scope"))
                             ))
             )
+            
+            | TListLit texlst -> 
+                let ty_code = match typ with
+                         TconList Int -> 0
+                       | TconList Bool -> 1
+                       | TconList Char -> 2
+                       | TconList Float -> 3
+                       | _ -> raise (Failure "ty_code")
+                in
+                let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
+                "empty" builder in
+                
+                let makestar texp = match texp with
+                          (TCharLit c ,_) -> let _char = L.const_int i8_t (Char.code c) in
+                                L.build_call makeChar [| _char |] "makeChar" builder
+                        | (TIntLit i, _) -> let _int = L.const_int i32_t i in
+                                L.build_call makeInt [| _int |] "makeInt" builder
+                        | (TBoolLit b, _) -> let _bool = L.const_int i8_t (if b then 1 else 0) in
+                                L.build_call makeBool [| _bool |] "makeBool" builder
+                        | (TFloatLit f, _) -> let _float = L.const_float float_t f in
+                                L.build_call makeFloat [| _float |] "makeFloat" builder
+                        
+                        | _ -> raise (Failure "makestar")
+                in
+                let rec build_list s prevlist = (match s with
+                    | h :: t -> let estar = makestar h in
+                        let nodestar = L.build_call makeNode
+                            [| estar |] "makeNode" builder in
+                        let nextlist = L.build_call appendNodeThunk
+                            [| prevlist ; nodestar |] "appendNodeThunk" builder in
+                        build_list t nextlist
+                    | [] -> prevlist
+                )
+                in
+                build_list texlst emptylist
+
             | TLet (ta, t) -> (match ta with
                                   TAssign (s, te) -> let v1 = build_expr te builder scope in
                                         let new_scope = StringMap.add s v1 scope in
@@ -332,24 +369,37 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 StringMap.add n local m;
         *)
 
-        (* get final expression in function *)
+        (* get final expression in function
         let e = 
             let rec fin_ex = function
               TLambda(_,(t,_)) -> fin_ex t
             | x -> x
         in fin_ex (fst lm_def.trexp) 
         in
-
+*)
         let fn_builder = builder in
         add_terminal fn_builder (L.build_ret (L.const_pointer_null 
                 (L.pointer_type i8_t)))
     in
     
-    let print_expr (texp: typed_expr) = match texp with
-        | _ -> raise(Failure "print_expr: Not implemented")
+    let print_expr (lv: L.llvalue) (vtype: ty) =
+        (* call invoke on thunk *)
+        let _ = L.build_call invoke [| lv |] "invoke" builder in
+        (* print *)
+        let _ = (match vtype with
+            | TconList(t) -> (match t with
+                | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "" builder
+                | _ -> raise (Failure "what the fuck kind of list is this"))
+            | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "" builder
+            | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
+            | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
+            | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
+            | _ -> raise(Failure "ahhhhh")
+        ) in
+        L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder
+
+
     in
-
-
 
 (*    
     (* build non-function Vdefs *)
@@ -367,17 +417,15 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
 *)
 
-(*
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
             | (_, TypedVdef(name,texp)) -> 
                 (* build expr *)
-                let _ = build_expr builder (fst texp) in
+                let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                if name = "main" then ignore (print_expr texp) else ()
+                if name = "main" then ignore (print_expr v (snd texp)) else ()
     in
     let _ = List.iter build_decl decl_lst in
-*)  
     ignore (L.build_ret (L.const_int i32_t 0) builder);
     the_module
 

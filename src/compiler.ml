@@ -36,8 +36,8 @@ let print_tdecl td =
 let rec print_all_types = function
 	| (_, TypedVdef(name, (_,ty)))::xs -> 
 		print_endline (name ^ ": " ^ (ty_to_str ty));
-		print_all_types xs;()
-	| [] -> print_newline;()
+		print_all_types xs
+	| [] -> print_newline ()
 
 let read_full_file fname =
 			let ch = open_in fname in

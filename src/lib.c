@@ -6,7 +6,7 @@
 #include "natives.h"
 
 struct Thunk *makeInt(int x) {
-	int *i = malloc(4);
+	int *i = malloc(sizeof(int));
 	*i = x;
 	return init_thunk_literal(i);
 }
@@ -16,13 +16,13 @@ struct Thunk *makeBool(char x) {
 }	
 
 struct Thunk *makeChar(char x) {
-	char *b = malloc(1);
+	char *b = malloc(sizeof(char));
 	*b = x;
 	return init_thunk_literal(b);
 }
 
 struct Thunk *makeFloat(float x) {
-	float *f = malloc(8);
+	float *f = malloc(sizeof(float));
 	*f = x;
 	return init_thunk_literal(f);
 }
@@ -132,9 +132,7 @@ void evalNextNode(void *list) {
 	}
 }
 
-struct Thunk *appendNode(struct Thunk *list_thunk, struct Node *node) {
-	struct List *list = invoke(list_thunk);
-
+struct List *appendNode(struct List *list, struct Node *node) {
 	if (!(list->head)) {
 		list->head = node;
 		list->last_eval = node;
@@ -142,11 +140,27 @@ struct Thunk *appendNode(struct Thunk *list_thunk, struct Node *node) {
 		(list->last_eval)->next = node;
 		list->last_eval = node;
 	}
-	return init_thunk_literal(list);
+	return list;
 }
 
+struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
+	return init_thunk_literal(appendNode(invoke(list),node));
+}
 
 void printAny(void *thing, int ty) {
+	if (ty <= FLOAT) {
+		printPrim(thing, ty);
+	} else if (ty == LIST) {
+		printList(thing);
+	} else if (ty == TUPLE) {
+		printTuple(thing);
+	} else if (ty == MAYBE) {
+		printMaybe(thing);
+	}
+}
+
+void printAnyThunk(struct Thunk *primThunk, int ty) {
+	void *thing = primThunk->value;
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
 	} else if (ty == LIST) {

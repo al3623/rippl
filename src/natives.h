@@ -40,3 +40,8 @@ struct Thunk init_thunk_tail[1];
 int *length(struct Thunk *lthunk);
 void *length_eval(struct Thunk *t);
 struct Thunk init_thunk_length[1];
+
+
+void *addf_eval(struct Thunk *);
+float *addf(struct Thunk *, struct Thunk *);
+struct Thunk init_thunk_addf[1];
