@@ -65,11 +65,11 @@ void printRangeList(void *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
-int *makeInt(int x);
-void *makeBool(char x);
-void *makeChar(char x);
-float *makeFloat(float x);
-struct Node *makeNode(void *data);
+struct Thunk *makeInt(int x);
+struct Thunk *makeBool(char x);
+struct Thunk *makeChar(char x);
+struct Thunk *makeFloat(float x);
+struct Node *makeNode(struct Thunk *data);
 struct Thunk *makeEmptyList(int ty);
 struct Thunk *makeInfinite(int start);
 struct Thunk *makeRangeList(int start, int end);

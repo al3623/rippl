@@ -5,26 +5,26 @@
 #include <string.h>
 #include "natives.h"
 
-int *makeInt(int x) {
+struct Thunk *makeInt(int x) {
 	int *i = malloc(4);
 	*i = x;
-	return i;
+	return init_thunk_literal(i);
 }
 
-void *makeBool(char x) {
+struct Thunk *makeBool(char x) {
 	return makeChar(x);
 }	
 
-void *makeChar(char x) {
+struct Thunk *makeChar(char x) {
 	char *b = malloc(1);
 	*b = x;
-	return b;
+	return init_thunk_literal(b);
 }
 
-float *makeFloat(float x) {
+struct Thunk *makeFloat(float x) {
 	float *f = malloc(8);
 	*f = x;
-	return f;
+	return init_thunk_literal(f);
 }
 
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
@@ -78,7 +78,7 @@ struct Thunk *makeRangeList(int start, int end) {
 	list->type = RANGE;
 	list->curr_index = start;
 
-	int *data = makeInt(start);
+	struct Thunk *data = makeInt(start);
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
@@ -97,19 +97,17 @@ struct Thunk *makeInfinite(int start) {
 	list->last_eval = 0;
 	list->curr_index = start;
 
-	int *data = makeInt(start);
+	struct Thunk *data = makeInt(start);
 	list->head = makeNode(data);	
 	
 	list->last_eval = list->head;
 	return init_thunk_literal(list);
 }
 
-struct Node *makeNode(void *data) {
+struct Node *makeNode(struct Thunk *data_thunk) {
 	struct Node *new = malloc(sizeof(struct Node));
 
-	struct Thunk *thunk_data = init_thunk_literal(data);
-
-	new->data = thunk_data;
+	new->data = data_thunk;
 	new->next = NULL;
 	return new;
 }
@@ -128,7 +126,7 @@ void evalNextNode(void *list) {
 	
 	if (llist->type == RANGE || llist->type == INFINITE) {
 		llist->curr_index++;
-		int *data = makeInt(llist->curr_index);
+		struct Thunk *data = makeInt(llist->curr_index);
 		struct Node *newNode = makeNode(data);
 		llist = appendNode(llist, newNode);
 	}
