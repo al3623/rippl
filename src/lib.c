@@ -3,27 +3,28 @@
 #include "thunk.h"
 #include "mymap.h"
 #include <string.h>
+#include "natives.h"
 
-int *makeInt(int x) {
-	int *i = malloc(4);
+struct Thunk *makeInt(int x) {
+	int *i = malloc(sizeof(int));
 	*i = x;
-	return i;
+	return init_thunk_literal(i);
 }
 
-void *makeBool(char x) {
+struct Thunk *makeBool(char x) {
 	return makeChar(x);
 }	
 
-void *makeChar(char x) {
-	char *b = malloc(1);
+struct Thunk *makeChar(char x) {
+	char *b = malloc(sizeof(char));
 	*b = x;
-	return b;
+	return init_thunk_literal(b);
 }
 
-float *makeFloat(float x) {
-	float *f = malloc(8);
+struct Thunk *makeFloat(float x) {
+	float *f = malloc(sizeof(float));
 	*f = x;
-	return f;
+	return init_thunk_literal(f);
 }
 
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
@@ -54,7 +55,7 @@ struct Maybe *makeMaybe(void *data, int ty) {
 	return may;
 }
 
-struct List *makeEmptyList(int ty) {
+struct Thunk *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
 	memset(new,0,sizeof(struct List));
 
@@ -65,10 +66,11 @@ struct List *makeEmptyList(int ty) {
 	new->type = LITLIST;
 	new->content_type = ty;
 
-	return new;
+	
+	return init_thunk_literal(new);
 }
 
-struct List *makeRangeList(int start, int end) {
+struct Thunk *makeRangeList(int start, int end) {
 	struct List *list = malloc(sizeof(struct List));
 	list->start = start;
 	list->end = end;
@@ -76,14 +78,16 @@ struct List *makeRangeList(int start, int end) {
 	list->type = RANGE;
 	list->curr_index = start;
 
-	int *data = makeInt(start);
+	struct Thunk *data = makeInt(start);
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
-	return list;
+	explodeRangeList(list);
+
+	return init_thunk_literal(list);
 }
 
-struct List *makeInfinite(int start) {
+struct Thunk *makeInfinite(int start) {
 	struct List *list = malloc(sizeof(struct List));
 
 	list->content_type = INT;
@@ -93,19 +97,17 @@ struct List *makeInfinite(int start) {
 	list->last_eval = 0;
 	list->curr_index = start;
 
-	int *data = makeInt(start);
+	struct Thunk *data = makeInt(start);
 	list->head = makeNode(data);	
 	
 	list->last_eval = list->head;
-	return list;
+	return init_thunk_literal(list);
 }
 
-struct Node *makeNode(void *data) {
+struct Node *makeNode(struct Thunk *data_thunk) {
 	struct Node *new = malloc(sizeof(struct Node));
 
-	struct Thunk *thunk_data = init_thunk_literal(data);
-
-	new->data = thunk_data;
+	new->data = data_thunk;
 	new->next = NULL;
 	return new;
 }
@@ -124,7 +126,7 @@ void evalNextNode(void *list) {
 	
 	if (llist->type == RANGE || llist->type == INFINITE) {
 		llist->curr_index++;
-		int *data = makeInt(llist->curr_index);
+		struct Thunk *data = makeInt(llist->curr_index);
 		struct Node *newNode = makeNode(data);
 		llist = appendNode(llist, newNode);
 	}
@@ -141,6 +143,9 @@ struct List *appendNode(struct List *list, struct Node *node) {
 	return list;
 }
 
+struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
+	return init_thunk_literal(appendNode(invoke(list),node));
+}
 
 void printAny(void *thing, int ty) {
 	if (ty <= FLOAT) {
@@ -154,8 +159,22 @@ void printAny(void *thing, int ty) {
 	}
 }
 
-void printList(void *list) {
-	struct List *llist = (struct List*) list;
+void printAnyThunk(struct Thunk *primThunk, int ty) {
+	void *thing = primThunk->value;
+	if (ty <= FLOAT) {
+		printPrim(thing, ty);
+	} else if (ty == LIST) {
+		printList(thing);
+	} else if (ty == TUPLE) {
+		printTuple(thing);
+	} else if (ty == MAYBE) {
+		printMaybe(thing);
+	}
+}
+
+void printList(void *list_thunk) {
+	// TODO lol does this work 
+/*	struct List *list = invoke(list_thunk);
 
 	int type = llist->type;	
 	struct Node *curr = llist->head;		
@@ -167,16 +186,16 @@ void printList(void *list) {
 		printInfinteList(list);
 	} else if (type == COMP) {
 		//TODO
-	} else /* LISTLIT */ {
+	} else  {
 		printPrimList(list);
-	}
+	}*/
 }
 
-void printPrimList(void *list) {
-	struct List *llist = (struct List*) list;
+void printPrimList(struct Thunk *list_thunk) {
+	struct List *list = invoke(list_thunk);
 	
-	int ty = llist->content_type;
-	struct Node *curr = llist->head;
+	int ty = list->content_type;
+	struct Node *curr = list->head;
 
 	if (ty!= CHAR)
 		printf("[");
@@ -266,95 +285,6 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
-struct List *cons(void *data, struct List *list) {
-	struct Node *newhead = makeNode(data);
-	
-	struct List *newlist = malloc(sizeof(struct List));	
-	memcpy(newlist, list, sizeof(struct List));
-	
-	newlist->head = newhead;
-	newlist->last_eval = newhead;
-
-	struct Node *curr = list->head;
-
-	while(curr) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->next = NULL;
-		newnode->data = curr->data;
-		appendNode(newlist, newnode);
-		curr = curr->next;
-	}
-
-	return newlist;	
-}
-
-struct List *cat(struct List *l1, struct List *l2) {
-	struct List *new = malloc(sizeof(struct List));
-	memcpy(new,l2,sizeof(struct List));
-	new->head = NULL;
-	new->last_eval = NULL;
-
-	struct Node *curr1 = l1->head;
-	while (curr1) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->data = curr1->data;
-		newnode->next = NULL;
-		appendNode(new, newnode);
-		curr1 = curr1->next;
-	}
-
-	struct Node *curr2 = l2->head;
-	while (curr2) {
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->data = curr2->data;
-		newnode->next = NULL;
-		appendNode(new, newnode);
-		curr2 = curr2->next;
-	}
-
-	return new;
-}
-
-void *head(struct List *list) {
-	struct Thunk *data = (list->head)->data;	
-	void *value = invoke(data);
-	return value;
-}
-
-struct List *tail(struct List *list) {
-	struct List *newlist = malloc(sizeof(struct List));
-	memcpy(newlist, list, sizeof(struct List));
-	newlist->head = NULL;
-	newlist->last_eval = NULL;
-	
-	struct Node *curr = list->head;
-	if (!curr)
-		return newlist;
-
-	curr = curr->next;
-	while (curr) {
-		struct Thunk *data = curr->data;
-
-		struct Node *newnode = malloc(sizeof(struct Node));
-		newnode->next = NULL;	
-		newnode->data = curr->data;
-
-		appendNode(newlist,newnode);
-
-		curr = curr->next;
-	}
-	return newlist;
-}
-
-int length(struct List *list) {
-	struct Node *curr = list->head;	
-	int count = 0;
-	while (curr) {
-		count++;
-		curr = curr->next;
-	}
-	return count;
-}
 /*
 int main() {
 	struct List *front = makeRangeList(1,5);
@@ -411,8 +341,9 @@ int main() {
 
 	int _2 = 2;
 	struct Thunk *two = init_thunk_literal(&_2);
-	struct Thunk *mult = init_thunk(int_mult_eval,2);
-	struct Thunk *mult2 = apply(mult, two);
+	struct Thunk mul[1];
+	init_thunk(mul,mult_eval,2);
+	struct Thunk *mult2 = apply(mul, two);
 
 	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
 	printf("map mult2 cat fronttail endtail: ");
@@ -444,5 +375,4 @@ int main() {
 	printf("\n");
 
 	return 0;
-}
-*/
+}*/

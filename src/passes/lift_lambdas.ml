@@ -87,8 +87,6 @@ let rec transform_comps expr = match expr with
 		let trans_constr = transform_comps constr_e in
 		let (c_vars, wrapped_cls) = check_clauses cl false false [] [] in
 		let wrapped_constr = add_params trans_constr (List.rev c_vars) in
-		(*print_endline ("-----wrapped:----\n" ^ ast_to_str wrapped_constr ^ "\n------");*)
-		let new_name = get_fresh "$anon" in
 		ListComp((wrapped_constr), (List.rev wrapped_cls))
 
 		
@@ -400,7 +398,7 @@ let rec mangle_close e nested tl_seen = match e with
 				then (repl_body man_in StringMap.empty tl_seen)
 				else man_in in
 			Let(Assign(n, w_lambda), man2_in_expr)
-		| other -> Let(Assign(n, other), (mangle_close inexp nested tl_seen)))
+		| other -> Let(Assign(n, mangle_close other nested false), (mangle_close inexp nested tl_seen)))
 	| Lambda(n, e1) -> Lambda(n, mangle_close e1 nested tl_seen)
 	| InfList(e1) -> InfList(mangle_close e1 nested tl_seen)
 	| ListRange(e1, e2) -> ListRange(mangle_close e1 nested tl_seen, mangle_close e2 nested tl_seen)
@@ -409,7 +407,7 @@ let rec mangle_close e nested tl_seen = match e with
 		ListLit(ml)
 	| ListComp(e1, cl) ->
 		let ml = List.rev(List.fold_left (fun lst lc -> (mangle_closec lc nested tl_seen) :: lst ) [] cl) in
-		ListComp(mangle_close e1 nested tl_seen, ml)
+		ListComp(mangle_close e1 nested false, ml)
 	| other -> other
 
 and mangle_closec c nested tl_seen = match c with

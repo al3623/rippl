@@ -4,7 +4,7 @@ let context = L.global_context()
 
 let i32_t      	 = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and float_t    = L.double_type context 
+  and float_t    = L.float_type  context 
   and void_t     = L.void_type   context
   and i1_t       = L.i1_type     context
 
@@ -21,7 +21,8 @@ let i32_t      	 = L.i32_type    context
 let struct_thunk_type : L.lltype = L.named_struct_type context "Thunk" 
 
 let call_func_type : L.lltype = L.function_type (L.pointer_type struct_thunk_type)
-	[| L.pointer_type struct_thunk_type ; L.pointer_type i8_t |]
+	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
+	(* [| L.pointer_type struct_thunk_type ; L.pointer_type i8_t |] *)
 
 let eval_func_type : L.lltype = L.function_type (L.pointer_type i8_t)
 	[|  L.pointer_type struct_thunk_type |] 
@@ -37,7 +38,7 @@ let struct_node_type : L.lltype = L.named_struct_type context "Node"
 	struct Tuple {
 		int t1;
 		int t2;
-		struct Thunk *first;
+		struct Thunk *firs;
 		struct Thunk *second;
 	}; 
 *)

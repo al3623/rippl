@@ -127,6 +127,10 @@ let rec mgu ty1 ty2 =
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
     | Bool, Bool -> nullSubst
+	(* Lol does this work *)
+	| Float, Int -> nullSubst 
+	| Int, Float -> nullSubst
+	(* probably not *)
     | Float, Float -> nullSubst
     | Char, Char -> nullSubst
     | TconList(t), TconList(t') -> mgu t t'
@@ -172,12 +176,14 @@ let rec ti env expr =
 			"list comprehension variable "^v^" is not defined over a list"))) 
 			in (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
 		| [] -> []
+		| _ -> raise (Failure "Unexpected filter")
 	in
 	let rec ti_filters env = function
 		| ((Filter e)::xs) -> 
 			let (s,ix,ty) as ixpr = ti env e in
 			(IFilter ixpr)::(ti_filters (applyenv s env) xs)
 		| [] -> []
+		| _ -> raise (Failure "Unexpected list vbind")
 	in
 	let collect_vbinds_filters mixed_list =
 		let rec collect l tuple =
@@ -230,7 +236,8 @@ let rec ti env expr =
 			| _ -> raise (Failure "improper variable bindings in list comp"))
 		| [] -> (nullSubst,expr_ty)
 	in
-	let type_listcomp env comp = match comp with (ListComp(e,clauses)) ->
+	let type_listcomp env comp = match comp with 
+		(ListComp(e,clauses)) ->
 		let (s,ix,ty) as ixpr = ti env e in
 		let (vbinds,filters) = collect_vbinds_filters clauses in
 		let (ivbinds,ifilters) =(ti_vbinds env vbinds,ti_filters env filters) in
@@ -247,6 +254,7 @@ let rec ti env expr =
 		let ret_ty = apply allsubst ety in 
 		(* should we apply substs to the inferred vbinds and filters? prob ye *)
 		(allsubst,IListComp(allsubst,ixpr,(ivbinds@ifilters)), TconList(ret_ty))
+		| _ -> raise (Failure ("List comp expected"))
 	in
 	(****************************EXPRS******************************) 
 	match expr with
@@ -271,8 +279,7 @@ let rec ti env expr =
 			let merged_ix_list = List.map 
 				(fun (env,e,t) -> (env,e, apply fullSubst t)) ix_list in
 			let (_,_,ty) = List.hd merged_ix_list in
-			(fullSubst, IListLit(merged_ix_list), TconList ty)
-		| [] -> (nullSubst, IListLit [], TconList (newTyVar "a")))
+			(fullSubst, IListLit(merged_ix_list), TconList ty))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
 (*		print_string "RANGE subst1: ";
@@ -305,16 +312,10 @@ let rec ti env expr =
 		(nullSubst, INone, Tmaybe polyty)
 	| Just e -> let (s,ix,t) as ixpr = ti env e in
 		(s, IJust ixpr, Tmaybe t)
-	| Tuple (e1,e2) -> 
-		let (s1,ix1,t1) as ixpr1 = ti env e1 in
-		let (s2,ix2,t2) as ixpr2 = ti (applyenv s1 env) e2 in
-		let fullSubst = composeSubst s1 s2 in
-		(fullSubst, ITuple(ixpr1,ixpr2), 
-			TconTuple(apply fullSubst t1, apply fullSubst t2))
-	| ListComp(_) as comp -> type_listcomp env comp 
+		| ListComp(_) as comp -> type_listcomp env comp 
         | Var n -> let sigma = TyEnvMap.find_opt n env in 
                 (match sigma with
-                | None -> raise(Failure("unbound variable" ^ n))
+                | None -> raise(Failure("unbound variable " ^ n))
                 | Some si -> let t = instantiate si in 
 					(nullSubst, IVar n, t)
                 )
@@ -426,7 +427,7 @@ let rec typeUpdateEnv env = function
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
-                | None -> raise(Failure("unbound variable" ^ name))
+                | None -> raise(Failure("unbound variable " ^ name))
                 | Some si -> instantiate si) in
 		let newSubst = mgu newTy oldTy in
 		let newPair = (a, InferredVdef(name,
@@ -441,7 +442,9 @@ let rec unzip_thruple l =
 
 let type_paired_program annotvdef_list =
 	let vdef_names = List.fold_left 
-		(fun l -> fun ((Annot(n,_)),_) -> n::l) 
+		(fun l -> fun pair -> (
+		match pair with ((Annot(n,_)),_) -> n::l
+		| _ -> raise (Failure "vdef where annot should be in pair")) )
 		[] annotvdef_list in
 	let moduleEnv = List.fold_left 
 		(fun env -> fun name -> 

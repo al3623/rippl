@@ -1,10 +1,9 @@
 #ifndef MAP
 #define MAP
  
-struct List *map(struct List *list, struct Thunk *func);
+struct Thunk *map(struct Thunk *list, struct Thunk *func);
 
-struct List *filter(struct List *list, struct Thunk *filter);
+struct Thunk *filter(struct Thunk *list, struct Thunk *filter);
 
-struct List *map_list(struct List *apps, struct List *vals);
-void *int_mult_eval(struct Thunk *t);
+struct Thunk *map_list(struct Thunk *apps, struct Thunk *vals);
 #endif
