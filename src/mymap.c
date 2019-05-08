@@ -29,8 +29,10 @@ struct List *map_list(struct List *apps, struct List *vals) {
 		struct Thunk *curr_app = curr_app_node->data;
 		struct List *applied = map(vals, curr_app);
 
-		struct Thunk *stupid_thunk_list_wrapper_applied = init_thunk_literal(applied);
-		struct Thunk *stupid_thunk_list_wrapper_new = init_thunk_literal(new);
+		struct Thunk *stupid_thunk_list_wrapper_applied 
+			= init_thunk_literal(applied);
+		struct Thunk *stupid_thunk_list_wrapper_new 
+			= init_thunk_literal(new);
 
 		new = cat(stupid_thunk_list_wrapper_new,stupid_thunk_list_wrapper_applied);
 		curr_app_node = curr_app_node->next;
@@ -73,7 +75,7 @@ struct List *filter(struct List *list, struct Thunk *filter) {
 	return new;
 }
 
-
+/*
 int main() {
 	int _2 = 2;
 	struct Thunk *_2_thunk = init_thunk_literal(&_2);
@@ -117,8 +119,10 @@ int main() {
 
 	struct List *neq0and1 = map(_0and1,neq_init_thunk);
 	struct Thunk *neq0and1_thunk = init_thunk_literal(neq0and1);
+
 	struct List *mult0and1 = map(_0and1,mult_init_thunk);
 	struct Thunk *mult0and1_thunk = init_thunk_literal(mult0and1);
+
 	struct List *mult2and10 = map(_2and10_thunk->value,mult_init_thunk);
 	struct Thunk *mult2and10_thunk = init_thunk_literal(mult2and10);
 
@@ -129,10 +133,9 @@ int main() {
 	printPrimList(unfiltered_thunk->value);
 	printf("\n");
 
+	struct Thunk *mult2 = invoke(apply(head_init_thunk,mult2and10_thunk));
+	struct Thunk *mult10 = invoke(apply(head_init_thunk,apply(tail_init_thunk,mult2and10_thunk)));
 	struct Thunk *neq0 = invoke(apply(head_init_thunk,neq0and1_thunk));
-	// printf("%p\n",neq_eval);
-	// printf("%p\n",neq0->eval);
-
 	struct Thunk *neq1 = invoke(apply(head_init_thunk,apply(tail_init_thunk,neq0and1_thunk)));
 
 	printf("not 0 filter: ");	
@@ -142,19 +145,6 @@ int main() {
 
 	printf("not 1 filter: ");	
 	struct List *not1 = filter(unfiltered,neq1);
-	printPrimList(not1);
-	printf("\n");
-/*
-	// (!=).1
-	struct Thunk *neq1 = head(tail(neq0and1));
-	// (*).2
-	struct Thunk *mult2 = head(mult2and10);
-	// (*).10
-	struct Thunk *mult10 = head(tail(mult2and10));
-
-	// not1 = y over unfiltered, y != 1
-	struct List *not1 = filter(unfiltered, neq1);
-	printf("!= 1 filter: ");
 	printPrimList(not1);
 	printf("\n");
 
@@ -172,6 +162,6 @@ int main() {
 	printf("map * [2,10] original: ");
 	printPrimList(maplist_mult);
 	printf("\n");
-*/
+
 	return 0;
-}
+}*/
