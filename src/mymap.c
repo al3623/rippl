@@ -84,24 +84,19 @@ struct Thunk *filter(struct Thunk *list_thunk, struct Thunk *filter) {
 	}
 	return init_thunk_literal(new);
 }
-
+/*
 int main() {
 	int _2 = 2;
 	struct Thunk *_2_thunk = init_thunk_literal(&_2);
 
-	struct Thunk tail_init_thunk[1];
 	init_thunk(tail_init_thunk,tail_eval,1);
 
-	struct Thunk cons_init_thunk[1];
 	init_thunk(cons_init_thunk,cons_eval,2);
 
-	struct Thunk head_init_thunk[1];
 	init_thunk(head_init_thunk,head_eval,1);
 
-	struct Thunk neq_init_thunk[1];
 	init_thunk(neq_init_thunk,neq_eval,2);
 	
-	struct Thunk mult_init_thunk[1];
 	init_thunk(mult_init_thunk, mult_eval,2);
 
 	struct Thunk *_0and1_thunk = makeRangeList(0,1);
@@ -164,4 +159,4 @@ int main() {
 	printf("\n");
 
 	return 0;
-}
+}*/
