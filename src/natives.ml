@@ -36,6 +36,10 @@ let neq : L.llvalue =
 let neq_eval : L.llvalue =
 	L.declare_function "neq_eval" eval_t the_module
 
+let addf_eval : L.llvalue =
+	L.declare_function "addf_eval" eval_t the_module
 
+let addf : L.llvalue =
+	L.declare_function "addf" arith_t the_module
 
 

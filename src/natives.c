@@ -232,3 +232,26 @@ int *length(struct Thunk *lthunk) {
 	*result = count;
 	return result;
 }
+
+void *addf_eval(struct Thunk *t) {
+	struct Thunk *thunk1 = ((t->args)[0]);
+	struct Thunk *thunk2 = ((t->args)[1]);
+	float *result = addf(thunk1,thunk2);
+	return result;
+}
+
+float *addf(struct Thunk *x_thunk, struct Thunk *y_thunk) {	
+	void *x = x_thunk->value;
+	void *y = y_thunk->value;
+	// CODEGEN SPECIFIC: malloc result based on type
+	
+	float x_ = *(float *)x;
+	float y_ = *(float *)y;
+	float local = x_ + y_;
+
+	float *result = malloc(sizeof(float));
+	
+	*result = local;
+	return result;
+
+}

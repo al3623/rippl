@@ -29,3 +29,6 @@ void *tail_eval(struct Thunk *lthunk);
 
 int *length(struct Thunk *lthunk);
 void *length_eval(struct Thunk *t);
+
+void *addf_eval(struct Thunk *);
+float *addf(struct Thunk *, struct Thunk *);
