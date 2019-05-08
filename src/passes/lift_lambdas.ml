@@ -87,8 +87,6 @@ let rec transform_comps expr = match expr with
 		let trans_constr = transform_comps constr_e in
 		let (c_vars, wrapped_cls) = check_clauses cl false false [] [] in
 		let wrapped_constr = add_params trans_constr (List.rev c_vars) in
-		(*print_endline ("-----wrapped:----\n" ^ ast_to_str wrapped_constr ^ "\n------");*)
-		let new_name = get_fresh "$anon" in
 		ListComp((wrapped_constr), (List.rev wrapped_cls))
 
 		
