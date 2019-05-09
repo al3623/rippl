@@ -74,8 +74,13 @@ let translate (decl_lst: (decl * typed_decl) list) =
 			let args = L.build_load tmp "args" eval_builder in
 			let types = l :: (flatten_arrow_type r) in
 			let num_args = List.length types in
-			let ordered_args = load_deref_args args eval_builder num_args in ()
-			
+			let ordered_args = load_deref_args args eval_builder num_args in 
+			let func = (match (L.lookup_global ("$$"^name) the_module) with
+				| Some f -> f
+				| None -> raise (Failure ("no matching vdef for eval "^name)))in
+			let result = L.build_call func 
+				(Array.of_list ordered_args) "result" eval_builder in
+			ignore(L.build_ret result eval_builder)
 		| _ -> () (* this is not a function decl but a global thingy *)
 	in
 
@@ -302,7 +307,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     in
     (* build eval function body *)
-    let build_evalfn_body (lm_def: tlambda_def) =
+    (* let build_evalfn_body (lm_def: tlambda_def) =
         let (eval_fn, _) = StringMap.find ("$eval_"^ lm_def.tlname) 
                 eval_decls in
         let builder = L.builder_at_end context (L.entry_block eval_fn) in
@@ -316,7 +321,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let fn_builder = builder in
         add_terminal fn_builder (L.build_ret (L.const_pointer_null 
                 (L.pointer_type i8_t)))
-    in
+    in*)
     (* build core fn body *)
     let build_fn_body (lm_def: tlambda_def) = 
         let (fn, _) = StringMap.find (lm_def.tlname) fn_decls in
