@@ -25,6 +25,19 @@ let char_format_str = L.build_global_stringptr "%c" "fmt" builder
 let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder
 let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
 
+let add_init_thunk = L.define_global "add_init_thunk" (L.const_null struct_thunk_type) the_module
+let mult_init_thunk = L.define_global "mult_init_thunk" (L.const_null struct_thunk_type) the_module
+let neq_init_thunk = L.define_global "neq_init_thunk" (L.const_null struct_thunk_type) the_module
+let sub_init_thunk = L.define_global "sub_init_thunk" (L.const_null struct_thunk_type) the_module
+let cons_init_thunk = L.define_global "cons_init_thunk" (L.const_null struct_thunk_type) the_module
+let cat_init_thunk = L.define_global "cat_init_thunk" (L.const_null struct_thunk_type) the_module
+let head_init_thunk = L.define_global "head_init_thunk" (L.const_null struct_thunk_type) the_module
+let tail_init_thunk = L.define_global "tail_init_thunk" (L.const_null struct_thunk_type) the_module
+let length_init_thunk = L.define_global "length_init_thunk" (L.const_null struct_thunk_type) the_module
+let addf_init_thunk = L.define_global "addf_init_thunk" (L.const_null struct_thunk_type) the_module
+
+let _ = L.set_alignment 32 add_init_thunk
+
 let l_char = L.const_int i8_t (Char.code '\n')
 
 (* HEAP ALLOCATE PRIMS *)
@@ -161,4 +174,11 @@ let makeIte_t : L.lltype =
 let makeIte : L.llvalue = 
         L.declare_function "makeIte" makeIte_t the_module
         
+
+let initNativeThunks_t : L.lltype =
+	L.function_type void_t [| |]
+let initNativeThunks : L.llvalue =
+	L.declare_function "initNativeThunks" initNativeThunks_t the_module
+
+let _ = L.build_call initNativeThunks [| |] "" builder
 

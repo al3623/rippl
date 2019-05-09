@@ -19,7 +19,7 @@ int *add(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	return result;
 }
 
-int *add_eval(struct Thunk *t) {
+void *add_eval(struct Thunk *t) {
 	struct Thunk *x_ = ((t->args)[0]);
 	struct Thunk *y_ = ((t->args)[1]);
 
@@ -159,7 +159,7 @@ struct List *cat(struct Thunk *lthunk1, struct Thunk *lthunk2) {
 	return new;
 }
 
-struct List *cat_eval(struct Thunk *t) {
+void *cat_eval(struct Thunk *t) {
 	struct Thunk *lthunk1 = ((t->args)[0]);
 	struct Thunk *lthunk2 = ((t->args)[1]);
 

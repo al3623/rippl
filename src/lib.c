@@ -5,6 +5,17 @@
 #include <string.h>
 #include "natives.h"
 
+struct Thunk add_init_thunk[1];
+struct Thunk mult_init_thunk[1];
+struct Thunk neq_init_thunk[1];
+struct Thunk sub_init_thunk[1];
+struct Thunk cons_init_thunk[1];
+struct Thunk cat_init_thunk[1];
+struct Thunk head_init_thunk[1];
+struct Thunk tail_init_thunk[1];
+struct Thunk length_init_thunk[1];
+struct Thunk addf_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
@@ -296,6 +307,19 @@ struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk,
     } else {
 	return else_thunk;
     }
+}
+
+void initNativeThunks() {
+	init_thunk(add_init_thunk, &add_eval, 2);
+	init_thunk(mult_init_thunk, &mult_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(sub_init_thunk, &sub_eval, 2);
+	init_thunk(cons_init_thunk, &cons_eval, 2);
+	init_thunk(cat_init_thunk, &cat_eval, 2);
+	init_thunk(head_init_thunk, &head_eval, 1);
+	init_thunk(tail_init_thunk, &tail_eval, 1);
+	init_thunk(length_init_thunk, &length_eval, 1);
+	init_thunk(addf_init_thunk, &addf_eval, 2);
 }
 
 /*

@@ -81,6 +81,7 @@ void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
 struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node);
 struct Node *evalNextNodeComp(void *list, int num_vbinds);
+void initNativeThunks();
 
 struct Thunk *makeIte(struct Thunk *cond, struct Thunk *then_thunk, 
 	struct Thunk *else_thunk);
