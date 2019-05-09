@@ -246,6 +246,16 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
             | TAdd -> add_init_thunk
+            | TMult -> mult_init_thunk
+            | TNeq -> neq_init_thunk
+            | TSub -> sub_init_thunk
+            | TCons -> cons_init_thunk
+            | TCat -> cat_init_thunk
+            | THead -> head_init_thunk
+            | TTail -> tail_init_thunk
+            | TLength -> length_init_thunk
+            | TAddF -> addf_init_thunk
+
             
 (*
                 (* get args *)
