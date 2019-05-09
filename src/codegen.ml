@@ -148,8 +148,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 (string_of_int (Array.length fn_args))) in
             
             (* core function: void *f(...)  *)
-            let ftype = L.function_type (L.pointer_type i8_t) fn_args in
-            StringMap.add fname (L.define_function fname ftype the_module,
+            let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
+            StringMap.add fname (L.declare_global ftype ("$$"^fname)the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
