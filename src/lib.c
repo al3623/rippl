@@ -233,17 +233,17 @@ void printInfinteList(void *list) {
 	printf("...]");
 }
 
-void printRangeList(void *list) {
-	struct List *llist = (struct List*) list;
+void printRangeList(struct Thunk *list_thunk) {
+	struct List *llist = invoke(list_thunk);
 	
 	int ty = llist->content_type;
 	struct Node *head = llist->head;	
 
 	if (llist->curr_index == llist->end) {
-		printPrimList(list);
+		printPrimList(list_thunk);
 	} else {
-		explodeRangeList(list);
-		printPrimList(list);
+		explodeRangeList(llist);
+		printPrimList(list_thunk);
 	}
 }
 
@@ -294,6 +294,19 @@ void printPrim(void *data, int ty) {
 
 void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
+}
+
+
+struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk, 
+	struct Thunk *else_thunk){
+	
+    void *val = invoke(cond_thunk);
+    char boolean_val = *(char *)(val);
+    if(boolean_val){
+        return then_thunk;	
+    } else {
+	return else_thunk;
+    }
 }
 
 void initNativeThunks() {

@@ -138,7 +138,7 @@ let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module 
 
 let printRangeList_t : L.lltype =
-	L.function_type void_t [| L.pointer_type struct_list_type |]
+	L.function_type void_t [| L.pointer_type struct_thunk_type |]
 let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
 
@@ -166,6 +166,14 @@ let printBool_t : L.lltype =
 	L.function_type void_t [| i8_t |]
 let printBool : L.llvalue =
 	L.declare_function "printBool" printBool_t the_module
+let makeIte_t : L.lltype = 
+        L.function_type (L.pointer_type struct_thunk_type) 
+        [| L.pointer_type struct_thunk_type ; 
+        L.pointer_type struct_thunk_type ; 
+        L.pointer_type struct_thunk_type |]
+let makeIte : L.llvalue = 
+        L.declare_function "makeIte" makeIte_t the_module
+        
 
 let initNativeThunks_t : L.lltype =
 	L.function_type void_t [| |]

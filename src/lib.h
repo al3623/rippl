@@ -61,7 +61,7 @@ void printList(void *list);
 void printTuple(void *tup);
 void printMaybe(void *may);
 void printPrimList(struct Thunk *list);
-void printRangeList(void *list);
+void printRangeList(struct Thunk *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
@@ -82,5 +82,8 @@ struct List *appendNode(struct List *list, struct Node *node);
 struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node);
 struct Node *evalNextNodeComp(void *list, int num_vbinds);
 void initNativeThunks();
+
+struct Thunk *makeIte(struct Thunk *cond, struct Thunk *then_thunk, 
+	struct Thunk *else_thunk);
 
 #endif

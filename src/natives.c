@@ -250,7 +250,7 @@ float *addf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	float local = x_ + y_;
 
 	float *result = malloc(sizeof(float));
-	
+
 	*result = local;
 	return result;
 
