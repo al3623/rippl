@@ -25,6 +25,7 @@ let char_format_str = L.build_global_stringptr "%c" "fmt" builder
 let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder
 let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
 let add_init_thunk = L.define_global "add_init_thunk" (L.const_null struct_thunk_type) the_module
+let _ = L.set_alignment 32 add_init_thunk
 
 let l_char = L.const_int i8_t (Char.code '\n')
 
