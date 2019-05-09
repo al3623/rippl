@@ -296,6 +296,19 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
+
+struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk, 
+	struct Thunk *else_thunk){
+	
+    void *val = invoke(cond_thunk);
+    char boolean_val = *(char *)(val);
+    if(boolean_val){
+        return then_thunk;	
+    } else {
+	return else_thunk;
+    }
+}
+
 void initNativeThunks() {
 	init_thunk(add_init_thunk, &add_eval, 2);
 	init_thunk(mult_init_thunk, &mult_eval, 2);
