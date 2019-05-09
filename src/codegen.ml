@@ -246,7 +246,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
             | TAdd -> add_init_thunk
-                L.build_call apply [| lv1; lv2 |] "apply" builder 
 
             | TIte(cond, then_ex, else_ex) ->
                 let cond_ = build_expr cond builder scope in
@@ -261,7 +260,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TCat -> cat_init_thunk
             | THead -> head_init_thunk
             | TTail -> tail_init_thunk
-            | TLength -> length_init_thunk
+            | TLen -> length_init_thunk
             | TAddF -> addf_init_thunk
 
             
