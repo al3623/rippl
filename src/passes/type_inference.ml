@@ -127,10 +127,6 @@ let rec mgu ty1 ty2 =
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
     | Bool, Bool -> nullSubst
-	(* Lol does this work *)
-	| Float, Int -> nullSubst 
-	| Int, Float -> nullSubst
-	(* probably not *)
     | Float, Float -> nullSubst
     | Char, Char -> nullSubst
     | TconList(t), TconList(t') -> mgu t t'
