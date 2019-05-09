@@ -138,7 +138,7 @@ let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module 
 
 let printRangeList_t : L.lltype =
-	L.function_type void_t [| L.pointer_type struct_list_type |]
+	L.function_type void_t [| L.pointer_type struct_thunk_type |]
 let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
 

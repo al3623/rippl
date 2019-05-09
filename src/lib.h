@@ -61,7 +61,7 @@ void printList(void *list);
 void printTuple(void *tup);
 void printMaybe(void *may);
 void printPrimList(struct Thunk *list);
-void printRangeList(void *list);
+void printRangeList(struct Thunk *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
 
