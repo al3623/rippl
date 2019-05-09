@@ -161,5 +161,4 @@ let initNativeThunks : L.llvalue =
 	L.declare_function "initNativeThunks" initNativeThunks_t the_module
 
 let _ = L.build_call initNativeThunks [| |] "" builder
-let _ = L.build_call printAnyThunk [| add_init_thunk ; L.const_int i32_t 1 |] "" builder
 
