@@ -154,3 +154,8 @@ let printBool_t : L.lltype =
 let printBool : L.llvalue =
 	L.declare_function "printBool" printBool_t the_module
 
+let initNativeThunks_t : L.lltype =
+	L.function_type void_t [| |]
+let initNativeThunks : L.llvalue =
+	L.declare_function "initNativeThunks" initNativeThunks_t the_module
+

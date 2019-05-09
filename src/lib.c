@@ -285,6 +285,19 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
+void initNativeThunks() {
+	init_thunk(add_init_thunk, &add_eval, 2);
+	init_thunk(mult_init_thunk, &mult_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(sub_init_thunk, &sub_eval, 2);
+	init_thunk(cons_init_thunk, &cons_eval, 2);
+	init_thunk(cat_init_thunk, &cat_eval, 2);
+	init_thunk(head_init_thunk, &head_eval, 1);
+	init_thunk(tail_init_thunk, &tail_eval, 1);
+	init_thunk(length_init_thunk, &length_eval, 1);
+	init_thunk(addf_init_thunk, &addf_eval, 2);
+}
+
 /*
 int main() {
 	struct List *front = makeRangeList(1,5);
