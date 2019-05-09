@@ -254,6 +254,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let else_ = build_expr else_ex builder scope in
                 L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
           
+            | TMult -> mult_init_thunk
+            | TNeq -> neq_init_thunk
+            | TSub -> sub_init_thunk
+            | TCons -> cons_init_thunk
+            | TCat -> cat_init_thunk
+            | THead -> head_init_thunk
+            | TTail -> tail_init_thunk
+            | TLength -> length_init_thunk
+            | TAddF -> addf_init_thunk
+
+            
 (*
                 (* get args *)
                 let rec get_args t = match t with 
