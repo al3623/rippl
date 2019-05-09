@@ -24,6 +24,7 @@ let builder = L.builder_at_end context (L.entry_block main_f)
 let char_format_str = L.build_global_stringptr "%c" "fmt" builder
 let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder
 let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
+let global_thunk = L.define_global "add_init_thunk" (L.const_null struct_thunk_type) the_module
 
 let l_char = L.const_int i8_t (Char.code '\n')
 
@@ -158,4 +159,7 @@ let initNativeThunks_t : L.lltype =
 	L.function_type void_t [| |]
 let initNativeThunks : L.llvalue =
 	L.declare_function "initNativeThunks" initNativeThunks_t the_module
+
+let _ = L.build_call initNativeThunks [| |] "" builder
+let _ = L.build_call printAnyThunk [| global_thunk ; L.const_int i32_t 1 |] "" builder
 

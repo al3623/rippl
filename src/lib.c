@@ -5,6 +5,8 @@
 #include <string.h>
 #include "natives.h"
 
+struct Thunk add_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
@@ -286,8 +288,10 @@ void printBool(char b) {
 }
 
 void initNativeThunks() {
+	printf("%p\n", add_init_thunk->eval);
 	init_thunk(add_init_thunk, &add_eval, 2);
-	init_thunk(mult_init_thunk, &mult_eval, 2);
+	printf("%p\n", add_init_thunk->eval);
+	/*init_thunk(mult_init_thunk, &mult_eval, 2);
 	init_thunk(neq_init_thunk, &neq_eval, 2);
 	init_thunk(sub_init_thunk, &sub_eval, 2);
 	init_thunk(cons_init_thunk, &cons_eval, 2);
@@ -295,7 +299,7 @@ void initNativeThunks() {
 	init_thunk(head_init_thunk, &head_eval, 1);
 	init_thunk(tail_init_thunk, &tail_eval, 1);
 	init_thunk(length_init_thunk, &length_eval, 1);
-	init_thunk(addf_init_thunk, &addf_eval, 2);
+	init_thunk(addf_init_thunk, &addf_eval, 2);*/
 }
 
 /*

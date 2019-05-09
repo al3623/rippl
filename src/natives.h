@@ -4,7 +4,7 @@
 
 int *add(struct Thunk *x_thunk, struct Thunk *y_thunk);
 void *add_eval(struct Thunk *t);
-struct Thunk add_init_thunk[1];
+extern struct Thunk add_init_thunk[1];
 
 int *mult(struct Thunk *x_thunk, struct Thunk *y_thunk);
 void *mult_eval(struct Thunk *t);
