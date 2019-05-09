@@ -239,14 +239,21 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TLet (ta, t) -> (match ta with
                                   TAssign (s, te) -> let v1 = build_expr te builder scope in
                                         let new_scope = StringMap.add s v1 scope in
-                                        build_expr t builder new_scope
+                                        build_expr t builder new_scope 
             )
             (* Application *)
             | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
             | TAdd -> add_init_thunk
-            
+                L.build_call apply [| lv1; lv2 |] "apply" builder 
+
+            | TIte(cond, then_ex, else_ex) ->
+                let cond_ = build_expr cond builder scope in
+                let then_ = build_expr then_ex builder scope in
+                let else_ = build_expr else_ex builder scope in
+                L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
+          
 (*
                 (* get args *)
                 let rec get_args t = match t with 
@@ -427,7 +434,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 if name = "main" then ignore (print_expr v (snd texp)) else ()
     in
     let _ = List.iter build_decl decl_lst in
-    ignore (L.build_ret (L.const_int i32_t 0) builder);
+        ignore (L.build_ret (L.const_int i32_t 0) builder);
     the_module
 
 
