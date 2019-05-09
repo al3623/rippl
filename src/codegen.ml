@@ -245,6 +245,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
+            | TAdd -> add_init_thunk
             
 (*
                 (* get args *)

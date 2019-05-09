@@ -288,9 +288,7 @@ void printBool(char b) {
 }
 
 void initNativeThunks() {
-	printf("%p\n", add_init_thunk->eval);
 	init_thunk(add_init_thunk, &add_eval, 2);
-	printf("%p\n", add_init_thunk->eval);
 	/*init_thunk(mult_init_thunk, &mult_eval, 2);
 	init_thunk(neq_init_thunk, &neq_eval, 2);
 	init_thunk(sub_init_thunk, &sub_eval, 2);
