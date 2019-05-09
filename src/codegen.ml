@@ -139,31 +139,29 @@ let translate (decl_lst: (decl * typed_decl) list) =
     in
 
     (* build thunk for each function and put into map *)
-    (*
-    let thunks: L.llvalue StringMap.t =
-        let build_thunk m (lmd: tlambda_def) =
-            (* get number of args of function *)
-            let rec argnum texp = match texp with
-                  (TLambda(_,t),_) -> 1 + (argnum t)
-                | _ -> 0
-            in
-            let argc = 1 + (argnum lmd.trexp) in
-            let eval_name = "$eval_" ^ lmd.tlname in
-            let eval_fn = fst (StringMap.find eval_name eval_decls) in
-            let num_args = L.const_int i32_t argc in
-            let thunk_name = "$$" ^ lmd.tlname ^ "_thunk" in
-
-            let thunk_lval = L.build_call initThunk [| eval_fn; num_args |] 
-                thunk_name builder in
-            
-            (* TEST *)
-            let _ = print_endline (lmd.tlname ^ " thunk: " ^ (string_of_int 
-                argc) ^ " args") in
-
-            StringMap.add thunk_name thunk_lval m
+    
+    let build_thunk (lmd: tlambda_def) =
+        (* get number of args of function *)
+        let rec argnum texp = match texp with
+              (TLambda(_,t),_) -> 1 + (argnum t)
+            | _ -> 0
         in
-        List.fold_left build_thunk StringMap.empty lm_defs
-    *)
+        let argc = 1 + (argnum lmd.trexp) in
+        let eval_name = "$eval_" ^ lmd.tlname in
+        let eval_fn = fst (StringMap.find eval_name eval_decls) in
+        let num_args = L.const_int i32_t argc in
+        let thunk_name = "$$" ^ lmd.tlname in
+
+        let f_init_thunk = L.define_global (thunk_name ^ "_init_thunk") 
+            (L.const_null struct_thunk_type) the_module in
+
+        let _ = L.build_call initThunk [| f_init_thunk ; eval_fn; num_args |] 
+            "initThunk" builder in
+        ()
+        
+    in
+
+    List.iter build_thunk lm_defs;
     
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
         (* convert tx to llvm pointer *)
@@ -253,8 +251,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TCat -> cat_init_thunk
             | THead -> head_init_thunk
             | TTail -> tail_init_thunk
-            | TLength -> length_init_thunk
+            | TLen -> length_init_thunk
             | TAddF -> addf_init_thunk
+            | TLambda(_, _) -> raise(Failure "lambda")
 
             
 (*
