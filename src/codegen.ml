@@ -41,6 +41,44 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | _ -> raise (Failure "Not Tarrow")
     in
 
+	let rec flatten_arrow_type = function
+		| Tarrow(l,r) -> l :: (flatten_arrow_type r)
+		| r -> [r]
+	in
+
+	let load_deref_args args eval_builder n =
+		let rec helper index = 
+			if index = n 
+			then [] 
+			else ((
+				let tmp = L.build_gep struct_thunk 
+				[| args; L.const_int i32_t n; L.const_int i32_t 0 |] 
+				"tmp" eval_builder in
+				let arg_n = L.build_load tmp "arg" eval_builder in
+				arg_n
+			) :: (helper (index + 1)))
+		in helper 0
+	in
+
+	let build_eval_func_body = function
+		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
+			let eval_decl = (match (L.lookup_global ("$eval_"^name) the_module) with
+				| Some decl -> decl
+				| None -> raise (Failure ("No eval function for decl "^name))) in
+			let eval_builder = 
+				L.builder_at_end context (L.entry_block eval_decl) in
+			let t = L.param eval_decl 1 in (* TODO: should be 0????? *)
+			let tmp = L.build_gep struct_thunk 
+				[| t; L.const_int i32_t 0; L.const_int i32_t 6 |] 
+				"tmp" eval_builder in
+			let args = L.build_load tmp "args" eval_builder in
+			let types = l :: (flatten_arrow_type r) in
+			let num_args = List.length types in
+			let ordered_args = load_deref_args args eval_builder num_args in ()
+			
+		| _ -> () (* this is not a function decl but a global thingy *)
+	in
+
     (* convert Tlambda -> Tlambda_def *)
     let tldef_convert (tlambda: typed_expr) (name: string) = 
         match tlambda with
