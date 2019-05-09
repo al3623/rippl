@@ -67,9 +67,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				| None -> raise (Failure ("No eval function for decl "^name))) in
 			let eval_builder = 
 				L.builder_at_end context (L.entry_block eval_decl) in
-			let t = L.param eval_decl 1 in (* TODO: should be 0????? *)
-			let tmp = L.build_gep struct_thunk 
-				[| t; L.const_int i32_t 0; L.const_int i32_t 6 |] 
+			(print_endline (L.string_of_llvalue eval_decl));
+			let ts = L.params eval_decl  in
+			(*let ttype = L.type_of t in()*)
+			(print_endline (string_of_int (Array.length ts)));
+		(*	let tmp = L.build_gep struct_thunk 
+				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
 				"tmp" eval_builder in
 			let args = L.build_load tmp "args" eval_builder in
 			let types = l :: (flatten_arrow_type r) in
@@ -80,7 +83,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				| None -> raise (Failure ("no matching vdef for eval "^name)))in
 			let result = L.build_call func 
 				(Array.of_list ordered_args) "result" eval_builder in
-			ignore(L.build_ret result eval_builder)
+			ignore(L.build_ret result eval_builder) *) ()
 		| _ -> () (* this is not a function decl but a global thingy *)
 	in
 
@@ -113,7 +116,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | Char -> L.pointer_type i8_t
         | Float -> L.pointer_type float_t
         
-        | _ -> raise(Failure "ltyp_of_typ")
+        | _ -> L.pointer_type i8_t (* FIX LATER *)
     
     in
 
@@ -135,8 +138,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let gen_decls m (lm_def: tlambda_def) = 
             (*(* eval function: void *f(struct Thunk*) *)
             let eval_name = "$eval_" ^ lm_def.tlname in
-            StringMap.add eval_name (L.define_function eval_name 
-                eval_func_type the_module, lm_def) m
+            StringMap.add eval_name (L.declare_global eval_func_type eval_name 
+                 the_module, lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
 
@@ -178,7 +181,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     StringMap.add name lval m
         in
         List.fold_left declare_thunk StringMap.empty lm_defs 
-
     in
 
     (* build thunk for each function and put into map *)
@@ -200,7 +202,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
         let _ = L.build_call initThunk [| f_init_thunk ; eval_fn; num_args |] 
             "initThunk" builder in
-        ()
+        print_endline "BUILD_THUNK"
         
     in
 
@@ -479,11 +481,14 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
-            | (_, TypedVdef(name,texp)) -> 
+            | (_, TypedVdef("main",texp)) -> 
                 (* build expr *)
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                if name = "main" then ignore (print_expr v (snd texp)) else ()
+                ignore (print_expr v (snd texp)) 
+			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
+				build_eval_func_body tup; ()
+				(* build_func_body *)
     in
     let _ = List.iter build_decl decl_lst in
         ignore (L.build_ret (L.const_int i32_t 0) builder);
