@@ -1,4 +1,5 @@
 module L = Llvm
+open Pretty_type_print
 open Ast
 open Tast
 open Lib
@@ -363,7 +364,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
             | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
             | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
-            | _ -> raise(Failure "ahhhhh")
+            | ty -> raise(Failure("Main is of unprintable type"^(ty_to_str ty)))
         ) in
         L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder
 
