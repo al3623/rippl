@@ -338,7 +338,7 @@ let rec wrap_lambda lam cl cl_to_mang = match cl with
 		Lambda(var, (wrap_lambda lam tl cl_to_mang))
 	| [] -> lam 
 
-let rec repl_body body cl_to_mang nested = match body with
+let rec repl_body body cl_to_mang tl_seen = match body with
 	| Var(s1) -> (match Hashtbl.find_opt lamb_to_cl s1 with
 		| Some(lc) -> (* oh god oh FUCK it's a lambda call.. let's close it rq *)
 			let closure_vars = StringSet.elements (snd lc) in
@@ -357,25 +357,25 @@ let rec repl_body body cl_to_mang nested = match body with
 			match StringMap.find_opt s1 cl_to_mang with
 			| Some(mp) -> Var(mp) (* ok epic, it's a closure variable.. let's use the mangled parameter name *)
 			| _ -> Var(s1))) (* not from closure, just use the same name*)
-	| App(e1, e2) -> App(repl_body e1 cl_to_mang nested, repl_body e2 cl_to_mang nested)
+	| App(e1, e2) -> App(repl_body e1 cl_to_mang tl_seen, repl_body e2 cl_to_mang tl_seen)
 	| Let(Assign(n, e1), e2) -> (match e1 with 
-		| Lambda(_, _) -> Let(Assign(n, e1), (if not nested then (repl_body e2 cl_to_mang nested) else e2))
-		| _ -> Let(Assign(n, repl_body e1 cl_to_mang nested), repl_body e2 cl_to_mang nested))
-	| Ite(e1, e2, e3) -> Ite(repl_body e1 cl_to_mang nested, repl_body e2 cl_to_mang nested, repl_body e3 cl_to_mang nested)
-	| Lambda(n, e1) -> Lambda(n, repl_body e1 cl_to_mang nested)
-	| InfList(e1) -> InfList(repl_body e1 cl_to_mang nested)
-	| ListRange(e1, e2) -> ListRange(repl_body e1 cl_to_mang nested, repl_body e2 cl_to_mang nested)
+		| Lambda(_, _) -> Let(Assign(n, e1), (if not tl_seen then (repl_body e2 cl_to_mang tl_seen) else e2))
+		| _ -> Let(Assign(n, repl_body e1 cl_to_mang tl_seen), repl_body e2 cl_to_mang tl_seen))
+	| Ite(e1, e2, e3) -> Ite(repl_body e1 cl_to_mang tl_seen, repl_body e2 cl_to_mang tl_seen, repl_body e3 cl_to_mang tl_seen)
+	| Lambda(n, e1) -> Lambda(n, repl_body e1 cl_to_mang tl_seen)
+	| InfList(e1) -> InfList(repl_body e1 cl_to_mang tl_seen)
+	| ListRange(e1, e2) -> ListRange(repl_body e1 cl_to_mang tl_seen, repl_body e2 cl_to_mang tl_seen)
 	| ListLit(el) ->
-		let rl = List.rev(List.fold_left (fun lst le -> (repl_body le cl_to_mang nested) :: lst) [] el) in
+		let rl = List.rev(List.fold_left (fun lst le -> (repl_body le cl_to_mang tl_seen) :: lst) [] el) in
 		ListLit(rl)
 	| ListComp(e1, cl) ->
-		let rcl = List.rev(List.fold_left (fun lst lc -> (repl_bodyc lc cl_to_mang nested) :: lst) [] cl) in
-		ListComp(repl_body e1 cl_to_mang nested, rcl)
+		let rcl = List.rev(List.fold_left (fun lst lc -> (repl_bodyc lc cl_to_mang tl_seen) :: lst) [] cl) in
+		ListComp(repl_body e1 cl_to_mang tl_seen, rcl)
 	| other -> other 
 
-and repl_bodyc body cl_to_mang nested = match body with
-	| ListVBind(s, e1) -> ListVBind(s, repl_body e1 cl_to_mang nested)
-	| Filter(e1) -> Filter(repl_body e1 cl_to_mang nested)
+and repl_bodyc body cl_to_mang tl_seen = match body with
+	| ListVBind(s, e1) -> ListVBind(s, repl_body e1 cl_to_mang tl_seen)
+	| Filter(e1) -> Filter(repl_body e1 cl_to_mang tl_seen)
 
 let rec mangle_close e nested tl_seen = match e with
 	| Var(s1) -> Var(s1)
