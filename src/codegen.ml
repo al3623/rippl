@@ -74,9 +74,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 "^name))) in
 			let eval_builder = 
 				L.builder_at_end context (L.entry_block eval_decl) in
-			(print_endline ((L.string_of_llvalue eval_decl)));
 			let ts = L.params eval_decl  in
-			(print_endline (string_of_int (Array.length ts))	);
 		(*	let tmp = L.build_gep struct_thunk 
 				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
 				"tmp" eval_builder in
@@ -93,19 +91,35 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| _ -> () (* this is not a function decl but a global thingy *)
 	in
 
+	let stack_alloc builder var argll =
+		let _ = print_endline "YUUPfuck" in
+		let stack_ref = L.build_alloca 
+			(L.pointer_type struct_thunk_type) var builder in
+		(*let _ = L.build_store argll stack_ref builder in stack_ref*) ()
+	in
+
 	(* GIVE THIS fn_decls *)
 	let build_func_body func_decls = function
-		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> 
+		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
 			let fn_decl = (match(StringMap.find_opt ("$$"^name) func_decls) with
 				| Some (decl,_) -> decl
-				| None -> raise (Failure ("No function for decl"^name))) in
+				| None -> raise (Failure ("No function for decl $$"^name))) in
 			let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
 			let vars = lambda_var_list (txpr,Tarrow(l,r)) in
 			let argsll = L.params fn_decl in
 			let argslll = Array.to_list argsll in
+			let _ = print_endline
+				("what " ^ (string_of_int (List.length argslll))) in
 			let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
 				StringMap.add var ll map) StringMap.empty vars argslll in
-
+			let _ = print_endline
+				("the " ^ (string_of_int (StringMap.cardinal var_to_argsll_map))) in
+			let var_to_local_map =
+				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map
+			in
+			let _ = print_endline
+				("fuck " ^ (string_of_int (StringMap.cardinal
+var_to_local_map))) in
 			(* build_expr txpr fn_builder var_to_argsll_map *) 
 			()
 		| _ -> ()
@@ -162,7 +176,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let gen_decls m (lm_def: tlambda_def) = 
             (*(* eval function: void *f(struct Thunk*) *)
             let eval_name = "$eval_" ^ lm_def.tlname in
-            StringMap.add eval_name (L.declare_function eval_name eval_func_type 
+            StringMap.add eval_name (L.define_function eval_name eval_func_type 
                  the_module, lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -181,7 +195,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             
             (* core function: void *f(...)  *)
             let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
-            StringMap.add fname (L.declare_function ("$$"^fname) ftype the_module,
+            StringMap.add ("$$"^fname) (L.define_function ("$$"^fname) ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -394,31 +408,15 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     in
 
-(*    
-    (* build non-function Vdefs *)
-    let build_tdecl (tdecl: (decl * typed_decl)) builder =
-        match tdecl with
-            (_,TypedVdef(n,tex)) -> build_expr tex builder
-    in 
-    
-    (* build function bodies *)
-    let _ = List.iter build_evalfn_body lm_defs in
-    let _ = List.iter build_fn_body lm_defs in
-    
-    (* build non-function Vdefs *)
-    let _ = List.iter build_tdecl var_lst in
-
-*)
-
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
-            | (_, TypedVdef("main",texp)) -> 
+            | (_, TypedVdef("main",texp)) -> (*
                 (* build expr *)
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                ignore (print_expr v (snd texp)) 
+                ignore (print_expr v (snd texp)) *) ()
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
-				build_eval_func_body eval_decls tup; ()
+				build_func_body fn_decls tup; ()
 				(* build_func_body *)
     in
     let _ = List.iter build_decl decl_lst in
