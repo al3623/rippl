@@ -5,7 +5,6 @@ open Lib
 open Structs
 open Thunk
 open Mymap
-open Natives
 
 module StringMap = Map.Make(String)
 
@@ -288,24 +287,45 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
-            | TAdd -> add_init_thunk
 
             | TIte(cond, then_ex, else_ex) ->
                 let cond_ = build_expr cond builder scope in
                 let then_ = build_expr then_ex builder scope in
                 let else_ = build_expr else_ex builder scope in
                 L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
-          
+
+            | TAdd -> add_init_thunk
+            | TSub -> sub_init_thunk       
             | TMult -> mult_init_thunk
+            | TDiv -> divi_init_thunk
+            | TMod -> mod_init_thunk
+            | TPow -> powe_init_thunk
+            | TEq -> eq_init_thunk
             | TNeq -> neq_init_thunk
-            | TSub -> sub_init_thunk
+            | TGeq -> geq_init_thunk
+            | TLeq -> leq_init_thunk
+            | TLess -> less_init_thunk
+            | TGreater -> greater_init_thunk
+            | TNeg -> neg_init_thunk
+            | TAddF -> addf_init_thunk
+            | TSubF -> subf_init_thunk
+            | TMultF -> multf_init_thunk
+            | TDivF -> divf_init_thunk
+            | TPowF -> powef_init_thunk
+            | TEqF -> eqf_init_thunk
+            | TNeqF -> neqf_init_thunk
+            | TGeqF -> geqf_init_thunk
+            | TLeqF -> leqf_init_thunk
+            | TLessF -> lessf_init_thunk
+            | TGreaterF -> greaterf_init_thunk
             | TCons -> cons_init_thunk
             | TCat -> cat_init_thunk
+            | TLen -> length_init_thunk
             | THead -> head_init_thunk
             | TTail -> tail_init_thunk
-            | TLen -> length_init_thunk
-            | TAddF -> addf_init_thunk
-            | TLambda(_, _) -> raise(Failure "lambda")
+            | TFirst -> first_init_thunk
+            | TSec -> second_init_thunk
+            | TLambda(_, _) -> raise(Failure "unexpected lambda")
 
     in
     (* build eval function body *)

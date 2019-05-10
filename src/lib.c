@@ -6,15 +6,42 @@
 #include "natives.h"
 
 struct Thunk add_init_thunk[1];
-struct Thunk mult_init_thunk[1];
-struct Thunk neq_init_thunk[1];
 struct Thunk sub_init_thunk[1];
+struct Thunk mult_init_thunk[1];
+struct Thunk divi_init_thunk[1];
+struct Thunk mod_init_thunk[1];
+struct Thunk powe_init_thunk[1];
+struct Thunk eq_init_thunk[1];
+struct Thunk neq_init_thunk[1];
+struct Thunk geq_init_thunk[1];
+struct Thunk leq_init_thunk[1];
+struct Thunk less_init_thunk[1];
+struct Thunk neg_init_thunk[1];
+
+struct Thunk addf_init_thunk[1];
+struct Thunk subf_init_thunk[1];
+struct Thunk multf_init_thunk[1];
+struct Thunk divf_init_thunk[1];
+struct Thunk powef_init_thunk[1];
+struct Thunk eqf_init_thunk[1];
+struct Thunk neqf_init_thunk[1];
+struct Thunk geqf_init_thunk[1];
+struct Thunk leqf_init_thunk[1];
+struct Thunk lessf_init_thunk[1];
+struct Thunk greaterf_init_thunk[1];
+
+struct Thunk andb_init_thunk[1];
+struct Thunk orb_init_thunk[1];
+struct Thunk notb_init_thunk[1];
+
 struct Thunk cons_init_thunk[1];
 struct Thunk cat_init_thunk[1];
+struct Thunk length_init_thunk[1];
 struct Thunk head_init_thunk[1];
 struct Thunk tail_init_thunk[1];
-struct Thunk length_init_thunk[1];
-struct Thunk addf_init_thunk[1];
+
+struct Thunk first_init_thunk[1];
+struct Thunk second_init_thunk[1];
 
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
@@ -310,106 +337,56 @@ struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk,
 }
 
 void initNativeThunks() {
+	// Integer operations
 	init_thunk(add_init_thunk, &add_eval, 2);
-	init_thunk(mult_init_thunk, &mult_eval, 2);
-	init_thunk(neq_init_thunk, &neq_eval, 2);
 	init_thunk(sub_init_thunk, &sub_eval, 2);
+	init_thunk(mult_init_thunk, &mult_eval, 2);
+	init_thunk(divi_init_thunk, &divi_eval, 2);
+	init_thunk(mod_init_thunk, &mod_eval, 2);
+	init_thunk(powe_init_thunk, &powe_eval, 2);
+	init_thunk(eq_init_thunk, &eq_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(geq_init_thunk, &geq_eval, 2);
+	init_thunk(leq_init_thunk, &leq_eval, 2);
+	init_thunk(powe_init_thunk, &powe_eval, 2);
+	init_thunk(eq_init_thunk, &eq_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(geq_init_thunk, &geq_eval, 2);
+	init_thunk(less_init_thunk, &less_eval, 2);
+	init_thunk(greater_init_thunk, &greater_eval, 2);
+	init_thunk(neg_init_thunk, &neg_eval, 1);
+
+	// Float operations
+	init_thunk(addf_init_thunk, &addf_eval, 2);
+	init_thunk(subf_init_thunk, &subf_eval, 2);
+	init_thunk(multf_init_thunk, &multf_eval, 2);
+	init_thunk(divf_init_thunk, &divf_eval, 2);
+	init_thunk(powef_init_thunk, &powef_eval, 2);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2);
+	init_thunk(leqf_init_thunk, &leqf_eval, 2);
+	init_thunk(powef_init_thunk, &powef_eval, 2);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2);
+	init_thunk(lessf_init_thunk, &lessf_eval, 2);
+	init_thunk(greaterf_init_thunk, &greaterf_eval, 2);
+
+	// Boolean operations
+	init_thunk(andb_init_thunk, &andb_eval, 2);
+	init_thunk(orb_init_thunk, &orb_eval, 2);
+	init_thunk(notb_init_thunk, &notb_eval, 1);
+
+	// List operations
 	init_thunk(cons_init_thunk, &cons_eval, 2);
 	init_thunk(cat_init_thunk, &cat_eval, 2);
+	init_thunk(length_init_thunk, &length_eval, 1);
 	init_thunk(head_init_thunk, &head_eval, 1);
 	init_thunk(tail_init_thunk, &tail_eval, 1);
-	init_thunk(length_init_thunk, &length_eval, 1);
-	init_thunk(addf_init_thunk, &addf_eval, 2);
+
+	// Tuple operations
+	init_thunk(first_init_thunk, &first_eval, 1);
+	init_thunk(second_init_thunk, &second_eval, 1);
+
 }
-
-/*
-int main() {
-	struct List *front = makeRangeList(1,5);
-	explodeRangeList(front);
-	printf("front:\t");
-	printPrimList(front);
-	printf("\n");
-
-	struct List *end = makeRangeList(6,10);
-	explodeRangeList(end);
-	printf("end:\t");
-	printPrimList(end);
-	printf("\n");
-
-	printf("front length: %d\n", length(front));
-	printf("end length: %d\n", length(end));
-
-	printf("front head: %d\n", *(int *)head(front));
-	printf("end head: %d\n", *(int *)head(end));
-
-	struct List *front_tail = tail(front);
-	struct List *end_tail = tail(end);
-	
-	printf("front_tail: ");
-	printPrimList(front_tail);
-	printf("\n");
-
-	printf("end_tail: ");
-	printPrimList(end_tail);
-	printf("\n");
-
-	int _100 = 100;
-
-	struct List *front_cons100 = cons(&_100, front);
-	struct List *end_cons100 = cons(&_100, end);
-
-	printf("front cons 100: ");
-	printPrimList(front_cons100);
-	printf("\n");
-
-	printf("end cons 100: ");
-	printPrimList(end_cons100);
-	printf("\n");
-
-	struct List *cat_front_end = cat(front, end);
-	printf("cat front end: ");
-	printPrimList(cat_front_end);
-	printf("\n");
-
-	struct List *cat_fronttail_endtail = cat(front_tail, end_tail);
-	printf("cat front_tail end_tail: ");
-	printPrimList(cat_fronttail_endtail);
-	printf("\n");
-
-	int _2 = 2;
-	struct Thunk *two = init_thunk_literal(&_2);
-	struct Thunk mul[1];
-	init_thunk(mul,mult_eval,2);
-	struct Thunk *mult2 = apply(mul, two);
-
-	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
-	printf("map mult2 cat fronttail endtail: ");
-	printPrimList(mult2_cat_fronttail_endtail);
-	printf("\n");
-	
-	printf("front:\t");
-	printPrimList(front);
-	printf("\n");
-
-	printf("end:\t");
-	printPrimList(end);
-	printf("\n");
-
-	printf("front_tail: ");
-	printPrimList(front_tail);
-	printf("\n");
-
-	printf("end_tail: ");
-	printPrimList(end_tail);
-	printf("\n");
-
-	printf("cat front end: ");
-	printPrimList(cat_front_end);
-	printf("\n");
-
-	printf("cat front_tail end_tail: ");
-	printPrimList(cat_fronttail_endtail);
-	printf("\n");
-
-	return 0;
-}*/
