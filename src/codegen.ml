@@ -47,6 +47,11 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| r -> [r]
 	in
 
+	let rec lambda_var_list = function
+		| (TLambda(v,ex),_) -> v::(lambda_var_list ex)
+		| _ -> []
+	in
+
 	let load_deref_args args eval_builder n =
 		let rec helper index = 
 			if index = n 
@@ -86,6 +91,24 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				(Array.of_list ordered_args) "result" eval_builder in
 			ignore(L.build_ret result eval_builder) *) ()
 		| _ -> () (* this is not a function decl but a global thingy *)
+	in
+
+	(* GIVE THIS fn_decls *)
+	let build_func_body func_decls = function
+		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> 
+			let fn_decl = (match(StringMap.find_opt ("$$"^name) func_decls) with
+				| Some (decl,_) -> decl
+				| None -> raise (Failure ("No function for decl"^name))) in
+			let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
+			let vars = lambda_var_list (txpr,Tarrow(l,r)) in
+			let argsll = L.params fn_decl in
+			let argslll = Array.to_list argsll in
+			let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
+				StringMap.add var ll map) StringMap.empty vars argslll in
+
+			(* build_expr txpr fn_builder var_to_argsll_map *) 
+			()
+		| _ -> ()
 	in
 
     (* convert Tlambda -> Tlambda_def *)
@@ -158,7 +181,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             
             (* core function: void *f(...)  *)
             let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
-            StringMap.add fname (L.declare_global ftype ("$$"^fname) the_module,
+            StringMap.add fname (L.declare_function ("$$"^fname) ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
