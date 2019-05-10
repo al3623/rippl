@@ -547,7 +547,7 @@ void *greaterf_eval(struct Thunk *t) {
 	return result;
 }
 
-/*float *negf(struct Thunk *x_thunk) {
+float *negf(struct Thunk *x_thunk) {
 	void *data1 = x_thunk->value;	
 
 	float x_ = *(float *)data1;
@@ -564,9 +564,7 @@ void *negf_eval(struct Thunk *t) {
 	void *result = negf(x);
 	
 	return result;
-}*/
-
-
+}
 
 // Boolean operations
 int *andb(struct Thunk *x_thunk, struct Thunk *y_thunk) {

@@ -370,6 +370,7 @@ let rec ti env expr =
         | DivF -> (nullSubst, IDivF, Tarrow(Float,Tarrow(Float,Float)))
         | PowF -> (nullSubst, IPowF, Tarrow(Float,Tarrow(Float,Float)))
         | Neg -> (nullSubst, INeg, Tarrow(Int, Int))
+        | NegF -> (nullSubst, INegF, Tarrow(Float, Float))
         | Eq -> (nullSubst, IEq, Tarrow(Int,Tarrow(Int,Bool)))
         | EqF -> (nullSubst, IEqF, Tarrow(Float,Tarrow(Float,Bool)))
         | Neq -> (nullSubst, INeq, Tarrow(Int,Tarrow(Int,Bool)))

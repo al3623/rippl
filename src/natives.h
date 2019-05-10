@@ -102,6 +102,9 @@ int *greaterf(struct Thunk *x_thunk, struct Thunk *y_thunk);
 void *greaterf_eval(struct Thunk *t);
 extern struct Thunk greaterf_init_thunk[1];
 
+float *negf(struct Thunk *x_thunk);
+void *negf_eval(struct Thunk *t);
+extern struct Thunk negf_init_thunk[1];
 
 // Boolean operations
 int *andb(struct Thunk *x_thunk, struct Thunk *y_thunk);

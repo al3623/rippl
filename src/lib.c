@@ -29,6 +29,7 @@ struct Thunk geqf_init_thunk[1];
 struct Thunk leqf_init_thunk[1];
 struct Thunk lessf_init_thunk[1];
 struct Thunk greaterf_init_thunk[1];
+struct Thunk negf_init_thunk[1];
 
 struct Thunk andb_init_thunk[1];
 struct Thunk orb_init_thunk[1];
@@ -372,6 +373,7 @@ void initNativeThunks() {
 	init_thunk(geqf_init_thunk, &geqf_eval, 2);
 	init_thunk(lessf_init_thunk, &lessf_eval, 2);
 	init_thunk(greaterf_init_thunk, &greaterf_eval, 2);
+	init_thunk(negf_init_thunk, &negf_eval, 1);
 
 	// Boolean operations
 	init_thunk(andb_init_thunk, &andb_eval, 2);

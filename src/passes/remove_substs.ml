@@ -13,7 +13,7 @@ let rec remove_subst_expr = function
 	| (_,IDiv,t) -> (TDiv,t) | (_,IMod,t) -> (TMod,t) | (_,IPow,t) -> (TPow,t) 
 	| (_,IAddF,t) -> (TAddF,t) | (_,ISubF,t) -> (TSubF,t) 
 	| (_,IMultF,t) -> (TMultF,t) | (_,IDivF,t) -> (TDivF,t) 
-	| (_,IPowF,t) -> (TPowF,t)
+	| (_,IPowF,t) -> (TPowF,t) | (_,INegF,t) -> (TNegF,t) 
 	| (_,INeg,t) -> (TNeg,t) | (_,IEq,t) -> (TEq,t) | (_,IEqF,t) -> (TEqF,t) 
 	| (_,INeq,t) -> (TNeq,t) | (_,INeqF,t) -> (TNeqF,t)
 	| (_,IGeq,t) -> (TGeq,t) | (_,IGeqF,t) -> (TGeqF,t) 

@@ -5,6 +5,7 @@ open Tast
 open Lib
 open Structs
 open Thunk
+open Natives
 open Mymap
 
 module StringMap = Map.Make(String)
@@ -356,6 +357,7 @@ var_to_local_map))) in
             | TLeqF -> leqf_init_thunk
             | TLessF -> lessf_init_thunk
             | TGreaterF -> greaterf_init_thunk
+            | TNegF -> negf_init_thunk
             | TCons -> cons_init_thunk
             | TCat -> cat_init_thunk
             | TLen -> length_init_thunk

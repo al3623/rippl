@@ -52,7 +52,7 @@ let geqf_init_thunk = L.define_global "geqf_init_thunk" (L.const_null struct_thu
 let leqf_init_thunk = L.define_global "leqf_init_thunk" (L.const_null struct_thunk_type) the_module
 let lessf_init_thunk = L.define_global "lessf_init_thunk" (L.const_null struct_thunk_type) the_module
 let greaterf_init_thunk = L.define_global "greaterf_init_thunk" (L.const_null struct_thunk_type) the_module
-(*let neg_init_thunk = L.define_global "neg_init_thunk" (L.const_null struct_thunk_type) the_module*)
+let negf_init_thunk = L.define_global "negf_init_thunk" (L.const_null struct_thunk_type) the_module
 
 
 (* List operations *)
