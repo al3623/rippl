@@ -60,21 +60,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		in helper 0
 	in
 
-	let build_eval_func_body = function
+	let build_eval_func_body eval_dcls = function
 		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
-			let eval_decl = (*(match (L.lookup_global ("$eval_"^name) the_module) with
-				| Some decl -> decl
-				| None -> raise (Failure ("No eval function for decl "^name)))
-in*)  add in
+			let eval_decl = (match (StringMap.find_opt ("$eval_"^name) eval_dcls) with
+				| Some (decl,_) -> decl
+				| None -> raise (Failure ("No eval function for decl
+"^name))) in
 			let eval_builder = 
 				L.builder_at_end context (L.entry_block eval_decl) in
-			(print_endline (L.string_of_llvalue eval_decl));
+			(print_endline ((L.string_of_llvalue eval_decl)));
 			let ts = L.params eval_decl  in
-			let tslist = Array.to_list ts in
-			(*List.iter (fun e -> (print_endline (L.string_of_llvalue e)))
-tslist;*)
-			(*let ttype = L.type_of t in()*)
-			(print_endline (string_of_int (List.length tslist)));
+			(print_endline (string_of_int (Array.length ts))	);
 		(*	let tmp = L.build_gep struct_thunk 
 				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
 				"tmp" eval_builder in
@@ -142,7 +138,7 @@ tslist;*)
         let gen_decls m (lm_def: tlambda_def) = 
             (*(* eval function: void *f(struct Thunk*) *)
             let eval_name = "$eval_" ^ lm_def.tlname in
-            StringMap.add eval_name (L.declare_global eval_func_type eval_name 
+            StringMap.add eval_name (L.declare_function eval_name eval_func_type 
                  the_module, lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -398,7 +394,7 @@ tslist;*)
                 (* print expr if main*)
                 ignore (print_expr v (snd texp)) 
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
-				build_eval_func_body tup; ()
+				build_eval_func_body eval_decls tup; ()
 				(* build_func_body *)
     in
     let _ = List.iter build_decl decl_lst in
