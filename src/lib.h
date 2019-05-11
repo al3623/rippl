@@ -72,7 +72,7 @@ struct Thunk *makeFloat(float x);
 struct Node *makeNode(struct Thunk *data);
 struct Thunk *makeEmptyList(int ty);
 struct Thunk *makeInfinite(int start);
-struct Thunk *makeRangeList(int start, int end);
+struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end);
 struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
 struct Maybe *makeMaybe(void *data, int ty);
 

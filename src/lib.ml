@@ -134,7 +134,7 @@ let makeinfinite start name = match start with
 
 let makeRangeList_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-	[| i32_t ; i32_t |]
+	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
 let makeRangeList : L.llvalue =
 	L.declare_function "makeRangeList" makeRangeList_t the_module
 let makerangelist start_end name = match start_end with

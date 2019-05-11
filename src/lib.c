@@ -109,15 +109,15 @@ struct Thunk *makeEmptyList(int ty) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *makeRangeList(int start, int end) {
+struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end) {
 	struct List *list = malloc(sizeof(struct List));
-	list->start = start;
-	list->end = end;
+	list->start = *(int *)(invoke(start));
+	list->end = *(int *)(invoke(end));
 	list->content_type = INT;
 	list->type = RANGE;
-	list->curr_index = start;
+	list->curr_index = list->start;
 
-	struct Thunk *data = makeInt(start);
+	struct Thunk *data = makeInt(list->start);
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
