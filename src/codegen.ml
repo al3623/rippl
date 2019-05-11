@@ -11,6 +11,12 @@ open Mymap
 module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
+	let add_terminal builder instr =
+        match L.block_terminator (L.insertion_block builder) with
+              Some _ -> ()
+            | None -> ignore (instr builder) 
+    in
+    
 
     (* Get non-lambda Vdefs and lambda vdefs*)
     let (var_lst, lambda_lst) = 
@@ -75,6 +81,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 			let eval_builder = 
 				L.builder_at_end context (L.entry_block eval_decl) in
 			let ts = L.params eval_decl  in
+       add_terminal eval_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
 		(*	let tmp = L.build_gep struct_thunk 
 				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
 				"tmp" eval_builder in
@@ -87,7 +94,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				| None -> raise (Failure ("no matching vdef for eval "^name)))in
 			let result = L.build_call func 
 				(Array.of_list ordered_args) "result" eval_builder in
-			ignore(L.build_ret result eval_builder) *) ()
+			ignore(L.build_ret result eval_builder) *)
 		| _ -> () (* this is not a function decl but a global thingy *)
 	in
 
@@ -114,10 +121,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				StringMap.add var ll map) StringMap.empty vars argslll in
 			let var_to_local_map =
 				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
-			L.build_ret null fn_builder;
+       add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
+ 
 			(* build_expr txpr fn_builder var_to_argsll_map *) 
-			()
-		| _ -> ()
+			| _ -> ()
 	in
 
     (* convert Tlambda -> Tlambda_def *)
@@ -201,13 +208,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
 
     (* fn to add terminal instruction if needed *) 
-    let add_terminal builder instr =
-        match L.block_terminator (L.insertion_block builder) with
-              Some _ -> ()
-            | None -> ignore (instr builder) 
-    in
-    
-    let thunks: L.llvalue StringMap.t =
+        let thunks: L.llvalue StringMap.t =
         let declare_thunk m (lmd: tlambda_def) =
             let name = "$thunk_"^lmd.tlname in
                 let lval = L.declare_global struct_thunk_type name the_module in
