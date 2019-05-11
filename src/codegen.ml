@@ -432,11 +432,11 @@ var_to_local_map))) in
 
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
-            | (_, TypedVdef("main",texp)) -> (*
+            | (_, TypedVdef("main",texp)) ->
                 (* build expr *)
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                ignore (print_expr v (snd texp)) *) ()
+                ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
 				build_func_body fn_decls tup; ()
 				(* build_func_body *)

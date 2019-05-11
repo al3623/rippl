@@ -121,4 +121,4 @@ let _ =
 			^ file ^".s -lall -o"
 			^ base_no_path ) != 0)
 			then raise (Failure "gcc: non-zero exit code")
-		else ()*)
+		else ()
