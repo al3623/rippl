@@ -102,9 +102,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
 	(* GIVE THIS fn_decls *)
 	let build_func_body func_decls = function
 		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
-			let fn_decl = (match(StringMap.find_opt ("$$"^name) func_decls) with
+			let fn_decl = (match(StringMap.find_opt name func_decls) with
 				| Some (decl,_) -> decl
-				| None -> raise (Failure ("No function for decl $$"^name))) in
+				| None -> raise (Failure ("No function for decl "^name))) in
 			let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
 			print_endline (L.string_of_llvalue fn_decl);
 			let vars = lambda_var_list (txpr,Tarrow(l,r)) in
@@ -190,7 +190,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             
             (* core function: void *f(...)  *)
             let ftype = L.function_type (L.pointer_type i8_t) fn_args in
-            StringMap.add ("$$"^fname) (L.define_function ("$$"^fname) ftype the_module,
+            StringMap.add fname (L.define_function fname ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
