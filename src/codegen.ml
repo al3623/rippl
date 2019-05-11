@@ -36,6 +36,13 @@ let translate (decl_lst: (decl * typed_decl) list) =
     print_endline "* * * GLOBAL VARIABLES * * *";
     StringMap.iter (fun k v -> print_endline k) global_vars;
     
+    (* fn to add terminal instruction if needed *) 
+    let add_terminal builder instr =
+        match L.block_terminator (L.insertion_block builder) with
+              Some _ -> ()
+            | None -> ignore (instr builder) 
+    in
+
     let get_ltyp tarr = match tarr with
           Tarrow(t1, t2) -> t1
         | _ -> raise (Failure "Not Tarrow")
@@ -45,48 +52,24 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| Tarrow(l,r) -> l :: (flatten_arrow_type r)
 		| r -> [r]
 	in
-
-	let load_deref_args args eval_builder n =
+(*
+        let load_deref_args args eval_builder n =
 		let rec helper index = 
 			if index = n 
 			then [] 
 			else ((
+                            let tmp = L.build_gep struct_thunk
+                            [| L.const_int i32_t 0; |]
 				let tmp = L.build_gep struct_thunk 
 				[| args; L.const_int i32_t n; L.const_int i32_t 0 |] 
 				"tmp" eval_builder in
 				let arg_n = L.build_load tmp "arg" eval_builder in
 				arg_n
 			) :: (helper (index + 1)))
-		in helper 0
+		in 
+                helper 0
 	in
-
-	let build_eval_func_body eval_dcls = function
-		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
-			let eval_decl = (match (StringMap.find_opt ("$eval_"^name) eval_dcls) with
-				| Some (decl,_) -> decl
-				| None -> raise (Failure ("No eval function for decl
-"^name))) in
-			let eval_builder = 
-				L.builder_at_end context (L.entry_block eval_decl) in
-			(print_endline ((L.string_of_llvalue eval_decl)));
-			let ts = L.params eval_decl  in
-			(print_endline (string_of_int (Array.length ts))	);
-		(*	let tmp = L.build_gep struct_thunk 
-				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
-				"tmp" eval_builder in
-			let args = L.build_load tmp "args" eval_builder in
-			let types = l :: (flatten_arrow_type r) in
-			let num_args = List.length types in
-			let ordered_args = load_deref_args args eval_builder num_args in 
-			let func = (match (L.lookup_global ("$$"^name) the_module) with
-				| Some f -> f
-				| None -> raise (Failure ("no matching vdef for eval "^name)))in
-			let result = L.build_call func 
-				(Array.of_list ordered_args) "result" eval_builder in
-			ignore(L.build_ret result eval_builder) *) ()
-		| _ -> () (* this is not a function decl but a global thingy *)
-	in
-
+*)
     (* convert Tlambda -> Tlambda_def *)
     let tldef_convert (tlambda: typed_expr) (name: string) = 
         match tlambda with
@@ -116,7 +99,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | Char -> L.pointer_type i8_t
         | Float -> L.pointer_type float_t
         
-        | _ -> L.pointer_type i8_t (* FIX LATER *)
+        | _ -> L.pointer_type i8_t (* TODO: more types *)
     
     in
 
@@ -138,7 +121,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let gen_decls m (lm_def: tlambda_def) = 
             (*(* eval function: void *f(struct Thunk*) *)
             let eval_name = "$eval_" ^ lm_def.tlname in
-            StringMap.add eval_name (L.declare_function eval_name eval_func_type 
+            StringMap.add eval_name (L.define_function eval_name eval_func_type 
                  the_module, lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -157,7 +140,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             
             (* core function: void *f(...)  *)
             let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
-            StringMap.add fname (L.declare_global ftype ("$$"^fname) the_module,
+            StringMap.add fname (L.define_function ("$$"^fname) ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -167,13 +150,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
     StringMap.iter (fun k v -> print_endline k) fn_decls;
 
 
-    (* fn to add terminal instruction if needed *) 
-    let add_terminal builder instr =
-        match L.block_terminator (L.insertion_block builder) with
-              Some _ -> ()
-            | None -> ignore (instr builder) 
-    in
-    
+        
     let thunks: L.llvalue StringMap.t =
         let declare_thunk m (lmd: tlambda_def) =
             let name = "$thunk_"^lmd.tlname in
@@ -207,7 +184,86 @@ let translate (decl_lst: (decl * typed_decl) list) =
     in
 
     List.iter build_thunk lm_defs;
-    
+
+    let build_eval_func_body eval_dcls = function
+            | (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
+                    let eval_decl = (match (StringMap.find_opt 
+                    ("$eval_"^name) eval_dcls) with
+                            | Some (decl,_) -> decl
+                            | None -> raise (Failure ("No eval function for decl "^name))) in
+                    let builder = 
+                            L.builder_at_end context (L.entry_block eval_decl) in
+                    (print_endline ((L.string_of_llvalue eval_decl)));
+                    
+                    let types = l :: (flatten_arrow_type r) in
+                    let num_args = List.length types in
+                    let ts = L.params eval_decl in
+                    let t = List.hd (Array.to_list ts) in
+
+                    (* allocate thunk, args, and returned val *)
+                    let p = L.build_alloca (L.pointer_type struct_thunk_type) "pthunk" builder in
+                    
+                    (* list of arg thunks to allocate *)
+                    let rec build_arg_alloca n = if n < 1 then [] else match n with
+                            | 1 -> [(L.build_alloca (L.pointer_type struct_thunk_type) 
+                            ("thunk1") builder)]
+                            | m -> (L.build_alloca (L.pointer_type struct_thunk_type) 
+                                    ("thunk"^(string_of_int (m))) builder)::(build_arg_alloca (m-1))
+                    in
+                    let args = List.rev (build_arg_alloca (num_args-1))
+                    in
+                    let ret = L.build_alloca (L.pointer_type struct_thunk_type) "ret" builder in
+
+                    ignore(L.build_store t p builder);
+                    add_terminal builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
+                   (* 
+                    (* load and dereference to get the args of the thunk *)
+                    let load_store_arg a ind =
+                        let tload = L.build_load t "tload" builder in
+                        let args = L.build_gep struct_thunk [| tload; 
+                            L.const_int i32_t 0; L.const_int i32_t 3 |] "args" builder
+                        in
+                        let loadargs = L.build_load args "loadargs" builder in
+                        let arg = L.build_gep struct_thunk [| loadargs; L.const_int i32_t 0; 
+                            L.const_int i32_t ind |] "args" builder
+                        in
+                        let loadarg = L.build_load arg "loadarg" builder in
+                        ignore(L.build_store loadarg a builder)
+                    in
+
+                    let rec load_store_args ind lst = match lst with
+                        | [] -> ()
+                        | h::t -> load_store_arg h ind; load_store_args (ind+1) t
+                    in
+
+                    load_store_args 0 args;
+                    
+                    (* load all args into list *)
+
+                    let loaded_args: (L.llvalue list) = 
+                        let rec load_arg arglst = match arglst with
+                            | [] -> []
+                            | h::t -> (L.build_load h "load" builder) ::
+                                (load_arg t)
+                    in
+                    load_arg args
+                    in
+
+                    (* call the function *)
+                    let f = StringMap.find_opt name fn_decls in
+                    let func = match f with
+                            | Some f -> fst f
+                            | None -> raise (Failure "function not found")
+                    in
+                    let result = L.build_call func (Array.of_list loaded_args) "result" builder in
+
+                    (* store, load, cast, and return *)
+                    ignore(L.build_store result ret builder);
+                    let retload = L.build_load ret "retload" builder in
+                    let ret_cast = L.build_bitcast retload (L.pointer_type i8_t) "ret_cast" builder in
+                    L.build_ret ret_cast builder
+  *)  in
+
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
         (* convert tx to llvm pointer *)
         let make_ptr t = match t with
