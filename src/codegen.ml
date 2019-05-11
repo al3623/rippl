@@ -82,11 +82,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
 			let eval_decl = (match (StringMap.find_opt ("$eval_"^name) eval_dcls) with
 				| Some (decl,_) -> decl
-				| None -> raise (Failure ("No eval function for decl
-"^name))) in
+				| None -> raise (Failure ("No eval function for decl " ^ name))) in
 			let eval_builder = 
 				L.builder_at_end context (L.entry_block eval_decl) in
-			let ts = L.params eval_decl  in
+			let ts = L.params eval_decl in
        add_terminal eval_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
 		(*	let tmp = L.build_gep struct_thunk 
 				[| t; L.const_int i32_t 0; L.const_int i32_t 3 |] 
@@ -111,28 +110,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
 	in
 
 	let null = L.const_null (L.pointer_type i8_t) in
-
-	(* GIVE THIS fn_decls *)
-	let build_func_body func_decls = function
-		| (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
-			let fn_decl = (match(StringMap.find_opt name func_decls) with
-				| Some (decl,_) -> decl
-				| None -> raise (Failure ("No function for decl "^name))) in
-			let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
-			print_endline (L.string_of_llvalue fn_decl);
-			let vars = lambda_var_list (txpr,Tarrow(l,r)) in
-			let argsll = L.params fn_decl in
-			let argslll = Array.to_list argsll in
-			let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
-				StringMap.add var ll map) StringMap.empty vars argslll in
-			let var_to_local_map =
-				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
-            let lbody = throw_away_lambda (txpr, Tarrow(l,r)) in
-       add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
- 
-			(* build_expr txpr fn_builder var_to_argsll_map *) 
-			| _ -> ()
-	in
 
     (* convert Tlambda -> Tlambda_def *)
     let tldef_convert (tlambda: typed_expr) (name: string) = 
@@ -371,43 +348,29 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
 
     in
-    (* build eval function body *)
-    (* let build_evalfn_body (lm_def: tlambda_def) =
-        let (eval_fn, _) = StringMap.find ("$eval_"^ lm_def.tlname) 
-                eval_decls in
-        let builder = L.builder_at_end context (L.entry_block eval_fn) in
-        
-        (* get arg values from thunk struct *)
-
-        (* call the core function *)
-
-        (* return the result *)
-
-        let fn_builder = builder in
-        add_terminal fn_builder (L.build_ret (L.const_pointer_null 
-                (L.pointer_type i8_t)))
-    in*)        
-        (*
-        let locals = 
-            let add_formal m (t, n) llval = 
-                L.set_value_name n llval;
-                let local = L.build_alloca (ltyp_of_typ t) n builder in
-                ignore (L.build_store p local builder)
-                StringMap.add n local m;
-        *)
-
-        (* get final expression in function
-        let e = 
-            let rec fin_ex = function
-              TLambda(_,(t,_)) -> fin_ex t
-            | x -> x
-        in fin_ex (fst lm_def.trexp) 
-        in
-*)
-(*        let fn_builder = builder in
-        add_terminal fn_builder (L.build_ret (L.const_pointer_null 
-                (L.pointer_type i8_t)))
-    in*)
+    
+    (* GIVE THIS fn_decls *)
+    let build_func_body func_decls = function
+        | (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
+            let fn_decl = (match(StringMap.find_opt name func_decls) with
+                | Some (decl,_) -> decl
+                | None -> raise (Failure ("No function for decl "^name))) in
+            let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
+            print_endline (L.string_of_llvalue fn_decl);
+            let vars = lambda_var_list (txpr,Tarrow(l,r)) in
+            let argsll = L.params fn_decl in
+            let argslll = Array.to_list argsll in
+            let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
+                StringMap.add var ll map) StringMap.empty vars argslll in
+            let var_to_local_map =
+                StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
+            let lbody = throw_away_lambda (txpr, Tarrow(l,r)) in
+            let l_body_expr = build_expr lbody fn_builder var_to_local_map in
+       add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
+ 
+            (* build_expr txpr fn_builder var_to_argsll_map *) 
+        | _ -> ()
+    in
     
     let print_expr (lv: L.llvalue) (vtype: ty) =
         (* call invoke on thunk *)
@@ -435,7 +398,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
                 ignore (print_expr v (snd texp))
-			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
+			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
+                build_eval_func_body eval_decls tup; 
 				build_func_body fn_decls tup; ()
 				(* build_func_body *)
     in
