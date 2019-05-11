@@ -36,12 +36,22 @@ struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
 		new_thunk->value = new_thunk;
 	}
 
+
+
+
 	if (new_thunk->filled_args < new_thunk->num_args) {
 		(new_thunk->args)[new_thunk->filled_args] = arg;
 		new_thunk->filled_args++;
 	} else {
-		fprintf(stderr, "not a thunk, can't be applied");
-		exit(1);
+		// Top thunk is filled, let's fill in the last arg
+		struct Thunk *last_arg = new_thunk->args[new_thunk->num_args - 1];
+		if (last_arg->filled_args < last_arg->num_args) {
+			(last_arg->args)[last_arg->filled_args] = arg;
+			last_arg->filled_args++;
+		} else {
+			fprintf(stderr, "fully applied");
+			exit(1);
+		}
 	}
 	return new_thunk;
 
