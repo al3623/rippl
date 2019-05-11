@@ -92,7 +92,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
 	let stack_alloc builder var argll =
 		let stack_ref = L.build_alloca 
 			(L.pointer_type struct_thunk_type) var builder in
-		let _ = L.build_store argll stack_ref builder in stack_ref
+		let _ = L.build_store argll stack_ref builder in 
+        let loaded = L.build_load stack_ref "amanda" builder in
+        loaded
 	in
 
 	let null = L.const_null (L.pointer_type i8_t) in
@@ -244,8 +246,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
                     ignore(L.build_store t p builder);
 
-        (*            add_terminal builder (L.build_ret (L.const_null (L.pointer_type i8_t))) *)
-
                     (* load and dereference to get the args of the thunk *)
                     let load_store_arg a ind =
                         let tload = L.build_load p "tload" builder in
@@ -319,7 +319,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TBoolLit b -> L.build_call makeBool [| L.const_int i8_t (if b then 1 else 0) |] 
                 "makeBool" builder
             | TVar s -> (match (StringMap.find_opt s scope) with
-                  Some lval -> lval
+                  Some lval -> 
+                    let p = L.build_alloca (L.pointer_type struct_thunk_type) "hans" builder in
+                    ignore(L.build_store lval p builder);
+                    let hans_load = L.build_load p "loaded_hans" builder in
+                    hans_load
+
                 | None -> (match (StringMap.find_opt s global_vars) with
                       Some l -> l
                     | None -> (match (StringMap.find_opt s fn_decls) with
@@ -432,10 +437,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
             let lbody = throw_away_lambda (txpr, Tarrow(l,r)) in
             let l_body_expr = build_expr lbody fn_builder var_to_local_map in
-       add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
- 
+            let bc = L.build_call invoke [| l_body_expr |] "da" fn_builder in
+            add_terminal fn_builder (L.build_ret bc)
             (* build_expr txpr fn_builder var_to_argsll_map *) 
-        | _ -> ()
+        | _ -> raise(Failure "expected tarrow vdef O_o")
     in
     
     let print_expr (lv: L.llvalue) (vtype: ty) =
