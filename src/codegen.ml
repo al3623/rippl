@@ -11,6 +11,12 @@ open Mymap
 module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
+
+    let rec throw_away_lambda = function
+        | (TLambda(_, b), _) -> throw_away_lambda b
+        | other -> other
+    in
+
 	let add_terminal builder instr =
         match L.block_terminator (L.insertion_block builder) with
               Some _ -> ()
@@ -121,6 +127,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				StringMap.add var ll map) StringMap.empty vars argslll in
 			let var_to_local_map =
 				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
+            let lbody = throw_away_lambda (txpr, Tarrow(l,r)) in
        add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
  
 			(* build_expr txpr fn_builder var_to_argsll_map *) 
