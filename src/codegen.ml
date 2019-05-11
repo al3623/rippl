@@ -70,25 +70,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| (TLambda(v,ex),_) -> v::(lambda_var_list ex)
 		| _ -> []
 	in
-(*
-	let load_deref_args args eval_builder n =
-		let rec helper index = 
-			if index = n 
-			then [] 
-			else ((
-                            let tmp = L.build_gep struct_thunk
-                            [| L.const_int i32_t 0; |]
-				let tmp = L.build_gep struct_thunk 
-				[| args; L.const_int i32_t n; L.const_int i32_t 0 |] 
-				"tmp" eval_builder in
-				let arg_n = L.build_load tmp "arg" eval_builder in
-				arg_n
-			) :: (helper (index + 1)))
-		in 
-                helper 0
-	in
-*)
-
 	let stack_alloc builder var argll =
 		let stack_ref = L.build_alloca 
 			(L.pointer_type struct_thunk_type) var builder in
@@ -127,7 +108,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | Bool -> L.pointer_type i1_t
         | Char -> L.pointer_type i8_t
         | Float -> L.pointer_type float_t
-        
         | _ -> L.pointer_type i8_t (* TODO: more types *)
     
     in
@@ -178,8 +158,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
     StringMap.iter (fun k v -> print_endline k) eval_decls;
     StringMap.iter (fun k v -> print_endline k) fn_decls;
 
-
-        
     let thunks: L.llvalue StringMap.t =
     (* fn to add terminal instruction if needed *) 
         let declare_thunk m (lmd: tlambda_def) =
@@ -208,8 +186,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             (L.const_null struct_thunk_type) the_module in
 
         let _ = L.build_call initThunk [| f_init_thunk ; eval_fn; num_args |] 
-            "initThunk" builder in
-        print_endline "BUILD_THUNK"
+            "initThunk" builder in ()
         
     in
 
@@ -223,7 +200,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                             | None -> raise (Failure ("No eval function for decl "^name))) in
                     let builder = 
                             L.builder_at_end context (L.entry_block eval_decl) in
-                    (print_endline ((L.string_of_llvalue eval_decl)));
+                    (*(print_endline ((L.string_of_llvalue eval_decl)));*)
                     
                     let types = l :: (flatten_arrow_type r) in
                     let num_args = List.length types in
@@ -303,7 +280,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 [| L.const_int i8_t (Char.code c) |] "char" builder
             | TBoolLit b -> let x = if b then 1 else 0 in
                 L.build_call makeBool [| L.const_int i8_t x |] "bool" builder
-
             | _ -> raise (Failure "make_ptr")
         in
 
@@ -422,12 +398,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
     
     (* GIVE THIS fn_decls *)
     let build_func_body func_decls = function
-        | (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
+        | (_,TypedVdef(name,(txpr,Tarrow(l,r)))) ->
             let fn_decl = (match(StringMap.find_opt name func_decls) with
                 | Some (decl,_) -> decl
                 | None -> raise (Failure ("No function for decl "^name))) in
             let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
-            print_endline (L.string_of_llvalue fn_decl);
+            (*print_endline (L.string_of_llvalue fn_decl);*)
             let vars = lambda_var_list (txpr,Tarrow(l,r)) in
             let argsll = L.params fn_decl in
             let argslll = Array.to_list argsll in
@@ -471,7 +447,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
                 build_eval_func_body eval_decls tup; 
-				build_func_body fn_decls tup; ()
+				build_func_body fn_decls tup
 				(* build_func_body *)
     in
     let _ = List.iter build_decl decl_lst in
