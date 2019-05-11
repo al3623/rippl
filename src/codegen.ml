@@ -92,11 +92,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
 	in
 
 	let stack_alloc builder var argll =
-		let _ = print_endline "YUUPfuck" in
 		let stack_ref = L.build_alloca 
 			(L.pointer_type struct_thunk_type) var builder in
-		(*let _ = L.build_store argll stack_ref builder in stack_ref*) ()
+		let _ = L.build_store argll stack_ref builder in stack_ref
 	in
+
+	let null = L.const_null (L.pointer_type i8_t) in
 
 	(* GIVE THIS fn_decls *)
 	let build_func_body func_decls = function
@@ -105,21 +106,15 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				| Some (decl,_) -> decl
 				| None -> raise (Failure ("No function for decl $$"^name))) in
 			let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
+			print_endline (L.string_of_llvalue fn_decl);
 			let vars = lambda_var_list (txpr,Tarrow(l,r)) in
 			let argsll = L.params fn_decl in
 			let argslll = Array.to_list argsll in
-			let _ = print_endline
-				("what " ^ (string_of_int (List.length argslll))) in
 			let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
 				StringMap.add var ll map) StringMap.empty vars argslll in
-			let _ = print_endline
-				("the " ^ (string_of_int (StringMap.cardinal var_to_argsll_map))) in
 			let var_to_local_map =
-				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map
-			in
-			let _ = print_endline
-				("fuck " ^ (string_of_int (StringMap.cardinal
-var_to_local_map))) in
+				StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
+			L.build_ret null fn_builder;
 			(* build_expr txpr fn_builder var_to_argsll_map *) 
 			()
 		| _ -> ()
@@ -160,10 +155,10 @@ var_to_local_map))) in
 
     (* get array of types of lambda *)
     let rec arg_types (lmd: tlambda_def) =
-        let first_arg = [| ltyp_of_typ lmd.tltyp |] in
+        let first_arg = [| L.pointer_type struct_thunk_type |] in
         let rec get_args texp = match texp with
                   (TLambda(_,txp), ty) ->
-                      let typ = ltyp_of_typ (get_ltyp ty) in
+                      let typ = (L.pointer_type struct_thunk_type) in
                       Array.append [| typ |] (get_args txp)
                 | _ -> [||]
         in
@@ -194,7 +189,7 @@ var_to_local_map))) in
                 (string_of_int (Array.length fn_args))) in
             
             (* core function: void *f(...)  *)
-            let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
+            let ftype = L.function_type (L.pointer_type i8_t) fn_args in
             StringMap.add ("$$"^fname) (L.define_function ("$$"^fname) ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
@@ -383,12 +378,7 @@ var_to_local_map))) in
         let fn_builder = builder in
         add_terminal fn_builder (L.build_ret (L.const_pointer_null 
                 (L.pointer_type i8_t)))
-    in*)
-    (* build core fn body *)
-    let build_fn_body (lm_def: tlambda_def) = 
-        let (fn, _) = StringMap.find (lm_def.tlname) fn_decls in
-        let builder = L.builder_at_end context (L.entry_block fn) in
-        
+    in*)        
         (*
         let locals = 
             let add_formal m (t, n) llval = 
@@ -406,10 +396,10 @@ var_to_local_map))) in
         in fin_ex (fst lm_def.trexp) 
         in
 *)
-        let fn_builder = builder in
+(*        let fn_builder = builder in
         add_terminal fn_builder (L.build_ret (L.const_pointer_null 
                 (L.pointer_type i8_t)))
-    in
+    in*)
     
     let print_expr (lv: L.llvalue) (vtype: ty) =
         (* call invoke on thunk *)
