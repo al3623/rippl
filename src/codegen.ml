@@ -240,19 +240,20 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     in
                     let args = List.rev (build_arg_alloca (num_args-1))
                     in
-                    let ret = L.build_alloca (L.pointer_type struct_thunk_type) "ret" builder in
+                    let ret = L.build_alloca (L.pointer_type i8_t) "ret" builder in
 
                     ignore(L.build_store t p builder);
-                    add_terminal builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
-                   (* 
+
+        (*            add_terminal builder (L.build_ret (L.const_null (L.pointer_type i8_t))) *)
+
                     (* load and dereference to get the args of the thunk *)
                     let load_store_arg a ind =
-                        let tload = L.build_load t "tload" builder in
-                        let args = L.build_gep struct_thunk [| tload; 
-                            L.const_int i32_t 0; L.const_int i32_t 3 |] "args" builder
+                        let tload = L.build_load p "tload" builder in
+                        let args = L.build_gep tload 
+                        [| L.const_int i32_t 0; L.const_int i32_t 3 |] "args" builder
                         in
                         let loadargs = L.build_load args "loadargs" builder in
-                        let arg = L.build_gep struct_thunk [| loadargs; L.const_int i32_t 0; 
+                        let arg = L.build_gep loadargs [| 
                             L.const_int i32_t ind |] "args" builder
                         in
                         let loadarg = L.build_load arg "loadarg" builder in
@@ -265,7 +266,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     in
 
                     load_store_args 0 args;
-                    
                     (* load all args into list *)
 
                     let loaded_args: (L.llvalue list) = 
@@ -290,7 +290,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     let retload = L.build_load ret "retload" builder in
                     let ret_cast = L.build_bitcast retload (L.pointer_type i8_t) "ret_cast" builder in
                     L.build_ret ret_cast builder
-  *)  in
+    in
 
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
         (* convert tx to llvm pointer *)
