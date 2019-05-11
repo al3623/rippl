@@ -25,16 +25,46 @@ let char_format_str = L.build_global_stringptr "%c" "fmt" builder
 let int_format_str = L.build_global_stringptr "%d" "fmt_int" builder
 let float_format_str = L.build_global_stringptr "%f" "fmt_float" builder
 
+(* Integer operation thunks *)
 let add_init_thunk = L.define_global "add_init_thunk" (L.const_null struct_thunk_type) the_module
-let mult_init_thunk = L.define_global "mult_init_thunk" (L.const_null struct_thunk_type) the_module
-let neq_init_thunk = L.define_global "neq_init_thunk" (L.const_null struct_thunk_type) the_module
 let sub_init_thunk = L.define_global "sub_init_thunk" (L.const_null struct_thunk_type) the_module
+let mult_init_thunk = L.define_global "mult_init_thunk" (L.const_null struct_thunk_type) the_module
+let divi_init_thunk = L.define_global "divi_init_thunk" (L.const_null struct_thunk_type) the_module
+let mod_init_thunk = L.define_global "mod_init_thunk" (L.const_null struct_thunk_type) the_module
+let powe_init_thunk = L.define_global "powe_init_thunk" (L.const_null struct_thunk_type) the_module
+let eq_init_thunk = L.define_global "eq_init_thunk" (L.const_null struct_thunk_type) the_module
+let neq_init_thunk = L.define_global "neq_init_thunk" (L.const_null struct_thunk_type) the_module
+let geq_init_thunk = L.define_global "geq_init_thunk" (L.const_null struct_thunk_type) the_module
+let leq_init_thunk = L.define_global "leq_init_thunk" (L.const_null struct_thunk_type) the_module
+let less_init_thunk = L.define_global "less_init_thunk" (L.const_null struct_thunk_type) the_module
+let greater_init_thunk = L.define_global "greater_init_thunk" (L.const_null struct_thunk_type) the_module
+let neg_init_thunk = L.define_global "neg_init_thunk" (L.const_null struct_thunk_type) the_module
+
+(* Float operation thunks *)
+let addf_init_thunk = L.define_global "addf_init_thunk" (L.const_null struct_thunk_type) the_module
+let subf_init_thunk = L.define_global "subf_init_thunk" (L.const_null struct_thunk_type) the_module
+let multf_init_thunk = L.define_global "multf_init_thunk" (L.const_null struct_thunk_type) the_module
+let divf_init_thunk = L.define_global "divf_init_thunk" (L.const_null struct_thunk_type) the_module
+let powef_init_thunk = L.define_global "powef_init_thunk" (L.const_null struct_thunk_type) the_module
+let eqf_init_thunk = L.define_global "eqf_init_thunk" (L.const_null struct_thunk_type) the_module
+let neqf_init_thunk = L.define_global "neqf_init_thunk" (L.const_null struct_thunk_type) the_module
+let geqf_init_thunk = L.define_global "geqf_init_thunk" (L.const_null struct_thunk_type) the_module
+let leqf_init_thunk = L.define_global "leqf_init_thunk" (L.const_null struct_thunk_type) the_module
+let lessf_init_thunk = L.define_global "lessf_init_thunk" (L.const_null struct_thunk_type) the_module
+let greaterf_init_thunk = L.define_global "greaterf_init_thunk" (L.const_null struct_thunk_type) the_module
+let negf_init_thunk = L.define_global "negf_init_thunk" (L.const_null struct_thunk_type) the_module
+
+
+(* List operations *)
 let cons_init_thunk = L.define_global "cons_init_thunk" (L.const_null struct_thunk_type) the_module
 let cat_init_thunk = L.define_global "cat_init_thunk" (L.const_null struct_thunk_type) the_module
+let length_init_thunk = L.define_global "length_init_thunk" (L.const_null struct_thunk_type) the_module
 let head_init_thunk = L.define_global "head_init_thunk" (L.const_null struct_thunk_type) the_module
 let tail_init_thunk = L.define_global "tail_init_thunk" (L.const_null struct_thunk_type) the_module
-let length_init_thunk = L.define_global "length_init_thunk" (L.const_null struct_thunk_type) the_module
-let addf_init_thunk = L.define_global "addf_init_thunk" (L.const_null struct_thunk_type) the_module
+
+(* Tuple operations *)
+let first_init_thunk = L.define_global "first_init_thunk" (L.const_null struct_thunk_type) the_module
+let second_init_thunk = L.define_global "second_init_thunk" (L.const_null struct_thunk_type) the_module
 
 let _ = L.set_alignment 32 add_init_thunk
 

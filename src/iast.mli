@@ -14,7 +14,7 @@ ix =
     | IIntLit of int | IFloatLit of float | IBoolLit of bool 
     | ICharLit of char | IWildCard
     | IAdd | ISub | IMult | IDiv | IMod | IPow
-    | IAddF | ISubF | IMultF | IDivF | IPowF | INeg
+    | IAddF | ISubF | IMultF | IDivF | IPowF | INeg | INegF
     | IEq | IEqF | INeq | INeqF | IGeq | IGeqF | ILeq | ILeqF
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 

@@ -1,15 +1,28 @@
 module L = Llvm
+open Pretty_type_print
 open Ast
 open Tast
 open Lib
 open Structs
 open Thunk
-open Mymap
 open Natives
+open Mymap
 
 module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
+
+    let rec throw_away_lambda = function
+        | (TLambda(_, b), _) -> throw_away_lambda b
+        | other -> other
+    in
+
+	let add_terminal builder instr =
+        match L.block_terminator (L.insertion_block builder) with
+              Some _ -> ()
+            | None -> ignore (instr builder) 
+    in
+    
 
     (* Get non-lambda Vdefs and lambda vdefs*)
     let (var_lst, lambda_lst) = 
@@ -52,8 +65,13 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| Tarrow(l,r) -> l :: (flatten_arrow_type r)
 		| r -> [r]
 	in
+
+	let rec lambda_var_list = function
+		| (TLambda(v,ex),_) -> v::(lambda_var_list ex)
+		| _ -> []
+	in
 (*
-        let load_deref_args args eval_builder n =
+	let load_deref_args args eval_builder n =
 		let rec helper index = 
 			if index = n 
 			then [] 
@@ -70,6 +88,15 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 helper 0
 	in
 *)
+
+	let stack_alloc builder var argll =
+		let stack_ref = L.build_alloca 
+			(L.pointer_type struct_thunk_type) var builder in
+		let _ = L.build_store argll stack_ref builder in stack_ref
+	in
+
+	let null = L.const_null (L.pointer_type i8_t) in
+
     (* convert Tlambda -> Tlambda_def *)
     let tldef_convert (tlambda: typed_expr) (name: string) = 
         match tlambda with
@@ -105,10 +132,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     (* get array of types of lambda *)
     let rec arg_types (lmd: tlambda_def) =
-        let first_arg = [| ltyp_of_typ lmd.tltyp |] in
+        let first_arg = [| L.pointer_type struct_thunk_type |] in
         let rec get_args texp = match texp with
                   (TLambda(_,txp), ty) ->
-                      let typ = ltyp_of_typ (get_ltyp ty) in
+                      let typ = (L.pointer_type struct_thunk_type) in
                       Array.append [| typ |] (get_args txp)
                 | _ -> [||]
         in
@@ -139,8 +166,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 (string_of_int (Array.length fn_args))) in
             
             (* core function: void *f(...)  *)
-            let ftype = L.function_type (L.pointer_type struct_thunk_type) fn_args in
-            StringMap.add fname (L.define_function ("$$"^fname) ftype the_module,
+            let ftype = L.function_type (L.pointer_type i8_t) fn_args in
+            StringMap.add fname (L.define_function fname ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
@@ -152,6 +179,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
         
     let thunks: L.llvalue StringMap.t =
+    (* fn to add terminal instruction if needed *) 
         let declare_thunk m (lmd: tlambda_def) =
             let name = "$thunk_"^lmd.tlname in
                 let lval = L.declare_global struct_thunk_type name the_module in
@@ -344,67 +372,70 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
-            | TAdd -> add_init_thunk
 
             | TIte(cond, then_ex, else_ex) ->
                 let cond_ = build_expr cond builder scope in
                 let then_ = build_expr then_ex builder scope in
                 let else_ = build_expr else_ex builder scope in
                 L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
-          
+
+            | TAdd -> add_init_thunk
+            | TSub -> sub_init_thunk       
             | TMult -> mult_init_thunk
+            | TDiv -> divi_init_thunk
+            | TMod -> mod_init_thunk
+            | TPow -> powe_init_thunk
+            | TEq -> eq_init_thunk
             | TNeq -> neq_init_thunk
-            | TSub -> sub_init_thunk
+            | TGeq -> geq_init_thunk
+            | TLeq -> leq_init_thunk
+            | TLess -> less_init_thunk
+            | TGreater -> greater_init_thunk
+            | TNeg -> neg_init_thunk
+            | TAddF -> addf_init_thunk
+            | TSubF -> subf_init_thunk
+            | TMultF -> multf_init_thunk
+            | TDivF -> divf_init_thunk
+            | TPowF -> powef_init_thunk
+            | TEqF -> eqf_init_thunk
+            | TNeqF -> neqf_init_thunk
+            | TGeqF -> geqf_init_thunk
+            | TLeqF -> leqf_init_thunk
+            | TLessF -> lessf_init_thunk
+            | TGreaterF -> greaterf_init_thunk
+            | TNegF -> negf_init_thunk
             | TCons -> cons_init_thunk
             | TCat -> cat_init_thunk
+            | TLen -> length_init_thunk
             | THead -> head_init_thunk
             | TTail -> tail_init_thunk
-            | TLen -> length_init_thunk
-            | TAddF -> addf_init_thunk
-            | TLambda(_, _) -> raise(Failure "lambda")
+            | TFirst -> first_init_thunk
+            | TSec -> second_init_thunk
+            | TLambda(_, _) -> raise(Failure "unexpected lambda")
 
     in
-    (* build eval function body *)
-    (* let build_evalfn_body (lm_def: tlambda_def) =
-        let (eval_fn, _) = StringMap.find ("$eval_"^ lm_def.tlname) 
-                eval_decls in
-        let builder = L.builder_at_end context (L.entry_block eval_fn) in
-        
-        (* get arg values from thunk struct *)
-
-        (* call the core function *)
-
-        (* return the result *)
-
-        let fn_builder = builder in
-        add_terminal fn_builder (L.build_ret (L.const_pointer_null 
-                (L.pointer_type i8_t)))
-    in*)
-    (* build core fn body *)
-    let build_fn_body (lm_def: tlambda_def) = 
-        let (fn, _) = StringMap.find (lm_def.tlname) fn_decls in
-        let builder = L.builder_at_end context (L.entry_block fn) in
-        
-        (*
-        let locals = 
-            let add_formal m (t, n) llval = 
-                L.set_value_name n llval;
-                let local = L.build_alloca (ltyp_of_typ t) n builder in
-                ignore (L.build_store p local builder)
-                StringMap.add n local m;
-        *)
-
-        (* get final expression in function
-        let e = 
-            let rec fin_ex = function
-              TLambda(_,(t,_)) -> fin_ex t
-            | x -> x
-        in fin_ex (fst lm_def.trexp) 
-        in
-*)
-        let fn_builder = builder in
-        add_terminal fn_builder (L.build_ret (L.const_pointer_null 
-                (L.pointer_type i8_t)))
+    
+    (* GIVE THIS fn_decls *)
+    let build_func_body func_decls = function
+        | (_,TypedVdef(name,(txpr,Tarrow(l,r)))) -> print_endline "YUP";
+            let fn_decl = (match(StringMap.find_opt name func_decls) with
+                | Some (decl,_) -> decl
+                | None -> raise (Failure ("No function for decl "^name))) in
+            let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
+            print_endline (L.string_of_llvalue fn_decl);
+            let vars = lambda_var_list (txpr,Tarrow(l,r)) in
+            let argsll = L.params fn_decl in
+            let argslll = Array.to_list argsll in
+            let var_to_argsll_map = List.fold_left2 (fun map var ll -> 
+                StringMap.add var ll map) StringMap.empty vars argslll in
+            let var_to_local_map =
+                StringMap.mapi (stack_alloc fn_builder) var_to_argsll_map in
+            let lbody = throw_away_lambda (txpr, Tarrow(l,r)) in
+            let l_body_expr = build_expr lbody fn_builder var_to_local_map in
+       add_terminal fn_builder (L.build_ret (L.const_null (L.pointer_type i8_t)))
+ 
+            (* build_expr txpr fn_builder var_to_argsll_map *) 
+        | _ -> ()
     in
     
     let print_expr (lv: L.llvalue) (vtype: ty) =
@@ -419,38 +450,23 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
             | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
             | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
-            | _ -> raise(Failure "ahhhhh")
+            | ty -> raise(Failure("Main is of unprintable type"^(ty_to_str ty)))
         ) in
         L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder
 
 
     in
 
-(*    
-    (* build non-function Vdefs *)
-    let build_tdecl (tdecl: (decl * typed_decl)) builder =
-        match tdecl with
-            (_,TypedVdef(n,tex)) -> build_expr tex builder
-    in 
-    
-    (* build function bodies *)
-    let _ = List.iter build_evalfn_body lm_defs in
-    let _ = List.iter build_fn_body lm_defs in
-    
-    (* build non-function Vdefs *)
-    let _ = List.iter build_tdecl var_lst in
-
-*)
-
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
-            | (_, TypedVdef("main",texp)) -> 
+            | (_, TypedVdef("main",texp)) ->
                 (* build expr *)
                 let v = build_expr texp builder StringMap.empty in
                 (* print expr if main*)
-                ignore (print_expr v (snd texp)) 
-			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup-> 
-				build_eval_func_body eval_decls tup; ()
+                ignore (print_expr v (snd texp))
+			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
+                build_eval_func_body eval_decls tup; 
+				build_func_body fn_decls tup; ()
 				(* build_func_body *)
     in
     let _ = List.iter build_decl decl_lst in

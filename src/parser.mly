@@ -34,7 +34,7 @@
 %left ASSIGN
 %left PLUS MINUS PLUSF MINUSF
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
-%nonassoc UMINUS
+%nonassoc UMINUS UMINUSF
 %left POW POWF
 %left CONS CAT
 %nonassoc FIRST SEC LEN TAIL HEAD
@@ -118,6 +118,7 @@ expr:
     | expr POW expr         { App (App(Pow, $1), $3) }
     | expr POWF expr        { App (App(PowF, $1), $3) }
     | MINUS expr %prec UMINUS { App(Neg, $2) }
+    | MINUSF expr %prec UMINUSF { App(NegF, $2) }
 
     /* LIST OPERATIONS */
     | expr CONS expr        { App (App(Cons, $1), $3) }
