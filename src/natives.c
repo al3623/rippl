@@ -126,12 +126,7 @@ int *powe(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 	int y_ = *(int *)data2;
 
 	int *result = malloc(sizeof(int));
-
-	int temp = x_;
-	for(int m = y_ - 1; m > 0; m--) {
-		temp *= x_;
-	}
-	*result = temp;
+	*result = (int) (pow((double) x_, (double) y_));
 
 	return result;
 }
@@ -397,11 +392,7 @@ float *powef(struct Thunk *x_thunk, struct Thunk *y_thunk) {
 
 	float *result = malloc(sizeof(float));
 
-	float temp = x_;
-	for(int m = y_ - 1; m > 0; m--) {
-		temp *= x_;
-	}
-	*result = temp;
+	*result = (float) (pow((double) x_, (double) y_));
 
 	return result;
 }

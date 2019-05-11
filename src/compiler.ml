@@ -118,7 +118,7 @@ let _ =
 			then raise (Failure "llc: non-zero exit code") 
 		else if (command 
 			("gcc -L"^home^"/rippl/src "
-			^ file ^".s -lall -o"
+			^ file ^".s -lall -lm  -o"
 			^ base_no_path ) != 0)
 			then raise (Failure "gcc: non-zero exit code")
 		else ()
