@@ -26,11 +26,9 @@ iterateMandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 
 
 everyOther :: [a] -> [a]
-everyOther = fun list -> if len list == 0 
-					then []
-					else if len list == 1
-						then [head list]
-						else (head list) cons (tail (tail list))
+everyOther = fun list -> if len list <= 1 
+					then list
+					else (head list) cons (everyOther~(tail (tail list)))
 
 iterateReal :: float -> [char]
 iterateReal = fun b ->
@@ -38,14 +36,13 @@ iterateReal = fun b ->
 	let realRange = everyOther~range in
 	let realLine = [(iterateMandelbrot~0~0~0~b~p) | p over realRange] in
 	realLine cat "\n"
-{-
-iterateComplex :: [char]
-iterateComplex =
-	let range = [x /. 100.0 | x over [-100...100]] in
+
+main :: [char]
+main =
+	let range = [(int_to_float x) /. 100.0 | x over [-100...100]] in
 	let complexRange = everyOther~range in
 	let iterComplexRec = fun r ->
 		(if len r == 0
 			then " "
 			else (iterateReal~(head r)) cat (iterComplexRec~(tail r)) )
 	in iterComplexRec~complexRange
--}

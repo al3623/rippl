@@ -7,4 +7,4 @@ collatz = fun x ->
 				else rec_collatz~(3*n + 1)~(n cons l)
 	in rec_collatz~x~[]
 
-main = collatz~10
+main = collatz~99
