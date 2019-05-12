@@ -158,11 +158,15 @@ int main() {
 	printAnyThunk(map_mult10_not1_thunk, 4);
 	printf("\n");
 
+
 	struct Thunk *maplist_mult_thunk =
 		map_listl(mult2and10_thunk,unfiltered_thunk);
-	printf("map * [2,10] original: ");
+	printf("[x*y] | x over [2,10], y over [0,1,2,3,4,5]]:\n ");
 	printAnyThunk(maplist_mult_thunk, 4);
 	printf("\n");
 
+	printf("[x*y | x over [2,10], y over [0...5], x != y]\n");
+	struct Thunk *neqThunk = filterl(maplist_mult_thunk, neq_init_thunk);
+	printAnyThunk(neqThunk,4);
 	return 0;
 }*/
