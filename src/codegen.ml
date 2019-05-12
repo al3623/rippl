@@ -283,6 +283,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | _ -> raise (Failure "make_ptr")
         in
 
+		let ty_to_int = (function
+			| Int -> 0
+			| Float -> 1
+			| Char -> 2
+			| Bool -> 3
+			| (TconList _) -> 4
+			| (TconTuple _) -> 5
+			| (Tmaybe _) -> 6
+			|  _ -> -1) 
+		in
+
         let tex = fst texp in 
         let typ = snd texp in match tex with
             (* literals - build thunk literals *)
@@ -315,7 +326,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList Bool -> 1
                        | TconList Char -> 2
                        | TconList Float -> 3
-                       | _ -> raise (Failure "ty_code")
+                       | ty -> raise (Failure ("ty_code: "^(ty_to_str typ)))
                 in
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
@@ -393,6 +404,27 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TFirst -> first_init_thunk
             | TSec -> second_init_thunk
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
+			| TTuple(tx1,tx2) ->
+				let (t1,t2) = (match typ with 
+					| (TconTuple l) -> l) in
+				let first = build_expr tx1 builder scope in
+				let sec = build_expr tx2 builder scope in
+				L.build_call makeTuple 
+				[| first ; sec 
+				; L.const_int i32_t (ty_to_int t1) 
+				; L.const_int i32_t (ty_to_int t2) |] "tup" builder
+			| TJust(tx) -> let inn = build_expr tx builder scope in
+				let t = (match typ with
+					| (Tmaybe l) -> l) in
+				L.build_call makeMaybe 
+				[| inn ; L.const_int i32_t (ty_to_int t) |] "just" builder
+			| TNone -> 
+				let t = (match typ with
+					| (Tmaybe l) -> l) in
+				L.build_call makeMaybe 
+				[| L.const_null (L.pointer_type struct_thunk_type)
+				; L.const_int i32_t (ty_to_int t) |] "none" builder
+
 
     in
     
