@@ -303,7 +303,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | None -> raise (Failure (s^ " not found in scope"))
                             ))
             )
-            | (TListRange(start_end)) -> makerangelist start_end "mainlist" 
+			| TListRange(s,e) ->
+				let start = build_expr s builder scope in
+				let endd = build_expr e builder scope in
+				L.build_call makeRangeList [| start ; endd |] "range" builder
             | TListLit texlst -> 
                 let ty_code = match typ with
                          TconList Int -> 0

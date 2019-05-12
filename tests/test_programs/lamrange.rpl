@@ -1,3 +1,3 @@
 range = fun n -> [1...n]
 
-main = range
+main = range~10

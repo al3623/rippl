@@ -131,7 +131,7 @@ let makeInfinite_t : L.lltype =
 let makeInfinite : L.llvalue =
 	L.declare_function "makeInfinite" makeInfinite_t the_module
 let makeinfinite start name = match start with
-	| (TIntLit s, Int) -> 
+	| (TIntLit s, _) -> 
 		L.build_call makeInfinite
 		[| L.const_int i32_t s |] 
 		name builder
@@ -142,12 +142,6 @@ let makeRangeList_t : L.lltype =
 	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
 let makeRangeList : L.llvalue =
 	L.declare_function "makeRangeList" makeRangeList_t the_module
-let makerangelist start_end name = match start_end with
-	| ((TIntLit start, Int), (TIntLit fin, Int)) ->
-		L.build_call makeRangeList 
-		[| L.const_int i32_t start ; L.const_int i32_t fin |] 
-		name builder
-	| _ -> raise (Failure "type error in range list")
 
 let makeEmptyList_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
