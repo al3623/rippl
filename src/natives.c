@@ -7,8 +7,8 @@
 
 // Integer operations
 int *add(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *x = x_thunk->value;
-	void *y = y_thunk->value;
+	void *x = invoke(x_thunk);
+	void *y = invoke(y_thunk);
 	
 	int x_ = *(int *)x;
 	int y_ = *(int *)y;
@@ -30,8 +30,8 @@ void *add_eval(struct Thunk *t) {
 }
 
 int *sub(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *x = x_thunk->value;
-	void *y = y_thunk->value;
+	void *x = invoke(x_thunk);
+	void *y = invoke(y_thunk);
 	
 	int x_ = *(int *)x;
 	int y_ = *(int *)y;
@@ -53,8 +53,8 @@ void *sub_eval(struct Thunk *t) {
 }
 
 int *mult(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -75,8 +75,8 @@ void *mult_eval(struct Thunk *t) {
 }
 
 int *divi(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -97,8 +97,8 @@ void *divi_eval(struct Thunk *t) {
 }
 
 int *mod(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -119,8 +119,8 @@ void *mod_eval(struct Thunk *t) {
 }
 
 int *powe(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -141,8 +141,8 @@ void *powe_eval(struct Thunk *t) {
 }
 
 int *eq(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -163,8 +163,8 @@ void *eq_eval(struct Thunk *t) {
 }
 
 int *neq(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -185,8 +185,8 @@ void *neq_eval(struct Thunk *t) {
 }
 
 int *geq(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -207,8 +207,8 @@ void *geq_eval(struct Thunk *t) {
 }
 
 int *leq(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -229,8 +229,8 @@ void *leq_eval(struct Thunk *t) {
 }
 
 int *less(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -251,8 +251,8 @@ void *less_eval(struct Thunk *t) {
 }
 
 int *greater(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -273,7 +273,7 @@ void *greater_eval(struct Thunk *t) {
 }
 
 int *neg(struct Thunk *x_thunk) {
-	void *data1 = x_thunk->value;	
+	void *data1 = invoke(x_thunk);	
 
 	int x_ = *(int *)data1;
 
@@ -294,8 +294,8 @@ void *neg_eval(struct Thunk *t) {
 
 // Float operations
 float *addf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *x = x_thunk->value;
-	void *y = y_thunk->value;
+	void *x = invoke(x_thunk);
+	void *y = invoke(y_thunk);
 	
 	float x_ = *(float *)x;
 	float y_ = *(float *)y;
@@ -317,8 +317,8 @@ void *addf_eval(struct Thunk *t) {
 }
 
 float *subf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *x = x_thunk->value;
-	void *y = y_thunk->value;
+	void *x = invoke(x_thunk);
+	void *y = invoke(y_thunk);
 	
 	float x_ = *(float *)x;
 	float y_ = *(float *)y;
@@ -340,9 +340,9 @@ void *subf_eval(struct Thunk *t) {
 }
 
 float *multf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
-	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
+
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
 
@@ -362,8 +362,8 @@ void *multf_eval(struct Thunk *t) {
 }
 
 float *divf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -384,8 +384,8 @@ void *divf_eval(struct Thunk *t) {
 }
 
 float *powef(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 	
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -407,8 +407,8 @@ void *powef_eval(struct Thunk *t) {
 }
 
 int *eqf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -429,8 +429,8 @@ void *eqf_eval(struct Thunk *t) {
 }
 
 int *neqf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -451,8 +451,8 @@ void *neqf_eval(struct Thunk *t) {
 }
 
 int *geqf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -473,8 +473,8 @@ void *geqf_eval(struct Thunk *t) {
 }
 
 int *leqf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -495,8 +495,8 @@ void *leqf_eval(struct Thunk *t) {
 }
 
 int *lessf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -517,8 +517,8 @@ void *lessf_eval(struct Thunk *t) {
 }
 
 int *greaterf(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);	
 
 	float x_ = *(float *)data1;
 	float y_ = *(float *)data2;
@@ -539,7 +539,7 @@ void *greaterf_eval(struct Thunk *t) {
 }
 
 float *negf(struct Thunk *x_thunk) {
-	void *data1 = x_thunk->value;	
+	void *data1 = invoke(x_thunk);	
 
 	float x_ = *(float *)data1;
 
@@ -559,8 +559,8 @@ void *negf_eval(struct Thunk *t) {
 
 // Boolean operations
 int *andb(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);		
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -581,8 +581,8 @@ void *andb_eval(struct Thunk *t) {
 }
 
 int *orbb(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = x_thunk->value;
-	void *data2 = y_thunk->value;	
+	void *data1 = invoke(x_thunk);
+	void *data2 = invoke(y_thunk);
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -603,7 +603,7 @@ void *orb_eval(struct Thunk *t) {
 }
 
 int *notb(struct Thunk *x_thunk) {
-	void *data1 = x_thunk->value;
+	void *data1 = invoke(x_thunk);
 
 	int x_ = *(int *)data1;
 
@@ -657,8 +657,8 @@ void *cons_eval(struct Thunk *t) {
 }
 
 struct List *cat(struct Thunk *lthunk1, struct Thunk *lthunk2) {
-	struct List *l1 = lthunk1->value;
-	struct List *l2 = lthunk2->value;	
+	struct List *l1 = invoke(lthunk1);
+	struct List *l2 = invoke(lthunk2);	
 
 	struct List *new = malloc(sizeof(struct List));
 	memcpy(new,l2,sizeof(struct List));
@@ -696,7 +696,7 @@ void *cat_eval(struct Thunk *t) {
 }
 
 int *length(struct Thunk *lthunk) {
-	struct List *list = lthunk->value;
+	struct List *list = invoke(lthunk);
 
 	struct Node *curr = list->head;	
 	int count = 0;
@@ -716,7 +716,7 @@ void *length_eval(struct Thunk *t) {
 }
 
 void *head(struct Thunk *lthunk) {
-	struct List *list = invoke(lthunk->value);
+	struct List *list = invoke(lthunk);
 	struct Thunk *data = (list->head)->data;	
 	void *value = invoke(data);
 	return value;
@@ -729,7 +729,7 @@ void *head_eval(struct Thunk *t) {
 }
 
 struct List *tail(struct Thunk *lthunk) {
-	struct List *list = invoke(lthunk->value);
+	struct List *list = invoke(lthunk);
 	struct List *newlist = malloc(sizeof(struct List));
 	memcpy(newlist, list, sizeof(struct List));
 	newlist->head = NULL;
@@ -763,7 +763,7 @@ void *tail_eval(struct Thunk *t) {
 
 // Tuple operations
 void *first(struct Thunk *lthunk) {
-	struct Tuple *tuple = invoke(lthunk->value);
+	struct Tuple *tuple = invoke(lthunk);
 	struct Thunk *data = tuple->first;	
 	void *value = invoke(data);
 	return value;
@@ -776,7 +776,7 @@ void *first_eval(struct Thunk *t) {
 }
 
 void *second(struct Thunk *lthunk) {
-	struct Tuple *tuple = invoke(lthunk->value);
+	struct Tuple *tuple = invoke(lthunk);
 	struct Thunk *data = tuple->second;	
 	void *value = invoke(data);
 	return value;
