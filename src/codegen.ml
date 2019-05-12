@@ -44,10 +44,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 | TypedVdef(n, _) -> (n, L.const_int i32_t 0) in
             StringMap.add name (L.define_global name zero the_module) m in
         List.fold_left global_var StringMap.empty var_lst in
-
-    (* TEST: print the global vars (not lambdas) *)
-    print_endline "* * * GLOBAL VARIABLES * * *";
-    StringMap.iter (fun k v -> print_endline k) global_vars;
     
     (* fn to add terminal instruction if needed *) 
     let add_terminal builder instr =
@@ -135,17 +131,11 @@ let translate (decl_lst: (decl * typed_decl) list) =
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
 
-    print_endline "* * * FUNCTIONS * * *";
-    
     let fn_decls: (L.llvalue *tlambda_def) StringMap.t =
         let gen_decls m (lm_def: tlambda_def) =
             (* core function declaration *)
             let fname = lm_def.tlname in
             let fn_args = arg_types lm_def in
-           
-            (* TEST: print number of args *) 
-            let _ = print_endline ("number of args of " ^ fname ^ " is " ^
-                (string_of_int (Array.length fn_args))) in
             
             (* core function: void *f(...)  *)
             let ftype = L.function_type (L.pointer_type i8_t) fn_args in
@@ -153,10 +143,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
     in
-
-    (* TEST - print the function names*)
-    StringMap.iter (fun k v -> print_endline k) eval_decls;
-    StringMap.iter (fun k v -> print_endline k) fn_decls;
 
     let thunks: L.llvalue StringMap.t =
     (* fn to add terminal instruction if needed *) 
@@ -200,7 +186,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                             | None -> raise (Failure ("No eval function for decl "^name))) in
                     let builder = 
                             L.builder_at_end context (L.entry_block eval_decl) in
-                    (*(print_endline ((L.string_of_llvalue eval_decl)));*)
                     
                     let types = l :: (flatten_arrow_type r) in
                     let num_args = List.length types in
@@ -425,7 +410,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 | Some (decl,_) -> decl
                 | None -> raise (Failure ("No function for decl "^name))) in
             let fn_builder = L.builder_at_end context (L.entry_block fn_decl) in
-            (*print_endline (L.string_of_llvalue fn_decl);*)
             let vars = lambda_var_list (txpr,Tarrow(l,r)) in
             let argsll = L.params fn_decl in
             let argslll = Array.to_list argsll in
@@ -437,7 +421,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
             let l_body_expr = build_expr lbody fn_builder var_to_local_map in
             let bc = L.build_call invoke [| l_body_expr |] "da" fn_builder in
             add_terminal fn_builder (L.build_ret bc)
-            (* build_expr txpr fn_builder var_to_argsll_map *) 
         | _ -> raise(Failure "expected tarrow vdef O_o")
     in
     
