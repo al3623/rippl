@@ -4,7 +4,7 @@
 #include "thunk.h"
 #include "natives.h"
 
-struct Thunk *map(struct Thunk *list_thunk, struct Thunk *func) {
+struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func) {
 	struct List *list = list_thunk->value;
 
 	struct Thunk *new_thunk = makeEmptyList(list->content_type);
@@ -25,7 +25,7 @@ struct Thunk *map(struct Thunk *list_thunk, struct Thunk *func) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *map_list(struct Thunk *apps_thunk, struct Thunk *vals) {
+struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals) {
 	struct List *apps = invoke(apps_thunk);
 
 	struct Thunk *new_thunk = makeEmptyList(INT);		// incorrect
@@ -35,7 +35,7 @@ struct Thunk *map_list(struct Thunk *apps_thunk, struct Thunk *vals) {
 
 	while (curr_app_node) {
 		struct Thunk *curr_app = curr_app_node->data;
-		struct Thunk *applied_thunk = map(vals, curr_app);
+		struct Thunk *applied_thunk = mapl(vals, curr_app);
 
 		struct Thunk *stupid_thunk_list_wrapper_new 
 			= init_thunk_literal(new);
@@ -47,7 +47,7 @@ struct Thunk *map_list(struct Thunk *apps_thunk, struct Thunk *vals) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *filter(struct Thunk *list_thunk, struct Thunk *filter) {
+struct Thunk *filterl(struct Thunk *list_thunk, struct Thunk *filter) {
 	struct List *list = invoke(list_thunk);
 
 	struct Thunk *new_thunk = makeEmptyList(list->content_type);
