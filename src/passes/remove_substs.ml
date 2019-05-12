@@ -23,7 +23,8 @@ let rec remove_subst_expr = function
 	| (_,IAnd,t) -> (TAnd,t) | (_,IOr,t) -> (TOr,t) | (_,INot,t) -> (TNot,t)
     | (_,ICons,t) -> (TCons,t) | (_,ICat,t) -> (TCat,t) 
 	| (_,ILen,t) -> (TLen,t) | (_,IHead,t) -> (THead,t) 
-	| (_,ITail,t) -> (TTail,t) 
+	| (_,ITail,t) -> (TTail,t)
+	| (_,IInt_to_float,t) -> (TInt_to_float,t) 
 	| (_,IVar (str),t) -> (TVar str,t)
     | (_,ILet (_, iassign, ix1),t) ->
 		(TLet(remove_subst_iassign iassign, remove_subst_expr ix1),t)

@@ -356,7 +356,8 @@ let rec ti env expr =
         | GreaterF -> (nullSubst, IGreaterF, Tarrow(Float,Tarrow(Float,Bool)))
         | And -> (nullSubst, IAnd, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Or -> (nullSubst, IOr, Tarrow(Bool,Tarrow(Bool,Bool)))
-        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
+        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))   
+		| Int_to_float -> (nullSubst, IInt_to_float, Tarrow(Int,Float)) 
 		| Cons -> let polyty = newTyVar "a" in
 			(nullSubst, ICons, Tarrow(polyty, 
 			Tarrow (TconList polyty, TconList polyty)))

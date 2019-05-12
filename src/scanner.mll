@@ -88,6 +88,8 @@ rule token =
             | '='               { ASSIGN }
             (* APPLICATION *)
             | '~'               { APP }
+			(* CONVERSION *)
+			| "int_to_float"	{ INT_TO_FLOAT }
             (* IDENTIFIERS *)
             | (letter | '_') (letter | digit | '_')* as id { IDENT(id) }
             (* WHITESPACE *)

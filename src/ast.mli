@@ -12,6 +12,7 @@ type expr =
 	| Tuple of (expr * expr)
 	(* Maybe operations *)
 	| Is_none | From_just | Just of expr | None
+	| Int_to_float
     | Var of string
     | Let of (assign * expr)
     | Lambda of (string * expr)

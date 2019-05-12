@@ -21,6 +21,7 @@ tx =
 	| TFirst | TSec 
 	| TTuple of (typed_expr * typed_expr)
 	| TIs_none | TFrom_just | TJust of typed_expr | TNone
+	| TInt_to_float
     | TVar of string
     | TLet of (tassign * typed_expr)
     | TLambda of (string * typed_expr)
