@@ -57,6 +57,7 @@ struct List {
 void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
+void printAnyThunk(struct Thunk *t, int ty);
 void printList(struct List *list);
 void printTuple(void *tup);
 void printMaybe(void *may);

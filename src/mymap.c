@@ -84,9 +84,13 @@ struct Thunk *filter(struct Thunk *list_thunk, struct Thunk *filter) {
 	}
 	return init_thunk_literal(new);
 }
-/*
+
 int main() {
+	int _0 = 0;
+	int _1 = 1;
 	int _2 = 2;
+	int _5 = 5;
+	int _10 = 10;
 	struct Thunk *_2_thunk = init_thunk_literal(&_2);
 
 	init_thunk(tail_init_thunk,tail_eval,1);
@@ -99,19 +103,19 @@ int main() {
 	
 	init_thunk(mult_init_thunk, mult_eval,2);
 
-	struct Thunk *_0and1_thunk = makeRangeList(0,1);
+	struct Thunk *_0and1_thunk = makeRangeList(init_thunk_literal(&_0),init_thunk_literal(&_1));
 
-	struct Thunk *_10_thunk = makeRangeList(10,10);
+	struct Thunk *_10_thunk = makeRangeList(init_thunk_literal(&_10),init_thunk_literal(&_10));
 
 	struct Thunk *_2and10_thunk = apply(apply(cons_init_thunk,_2_thunk),
 		_10_thunk);
 	invoke(_2and10_thunk);	
-	printPrimList(_2and10_thunk);
+	printAnyThunk(_2and10_thunk, 4);
 	printf("\n");
 
 	struct Thunk *two_thunk = apply(head_init_thunk,_2and10_thunk);
 	int *two = invoke(two_thunk);
-	printf("head [2,10]: %d\n", *two);
+	/*printf("head [2,10]: %d\n", *two);*/ /*
 	struct Thunk *ten_thunk = apply(head_init_thunk,apply(tail_init_thunk,_2and10_thunk));
 	int *ten = invoke(ten_thunk);
 	printf("head tail [2,10]: %d\n", *ten);
@@ -122,9 +126,9 @@ int main() {
 
 	struct Thunk *mult2and10_thunk = map(_2and10_thunk,mult_init_thunk);
 
-	struct Thunk *unfiltered_thunk = makeRangeList(0,5);
+	struct Thunk *unfiltered_thunk = makeRangeList(init_thunk_literal(&_0),init_thunk_literal(&_5));
 	printf("original: ");
-	printPrimList(unfiltered_thunk);
+	printAnyThunk(unfiltered_thunk, 4);
 	printf("\n");
 
 	struct Thunk *mult2 = invoke(apply(head_init_thunk,mult2and10_thunk));
@@ -134,29 +138,29 @@ int main() {
 
 	printf("not 0 filter: ");	
 	struct Thunk *not0_thunk = filter(unfiltered_thunk,neq0);
-	printPrimList(not0_thunk);
+	printAnyThunk(not0_thunk, 4);
 	printf("\n");
 
 	printf("not 1 filter: ");	
 	struct Thunk *not1_thunk = filter(unfiltered_thunk,neq1);
-	printPrimList(not1_thunk);
+	printAnyThunk(not1_thunk, 4);
 	printf("\n");
 
 	printf("map *2 original: ");
 	struct Thunk *map_mult2_unfiltered_thunk = map(unfiltered_thunk, mult2);
-	printPrimList(map_mult2_unfiltered_thunk);
+	printAnyThunk(map_mult2_unfiltered_thunk, 4);
 	printf("\n");
 
 	printf("map *10 not1: ");
 	struct Thunk *map_mult10_not1_thunk = map(not1_thunk, mult10);
-	printPrimList(map_mult10_not1_thunk);
+	printAnyThunk(map_mult10_not1_thunk, 4);
 	printf("\n");
 
 	struct Thunk *maplist_mult_thunk =
 		map_list(mult2and10_thunk,unfiltered_thunk);
 	printf("map * [2,10] original: ");
-	printPrimList(maplist_mult_thunk);
-	printf("\n");
+	printAnyThunk(maplist_mult_thunk, 4);
+	printf("\n");*/
 
 	return 0;
-}*/
+}
