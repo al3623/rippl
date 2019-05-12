@@ -66,22 +66,19 @@ struct Thunk *makeFloat(float x) {
 	return init_thunk_literal(f);
 }
 
-struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
+struct Tuple *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2) {
 	struct Tuple *newtup = malloc(sizeof(struct Tuple));
 
 	newtup->t1 = t1;
 	newtup->t2 = t2;
 
-	struct Thunk *thunk_data1 = init_thunk_literal(data1);
-	struct Thunk *thunk_data2 = init_thunk_literal(data2);
-
-	newtup->first = thunk_data1;
-	newtup->second = thunk_data2;
+	newtup->first = data1;
+	newtup->second = data2;
 
 	return newtup;
 }
 
-struct Maybe *makeMaybe(void *data, int ty) {
+struct Maybe *makeMaybe(struct Thunk *data, int ty) {
 	struct Maybe *may = malloc(sizeof(struct Maybe));
 	if (data) {
 		may->is_none = 0;
@@ -89,8 +86,7 @@ struct Maybe *makeMaybe(void *data, int ty) {
 		may->is_none = 1;
 	}
 
-	struct Thunk *data_thunk = init_thunk_literal(data);
-	may->data = data_thunk;
+	may->data = data;
 	return may;
 }
 
@@ -109,15 +105,15 @@ struct Thunk *makeEmptyList(int ty) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *makeRangeList(int start, int end) {
+struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end) {
 	struct List *list = malloc(sizeof(struct List));
-	list->start = start;
-	list->end = end;
+	list->start = *(int *)(invoke(start));
+	list->end = *(int *)(invoke(end));
 	list->content_type = INT;
 	list->type = RANGE;
-	list->curr_index = start;
+	list->curr_index = list->start;
 
-	struct Thunk *data = makeInt(start);
+	struct Thunk *data = makeInt(list->start);
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
