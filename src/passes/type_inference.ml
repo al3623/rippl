@@ -437,5 +437,5 @@ let type_paired_program annotvdef_list =
 	let annotIVdefs' = List.map
 		(fun (a, InferredVdef(n,(s,ix,ty))) -> 
 			(a,InferredVdef(n,(s,ix, apply allSubsts ty)))) annotIVdefs in
-		annotIVdefs'
+		(allSubsts,annotIVdefs')
 
