@@ -1,3 +1,0 @@
-id = fun x ->
-	let inner = id
-	in inner~x
