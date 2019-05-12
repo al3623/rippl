@@ -237,29 +237,6 @@ void printInfinteList(void *list) {
 
 void printCompList(void *list);
 
-void printTuple(void *tup) {
-	struct Tuple *tupl = (struct Tuple*)tup;
-	int t1 = tupl->t1;
-	int t2 = tupl->t2;
-
-	printf("(");
-	printAny(((tupl->first))->value, t1);		
-	printf(", ");
-	printAny((tupl->second)->value, t2);
-	printf(")");	
-}
-
-void printMaybe(void *may) {
-	struct Maybe* mayb = (struct Maybe*)may;
-	int ty = mayb->ty;
-	if (mayb->is_none) {
-		printf("None");
-	} else {
-		printf("Some ");
-		printAny((mayb->data)->value, ty);
-	}
-}
-
 void printPrim(void *data, int ty) {
 	if (ty == INT) {
 		int int_data = *(int *)data;
