@@ -112,17 +112,7 @@ let rec mgu ty1 ty2 =
 	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
             let s1 = mgu l l' in
-			print_string "MGU s1: ";
-			printSubst s1; 
-            let s2 = mgu (apply s1 r) (apply s1 r') in
-			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
-			print_endline("MGU apply r2: " ^ (ty_to_str (apply s1 r')));
-			print_endline("MGU r1: " ^ (ty_to_str r));
-			print_endline("MGU r2: "^ (ty_to_str r')); 
- 			print_string "MGU s2: ";
-			printSubst s2;       
-			print_string "MGU ret subst: ";
-			printSubst (composeSubst s1 s2);    
+            let s2 = mgu (apply s1 r) (apply s1 r') in   
 			composeSubst s1 s2
     | Tvar(u), t -> varBind u t
     | t, Tvar(u) -> varBind u t
@@ -279,23 +269,11 @@ let rec ti env expr =
 			(fullSubst, IListLit(merged_ix_list), TconList ty))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
-(*		print_string "RANGE subst1: ";
-		printSubst subst1;*)
 		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in	
-(*		print_string "RANGE subst2: ";
-		printSubst subst2;*)
 		let subst3 = mgu (apply subst2 ty1) ty2 in
-(*		print_string "RANGE subst3: ";
-		printSubst subst3;*)
 		let subst4 = mgu (apply subst3 ty2) Int in
-(*		print_string "RANGE subst4: ";
-		printSubst subst4;*)
 		let fullsubst = composeSubst subst1 (composeSubst subst2 
 			(composeSubst subst3 subst4)) in
-(*		print_string "RANGE fullsubst: ";
-		printSubst fullsubst;
-		print_endline ("RANGE ty1: "^(ty_to_str (apply fullsubst ty1)));
-		print_endline ("RANGE ty2: "^(ty_to_str (apply fullsubst ty2)));*)
 		(fullsubst
 			, IListRange(subst4, 
 				(subst1,tex1,apply fullsubst ty1), 
@@ -318,7 +296,6 @@ let rec ti env expr =
                 )
         | Let(Assign(x, e1), e2) -> 
 				let (s1,tex1,t1) as ix1 = ti env e1 in
-(*				(print_endline ("let assign ty: "^ (ty_to_str t1))); *)
                 let t' = generalize (applyenv s1 env) t1 in 
                 let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
@@ -335,16 +312,8 @@ let rec ti env expr =
 	| App(e1,e2) -> 
 		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
-		print_endline (ast_to_str e1);
-		print_endline ("APP t1: " ^ (ty_to_str t1));
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
 		let s3 = mgu (apply s2 t1) (Tarrow( t2, tv)) in
-		print_endline ("APP t2: " ^ (ty_to_str t2));
-		print_string "APP s3: ";
-		printSubst s3;
-		print_string "APP ret subst: ";
-		printSubst (composeSubst (composeSubst s1 s2) s3);
-		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
@@ -431,9 +400,6 @@ let rec typeUpdateEnv env = function
 		let newSubst = mgu newTy oldTy in
 		let newPair = (a, InferredVdef(name,
 			(composeSubst newSubst substs, ix, apply newSubst ty))) in
-		print_endline (ty_to_str ty);
-		print_endline(ty_to_str (apply newSubst ty));
-		print_endline (name^"\n");
 			(newPair::(typeUpdateEnv (applyenv newSubst env) xs))
 	| [] -> []
 	| ((_,Annot(_))::xs) -> raise (Failure "cannot tiVdef on annotation")

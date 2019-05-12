@@ -371,6 +371,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TLessF -> lessf_init_thunk
             | TGreaterF -> greaterf_init_thunk
             | TNegF -> negf_init_thunk
+            | TAnd -> andb_init_thunk
+            | TOr -> orb_init_thunk
+            | TNot -> orb_init_thunk
             | TCons -> cons_init_thunk
             | TCat -> cat_init_thunk
             | TLen -> length_init_thunk
