@@ -74,8 +74,8 @@ struct Node *makeNode(struct Thunk *data);
 struct Thunk *makeEmptyList(int ty);
 struct Thunk *makeInfinite(int start);
 struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end);
-struct Tuple *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2);
-struct Maybe *makeMaybe(struct Thunk *data, int ty);
+struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2);
+struct Thunk *makeMaybe(struct Thunk *data, int ty);
 
 void explodeRangeList(void *list);
 void evalNextNode(void *list);

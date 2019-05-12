@@ -446,11 +446,20 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let _ = L.build_call invoke [| lv |] "invoke" builder in
         (* print *)
         let _ = (match vtype with
-            | TconList(t) -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 4|] "" builder
-            | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "" builder
-            | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
-            | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder
-            | Char -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 2 |] "" builder
+            | TconList(t) -> L.build_call printAnyThunk 
+				[| lv ; L.const_int i32_t 4|] "" builder
+            | Int -> L.build_call printAnyThunk 
+				[| lv ; L.const_int i32_t 0 |] "" builder
+            | Bool -> L.build_call printAnyThunk 
+				[| lv ; L.const_int i32_t 1 |] "" builder
+            | Float -> L.build_call printAnyThunk 
+				[| lv ; L.const_int i32_t 3 |] "" builder
+            | Char -> L.build_call printAnyThunk 
+				[| lv ; L.const_int i32_t 2 |] "" builder
+			| TconTuple _ -> L.build_call printAnyThunk
+				[| lv ; L.const_int i32_t 5 |] "" builder
+			| Tmaybe _ -> L.build_call printAnyThunk
+				[| lv ; L.const_int i32_t 6 |] "" builder
             | ty -> raise(Failure("Main is of unprintable type"^(ty_to_str ty)))
         ) in
         L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder

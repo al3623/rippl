@@ -66,7 +66,7 @@ struct Thunk *makeFloat(float x) {
 	return init_thunk_literal(f);
 }
 
-struct Tuple *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2) {
+struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2) {
 	struct Tuple *newtup = malloc(sizeof(struct Tuple));
 
 	newtup->t1 = t1;
@@ -75,10 +75,10 @@ struct Tuple *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2
 	newtup->first = data1;
 	newtup->second = data2;
 
-	return newtup;
+	return init_thunk_literal(newtup);
 }
 
-struct Maybe *makeMaybe(struct Thunk *data, int ty) {
+struct Thunk *makeMaybe(struct Thunk *data, int ty) {
 	struct Maybe *may = malloc(sizeof(struct Maybe));
 	if (data) {
 		may->is_none = 0;
@@ -87,7 +87,7 @@ struct Maybe *makeMaybe(struct Thunk *data, int ty) {
 	}
 
 	may->data = data;
-	return may;
+	return init_thunk_literal(may);
 }
 
 struct Thunk *makeEmptyList(int ty) {

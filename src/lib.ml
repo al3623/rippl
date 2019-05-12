@@ -90,7 +90,7 @@ let makeFloat : L.llvalue =
 
 (* HEAP ALLOCATE TUPLES *)
 let makeTuple_t : L.lltype =
-	L.function_type (L.pointer_type struct_tuple_type) 
+	L.function_type (L.pointer_type struct_thunk_type) 
 	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type 
 		; i32_t ; i32_t |]
 let makeTuple : L.llvalue =
@@ -98,7 +98,7 @@ let makeTuple : L.llvalue =
 
 (* HEAP ALLOCATE MAYBES *)
 let makeMaybe_t : L.lltype =
-	L.function_type (L.pointer_type struct_maybe_type) 
+	L.function_type (L.pointer_type struct_thunk_type) 
 	[| L.pointer_type struct_thunk_type ; i32_t |]
 let makeMaybe : L.llvalue =
 	L.declare_function "makeMaybe" makeMaybe_t the_module
