@@ -85,8 +85,13 @@ and ty_to_str ty =
     | TconTuple(t1,t2) -> "(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
     | Tmaybe(t) -> "Maybe " ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
-    | Tarrow(t1,t2) -> (ty_to_str t1) ^ " -> " ^ (ty_to_str t2)
+    | Tarrow(t1,t2) -> (nestarrow t1) ^ " -> " ^ (ty_to_str t2)
     | Tforall(_,t) -> ty_to_str t
+
+and nestarrow ty =
+	match ty with
+	| Tarrow(t,t1) -> "("^(nestarrow t)^" -> "^(ty_to_str t1)^")"
+	| el -> ty_to_str el
 
 
 and char_list_to_str cl =
