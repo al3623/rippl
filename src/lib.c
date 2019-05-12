@@ -386,5 +386,26 @@ void initNativeThunks() {
 	// Tuple operations
 	init_thunk(first_init_thunk, &first_eval, 1);
 	init_thunk(second_init_thunk, &second_eval, 1);
+}
 
+void printTuple(void *tup) {
+	struct Tuple *t = tup;
+	int t1 = t->t1;
+	int t2 = t->t2;
+
+	printf("(");
+	printAnyThunk(t->first,t1);
+	printf(", ");
+	printAnyThunk(t->second,t2);
+	printf(")");
+}
+
+void printMaybe(void *mayb) {
+	struct Maybe* m = mayb;
+	if (m->is_none) {
+		printf("none");
+	} else {
+		printf("maybe ");
+		printAnyThunk(m->data,m->ty);
+	}
 }

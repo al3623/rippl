@@ -64,6 +64,8 @@ void printPrimList(struct Thunk *list);
 void printRangeList(struct Thunk *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
+void printTuple(void *tup);
+void printMaybe(void *mayb);
 
 struct Thunk *makeInt(int x);
 struct Thunk *makeBool(char x);
