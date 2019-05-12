@@ -16,6 +16,7 @@ struct Thunk neq_init_thunk[1];
 struct Thunk geq_init_thunk[1];
 struct Thunk leq_init_thunk[1];
 struct Thunk less_init_thunk[1];
+struct Thunk greater_init_thunk[1];
 struct Thunk neg_init_thunk[1];
 
 struct Thunk addf_init_thunk[1];

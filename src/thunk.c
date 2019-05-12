@@ -67,8 +67,9 @@ void *invoke(struct Thunk *t) {
 		} else {
 			int i;
 			for (i = 0; i < t->num_args; i++) {
-				invoke(t->args[i]);
+		                invoke(t->args[i]);
 			}
+
 			t->value = t->eval(t);
 			return t->value;
 		}
