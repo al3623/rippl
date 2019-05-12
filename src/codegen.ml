@@ -406,6 +406,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				L.build_call makeMaybe 
 				[| L.const_null (L.pointer_type struct_thunk_type)
 				; L.const_int i32_t (ty_to_int t) |] "none" builder
+			| TListComp _ -> raise (Failure "list comprehensions to be
+implemented")
 
 
     in

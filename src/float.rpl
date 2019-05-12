@@ -1,1 +1,1 @@
-main = int_to_float 10
+main = (int_to_float (10)) +. (3.0)

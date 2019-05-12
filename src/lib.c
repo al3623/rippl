@@ -332,7 +332,6 @@ void initNativeThunks() {
 	init_thunk(second_init_thunk, &second_eval, 1);
 
 	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
-	fprintf(stderr,"INITED\n");
 }
 
 void printTuple(void *tup) {

@@ -159,9 +159,14 @@ let rec ti env expr =
 			| (ListRange _) as l -> ti env l
 			| (InfList _) as l -> ti env l
 			| (ListLit _) as l -> ti env l
-			| _ -> raise (Failure( 
-			"list comprehension variable "^v^" is not defined over a list"))) 
-			in (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+			| (Var _) as l -> ti env l
+			| t -> raise (Failure( 
+			"list comprehension variable "^v^" is not defined over list")))
+			in (match ty with
+				| TconList _ -> (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+				| _ ->  raise (Failure( 
+			"list comprehension variable "^v^" is not defined over list")))
+
 		| [] -> []
 		| _ -> raise (Failure "Unexpected filter")
 	in
