@@ -199,7 +199,7 @@ void printAny(void *thing, int ty) {
 }
 
 void printAnyThunk(struct Thunk *primThunk, int ty) {
-	void *thing = primThunk->value;
+	void *thing = invoke(primThunk);
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
 	} else if (ty == LIST) {
@@ -211,43 +211,21 @@ void printAnyThunk(struct Thunk *primThunk, int ty) {
 	}
 }
 
-void printList(void *list_thunk) {
-	// TODO lol does this work 
-/*	struct List *list = invoke(list_thunk);
+void printList(struct List *list) {
+	struct Node *curr = list->head;		
+	int type = list->content_type;
 
-	int type = llist->type;	
-	struct Node *curr = llist->head;		
-	int content_type = llist->content_type;
-
-	if (type == RANGE) {
-		printRangeList(list);
-	} else if (type == INFINITE) {
-		printInfinteList(list);
-	} else if (type == COMP) {
-		//TODO
-	} else  {
-		printPrimList(list);
-	}*/
-}
-
-void printPrimList(struct Thunk *list_thunk) {
-	struct List *list = invoke(list_thunk);
-	
-	int ty = list->content_type;
-	struct Node *curr = list->head;
-
-	if (ty!= CHAR)
-		printf("[");
-	while (curr) {
-		invoke(curr->data);
-		printAny((curr->data)->value, ty);	
-		curr = curr->next;
-		if (curr && ty != CHAR) {
-			printf(", ");
-		}
-	}	
-	if (ty != 2)
-		printf("]");
+        if (type != CHAR) 
+            printf("[");
+        while (curr != NULL) {
+                struct Thunk *ndata = curr->data;
+                printAnyThunk(ndata, type);
+                curr = curr->next;
+                if (curr && type != CHAR)
+                    printf(", ");
+        }
+        if (type != CHAR) 
+            printf("]");
 }
 
 void printInfinteList(void *list) {
@@ -259,20 +237,6 @@ void printInfinteList(void *list) {
 	printf("[");
 	printAny((head->data)->value, ty);
 	printf("...]");
-}
-
-void printRangeList(struct Thunk *list_thunk) {
-	struct List *llist = invoke(list_thunk);
-	
-	int ty = llist->content_type;
-	struct Node *head = llist->head;	
-
-	if (llist->curr_index == llist->end) {
-		printPrimList(list_thunk);
-	} else {
-		explodeRangeList(llist);
-		printPrimList(list_thunk);
-	}
 }
 
 void printCompList(void *list);

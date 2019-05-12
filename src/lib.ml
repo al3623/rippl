@@ -172,11 +172,6 @@ let printRangeList_t : L.lltype =
 let printRangeList : L.llvalue =
 	L.declare_function "printRangeList" printRangeList_t the_module
 
-let printPrimList_t : L.lltype =
-	L.function_type void_t [| L.pointer_type struct_thunk_type |]
-let printPrimList : L.llvalue =
-	L.declare_function "printPrimList" printPrimList_t the_module
-
 let printPrim_t : L.lltype =
 	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
 let printPrim : L.llvalue =

@@ -339,29 +339,20 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList Bool -> 1
                        | TconList Char -> 2
                        | TconList Float -> 3
-                       | _ -> raise (Failure "ty_code")
+                       | TconList (TconList _) -> 4
+                       | TconList (TconTuple _) -> 5
+                       | TconList (Tmaybe _) -> 6
+                       | _ -> -1
                 in
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
-                
-                let makestar texp = match texp with
-                          (TCharLit c ,_) -> let _char = L.const_int i8_t (Char.code c) in
-                                L.build_call makeChar [| _char |] "makeChar" builder
-                        | (TIntLit i, _) -> let _int = L.const_int i32_t i in
-                                L.build_call makeInt [| _int |] "makeInt" builder
-                        | (TBoolLit b, _) -> let _bool = L.const_int i8_t (if b then 1 else 0) in
-                                L.build_call makeBool [| _bool |] "makeBool" builder
-                        | (TFloatLit f, _) -> let _float = L.const_float float_t f in
-                                L.build_call makeFloat [| _float |] "makeFloat" builder
-                        
-                        | _ -> raise (Failure "makestar")
-                in
+
                 let rec build_list s prevlist = (match s with
-                    | h :: t -> let estar = makestar h in
-                        let nodestar = L.build_call makeNode
-                            [| estar |] "makeNode" builder in
+                    | h :: t -> 
+                        let tn_star = build_expr h builder scope in
+                        let n_star = L.build_call makeNode [| tn_star |] "makeNode" builder in
                         let nextlist = L.build_call appendNodeThunk
-                            [| prevlist ; nodestar |] "appendNodeThunk" builder in
+                            [| prevlist ; n_star |] "appendNodeThunk" builder in
                         build_list t nextlist
                     | [] -> prevlist
                 )
@@ -448,9 +439,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let _ = L.build_call invoke [| lv |] "invoke" builder in
         (* print *)
         let _ = (match vtype with
-            | TconList(t) -> (match t with
-                | Int | Bool| Float | Char -> L.build_call printPrimList [| lv |] "" builder
-                | _ -> raise (Failure "what the fuck kind of list is this"))
+            | TconList(t) -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 4|] "" builder
             | Int -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 0 |] "" builder
             | Bool -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 1 |] "" builder
             | Float -> L.build_call printAnyThunk [| lv ; L.const_int i32_t 3 |] "" builder

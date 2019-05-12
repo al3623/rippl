@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT			0
+#define	INT		0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -57,10 +57,9 @@ struct List {
 void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
-void printList(void *list);
+void printList(struct List *list);
 void printTuple(void *tup);
 void printMaybe(void *may);
-void printPrimList(struct Thunk *list);
 void printRangeList(struct Thunk *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
