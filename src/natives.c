@@ -580,9 +580,9 @@ void *andb_eval(struct Thunk *t) {
 	return result;
 }
 
-int *orbb(struct Thunk *x_thunk, struct Thunk *y_thunk) {
-	void *data1 = invoke(x_thunk);
-	void *data2 = invoke(y_thunk);
+int *orb(struct Thunk *x_thunk, struct Thunk *y_thunk) {
+	void *data1 = x_thunk->value;
+	void *data2 = y_thunk->value;	
 
 	int x_ = *(int *)data1;
 	int y_ = *(int *)data2;
@@ -597,7 +597,7 @@ void *orb_eval(struct Thunk *t) {
 	struct Thunk *x = ((t->args)[0]);
 	struct Thunk *y = ((t->args)[1]);
 
-	void *result = orbb(x,y);
+	void *result = orb(x,y);
 	
 	return result;
 }

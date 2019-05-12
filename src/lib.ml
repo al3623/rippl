@@ -54,6 +54,10 @@ let lessf_init_thunk = L.define_global "lessf_init_thunk" (L.const_null struct_t
 let greaterf_init_thunk = L.define_global "greaterf_init_thunk" (L.const_null struct_thunk_type) the_module
 let negf_init_thunk = L.define_global "negf_init_thunk" (L.const_null struct_thunk_type) the_module
 
+(* Boolean operation thunks *)
+let andb_init_thunk = L.define_global "andb_init_thunk" (L.const_null struct_thunk_type) the_module
+let orb_init_thunk = L.define_global "orb_init_thunk" (L.const_null struct_thunk_type) the_module
+let notb_init_thunk = L.define_global "notb_init_thunk" (L.const_null struct_thunk_type) the_module
 
 (* List operations *)
 let cons_init_thunk = L.define_global "cons_init_thunk" (L.const_null struct_thunk_type) the_module
