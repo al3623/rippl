@@ -384,6 +384,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TTail -> tail_init_thunk
             | TFirst -> first_init_thunk
             | TSec -> second_init_thunk
+			| TInt_to_float -> int_to_float_init_thunk
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
 			| TTuple(tx1,tx2) ->
 				let (t1,t2) = (match typ with 

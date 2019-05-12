@@ -70,6 +70,9 @@ let tail_init_thunk = L.define_global "tail_init_thunk" (L.const_null struct_thu
 let first_init_thunk = L.define_global "first_init_thunk" (L.const_null struct_thunk_type) the_module
 let second_init_thunk = L.define_global "second_init_thunk" (L.const_null struct_thunk_type) the_module
 
+let int_to_float_init_thunk = L.define_global "int_to_float_thunk" (L.const_null
+	struct_thunk_type) the_module
+
 let _ = L.set_alignment 32 add_init_thunk
 
 let l_char = L.const_int i8_t (Char.code '\n')

@@ -149,3 +149,7 @@ extern struct Thunk first_init_thunk[1];
 void *second(struct Thunk *lthunk);
 void *second_eval(struct Thunk *t);
 extern struct Thunk second_init_thunk[1];
+
+void *int_to_float(struct Thunk *t);
+void *int_to_float_eval(struct Thunk *t);
+extern struct Thunk int_to_float_init_thunk[1];

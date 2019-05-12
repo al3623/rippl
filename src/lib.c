@@ -45,6 +45,8 @@ struct Thunk tail_init_thunk[1];
 struct Thunk first_init_thunk[1];
 struct Thunk second_init_thunk[1];
 
+struct Thunk int_to_float_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
@@ -328,6 +330,9 @@ void initNativeThunks() {
 	// Tuple operations
 	init_thunk(first_init_thunk, &first_eval, 1);
 	init_thunk(second_init_thunk, &second_eval, 1);
+
+	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
+	fprintf(stderr,"INITED\n");
 }
 
 void printTuple(void *tup) {
@@ -351,3 +356,13 @@ void printMaybe(void *mayb) {
 		printAnyThunk(m->data,m->ty);
 	}
 }
+/*
+int main() {
+	initNativeThunks();
+	int _2 = 2;
+	struct Thunk *two = init_thunk_literal(&_2);
+	printAnyThunk(two,0);
+	printf("\n");
+	struct Thunk *app_itf = apply(int_to_float_init_thunk,two);
+	printAnyThunk(app_itf,3);
+}*/

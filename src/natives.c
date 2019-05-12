@@ -788,3 +788,15 @@ void *second_eval(struct Thunk *t) {
 	return result;
 }
 
+void *int_to_float(struct Thunk *i) {
+	int *val = invoke(i);
+	float *result = malloc(sizeof(float));
+	*result = *(int *)val;
+	return result;
+}
+
+void *int_to_float_eval(struct Thunk *t) {
+	struct Thunk *th = ((t->args)[0]);
+	void *result = int_to_float(th);
+	return result;
+}

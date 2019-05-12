@@ -8,6 +8,7 @@ struct Thunk *init_thunk(struct Thunk *thunk,
 
 	thunk->eval = eval;
 	thunk->num_args = num_args;
+	fprintf(stderr, "init args: %d\n",num_args);
 	thunk->filled_args = 0;
 	thunk->args = malloc(num_args * sizeof(struct Thunk*));
 	thunk->value = NULL;
@@ -17,6 +18,7 @@ struct Thunk *init_thunk(struct Thunk *thunk,
 
 struct Thunk *init_thunk_literal(void *data) {
 	struct Thunk *lit = malloc(sizeof(struct Thunk));
+	fprintf(stderr, "lit ");
 	lit = init_thunk(lit,NULL, 1);
 
 	lit->filled_args = 1;
@@ -36,13 +38,13 @@ struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
 		new_thunk->value = new_thunk;
 	}
 
-
-
-
-	if (new_thunk->filled_args < new_thunk->num_args) {
+	fprintf(stderr,"filled: %d\n", new_thunk->filled_args);
+	fprintf(stderr,"num: %d\n",new_thunk->num_args);
+	if (new_thunk->filled_args < new_thunk->num_args) {	
 		(new_thunk->args)[new_thunk->filled_args] = arg;
 		new_thunk->filled_args++;
 	} else {
+
 		// Top thunk is filled, let's fill in the last arg
 		struct Thunk *last_arg = new_thunk->args[new_thunk->num_args - 1];
 		if (last_arg->filled_args < last_arg->num_args) {
