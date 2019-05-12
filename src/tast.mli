@@ -11,7 +11,7 @@ type typed_expr = tx * ty
 and
 tx =
     | TIntLit of int | TFloatLit of float | TBoolLit of bool 
-    | TCharLit of char | TWildCard
+    | TCharLit of char | TWildCard | TInt_to_float
     | TAdd | TSub | TMult | TDiv | TMod | TPow
     | TAddF | TSubF | TMultF | TDivF | TPowF | TNeg | TNegF
     | TEq | TEqF | TNeq | TNeqF | TGeq | TGeqF | TLeq | TLeqF
@@ -21,7 +21,6 @@ tx =
 	| TFirst | TSec 
 	| TTuple of (typed_expr * typed_expr)
 	| TIs_none | TFrom_just | TJust of typed_expr | TNone
-	| TInt_to_float
     | TVar of string
     | TLet of (tassign * typed_expr)
     | TLambda of (string * typed_expr)

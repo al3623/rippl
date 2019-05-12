@@ -303,7 +303,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | None -> raise (Failure (s^ " not found in scope"))
                             ))
             )
-			| TListRange(s,e) ->
+	    | TListRange(s,e) ->
 				let start = build_expr s builder scope in
 				let endd = build_expr e builder scope in
 				L.build_call makeRangeList [| start ; endd |] "range" builder
@@ -376,7 +376,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TNegF -> negf_init_thunk
             | TAnd -> andb_init_thunk
             | TOr -> orb_init_thunk
-            | TNot -> orb_init_thunk
+            | TNot -> notb_init_thunk
             | TCons -> cons_init_thunk
             | TCat -> cat_init_thunk
             | TLen -> length_init_thunk
@@ -384,32 +384,83 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TTail -> tail_init_thunk
             | TFirst -> first_init_thunk
             | TSec -> second_init_thunk
-			| TInt_to_float -> int_to_float_init_thunk
+	    | TInt_to_float -> int_to_float_init_thunk
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
-			| TTuple(tx1,tx2) ->
-				let (t1,t2) = (match typ with 
-					| (TconTuple l) -> l) in
-				let first = build_expr tx1 builder scope in
-				let sec = build_expr tx2 builder scope in
-				L.build_call makeTuple 
-				[| first ; sec 
-				; L.const_int i32_t (ty_to_int t1) 
-				; L.const_int i32_t (ty_to_int t2) |] "tup" builder
-			| TJust(tx) -> let inn = build_expr tx builder scope in
-				let t = (match typ with
-					| (Tmaybe l) -> l) in
-				L.build_call makeMaybe 
-				[| inn ; L.const_int i32_t (ty_to_int t) |] "just" builder
-			| TNone -> 
-				let t = (match typ with
-					| (Tmaybe l) -> l) in
-				L.build_call makeMaybe 
-				[| L.const_null (L.pointer_type struct_thunk_type)
-				; L.const_int i32_t (ty_to_int t) |] "none" builder
-			| TListComp _ -> raise (Failure "list comprehensions to be
-implemented")
+            | TTuple(tx1,tx2) ->
+                    let (t1,t2) = (match typ with 
+                            | (TconTuple l) -> l) in
+                    let first = build_expr tx1 builder scope in
+                    let sec = build_expr tx2 builder scope in
+                    L.build_call makeTuple 
+                    [| first ; sec 
+                    ; L.const_int i32_t (ty_to_int t1) 
+                    ; L.const_int i32_t (ty_to_int t2) |] "tup" builder
+            | TJust(tx) -> let inn = build_expr tx builder scope in
+                    let t = (match typ with
+                            | (Tmaybe l) -> l) in
+                    L.build_call makeMaybe 
+                    [| inn ; L.const_int i32_t (ty_to_int t) |] "just" builder
+            | TNone -> 
+                    let t = (match typ with
+                            | (Tmaybe l) -> l) in
+                    L.build_call makeMaybe 
+                    [| L.const_null (L.pointer_type struct_thunk_type)
+                    ; L.const_int i32_t (ty_to_int t) |] "none" builder
 
+            | TListComp (tex, tclslst) ->
+                    let num_vars = 
+                        let rec num_list lst = (match lst with
+                            | h::t -> (match h with
+                                    | TListVBind _ -> 1 + num_list t
+                                    | _ -> num_list t
+                            )
+                            | [] -> 0
+                        )
+                    in num_list tclslst in
 
+                    let rec get_lists clauses = match clauses with
+                        | h::t -> (match h with
+                            | TListVBind (str, texp) ->
+                                let b = build_expr texp builder scope in
+                                    (str, b)::(get_lists t)
+                            | _ -> get_lists t
+                        )
+                        | [] -> []
+                    in
+                    let rec get_filters clauses = match clauses with
+                        | h::t -> (match h with
+                            | TFilter texp ->
+                                let b = build_expr texp builder scope in
+                                    b::(get_filters t)
+                            | _ -> get_filters t
+                        )
+                        | [] -> []
+                    in
+                    let lists = get_lists tclslst in
+                    let filters =  get_filters tclslst
+                    in
+                    
+                    let fn_thunk = build_expr tex builder scope in
+                    let map_thunk = L.build_call mapl 
+                        [| snd (List.hd lists); fn_thunk |] "map_thunk" builder in
+
+                    let rec apply_map_list lsts thunk = match lsts with
+                        | [] -> thunk
+                        | h::t -> let map_list_thunk = L.build_call map_listl
+                                [| thunk; snd (List.hd lsts) |] 
+                                "map_list_thunk" builder in
+                                 apply_map_list t map_list_thunk
+                    in
+                    let mapped_thunk = apply_map_list (List.tl lists) map_thunk in
+ 
+                    let rec apply_filters fltrs thunk = match fltrs with
+                        | [] -> thunk
+                        | h::t -> let filter_thunk = L.build_call filterl
+                                [| thunk; List.hd fltrs |] "filter_thunk"
+                                builder
+                                in apply_filters t filter_thunk
+                    in
+                    apply_filters filters mapped_thunk
     in
     
     (* GIVE THIS fn_decls *)
