@@ -311,8 +311,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     ignore(L.build_store lval p builder);
                     let hans_load = L.build_load p "loaded_hans" builder in
                     hans_load
-
-                | None -> (match (L.lookup_global ("$$" ^ s ^ "_init_thunk") the_module )(*StringMap.find_opt s global_vars*) with
+                | None -> (match (L.lookup_global ("$$" ^ s ^ "_init_thunk") the_module ) with
                       Some l -> l
                     | None -> (match (StringMap.find_opt s fn_decls) with
                           Some l_ -> fst l_
