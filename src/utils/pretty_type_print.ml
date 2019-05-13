@@ -12,7 +12,7 @@ let rec ast_to_str exp =
 		^ (ast_to_str arg1) ^ ")~" ^ (ast_to_str arg2)
     | App(op, e) ->  "(" ^ (op_to_str op) ^ ")~" ^ (ast_to_str e)
     | Var(s) -> s
-
+	| Tuple(a,b) -> "("^(ast_to_str a)^", "^(ast_to_str b)^")"
     (* Lists *)
     | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
