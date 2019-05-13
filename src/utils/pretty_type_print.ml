@@ -14,7 +14,8 @@ let rec ast_to_str exp =
     | Var(s) -> s
 
     (* Lists *)
-    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
+    | ListLit((Ast.CharLit c) :: tl) -> "\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
+    | ListLit(alist) -> "[" ^ (list_to_str alist) ^ "]"
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
     | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
     | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
@@ -103,6 +104,9 @@ and char_list_to_str cl =
         | _ -> 'F'
         in List.fold_left (^) "" (List.map (String.make 1) (List.map convert charlist))
 
+and list_to_str el = match el with
+        | [] -> ""
+        | hd::tl ->  List.fold_left (fun curr_str e -> curr_str ^ (ast_to_str e) ^ ",") "" el
 let rec print_annot_pairs lst = match lst with
 	| (Annot(n1, t), Vdef(n2, e)) :: tl ->
 		print_endline ("a_name: " ^ n1 ^ ", v_name: " ^ n2 ^ ", type:" ^ (ty_to_str t));

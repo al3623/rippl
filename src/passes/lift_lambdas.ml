@@ -169,7 +169,6 @@ let rec find_lambdas nested = function
     	if List.length e1 = 0 then (StringSet.empty, ListLit([])) 
     	else
     		let trav_list = List.fold_left (list_helperf_ex nested) [] e1 in
-
     		(StringSet.empty, ListLit((List.rev trav_list))) 
 
     | ListComp(e1, e2) -> (match e2 with
@@ -203,20 +202,20 @@ let rec find_lambdas nested = function
     | other -> (StringSet.empty, other)
 
 and list_helperf_ex nested exl ex =
-	let (_, st) = find_lambdas nested ex in
+	let (_, st) = find_lambdas true ex in
 	st :: exl
 
 and list_helperf_cla nested clal cla =
-	let (_, st) = find_lambdas_clause nested cla in
+	let (_, st) = find_lambdas_clause true cla in
 	st :: clal
 
 and find_lambdas_clause nested = function
 	| Filter(e1) ->
-    	let (_, st1) = find_lambdas nested e1 in
+    	let (_, st1) = find_lambdas true e1 in
     	(StringSet.empty, Filter(st1))
 
     | ListVBind(e1, e2) ->
-    	let (_, st2) =  find_lambdas nested e2 in
+    	let (_, st2) =  find_lambdas true e2 in
 
     	(StringSet.empty, ListVBind(e1, st2))
 
@@ -513,7 +512,7 @@ let lift_decl curr_list d = match d with
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
-            let mang_ast = (*print_map 0; *)mangle_close nl_ast false false in
+            let mang_ast = (*print_map 0;*) mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
             (*print_map 0;*)
