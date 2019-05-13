@@ -22,15 +22,15 @@ let print_map _ =
 
 
 (* If main has a lambda wrapping its code, remove the lamba *)
-let rec transform_main d_list = match d_list with 
+let rec transform_main d_list m_found = match d_list with 
 	| Vdef (name, exp) :: ds1 -> (if name = "main" 
-		then let new_expr = (match exp with
+		then (let new_expr = (match exp with
 		| Lambda (_,ret_expr) -> ret_expr
 		| _ -> exp) 
-		in Vdef (name,new_expr)
-		else Vdef (name,exp)) :: transform_main ds1
-	| other :: ds2 -> other :: transform_main ds2
-	| [] -> []
+		in (Vdef (name,new_expr)) :: ds1)
+		else (Vdef (name,exp) :: transform_main ds1 false))
+	| other :: ds2 -> other :: transform_main ds2 false
+	| [] -> if m_found then [] else raise(Failure "main not found!")
 
 
 let rec m_replace og_ex m_ex ex = match ex with

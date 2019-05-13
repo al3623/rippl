@@ -95,7 +95,7 @@ let _ =
 	(if printDecl && (not printLifted)
 		then List.iter print_decls program
 		else ());
-    let m_program = Lift_lambdas.transform_main program in
+    let m_program = Lift_lambdas.transform_main program false in
     let program_ll = Lift_lambdas.close_and_lift m_program in
 	(if printLifted
 		then List.iter print_decls program_ll
