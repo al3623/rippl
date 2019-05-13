@@ -23,7 +23,7 @@ let rec ast_to_str exp =
     | CharLit(c) -> String.make 1 c
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
-    
+    | Tuple (e1, e2) -> "(" ^ (ast_to_str e1) ^ ", " ^ (ast_to_str e2) ^ ")"
     | WildCard -> "_"
     | _ -> ""
 

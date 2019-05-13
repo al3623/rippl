@@ -70,7 +70,7 @@ struct Thunk *makeFloat(float x) {
 }
 
 struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2) {
-	struct Tuple *newtup = malloc(sizeof(struct Tuple));
+        struct Tuple *newtup = malloc(sizeof(struct Tuple));
 
 	newtup->t1 = t1;
 	newtup->t2 = t2;
@@ -204,6 +204,7 @@ void printAnyThunk(struct Thunk *primThunk, int ty) {
 	} else if (ty == LIST) {
 		printList(thing);
 	} else if (ty == TUPLE) {
+                printf("in here\n");
 		printTuple(thing);
 	} else if (ty == MAYBE) {
 		printMaybe(thing);

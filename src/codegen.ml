@@ -303,7 +303,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | None -> raise (Failure (s^ " not found in scope"))
                             ))
             )
-	    | TListRange(s,e) ->
+	        | TListRange(s,e) ->
 				let start = build_expr s builder scope in
 				let endd = build_expr e builder scope in
 				L.build_call makeRangeList [| start ; endd |] "range" builder
@@ -316,8 +316,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList (TconList _) -> 4
                        | TconList (TconTuple _) -> 5
                        | TconList (Tmaybe _) -> 6
-                       | _ -> -1
+                       | ty -> print_endline ("couldnt make list of "^(ty_to_str ty)); -1
                 in
+                print_endline ("ty_code: " ^ (string_of_int(ty_code)));
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
 
@@ -384,13 +385,14 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TTail -> tail_init_thunk
             | TFirst -> first_init_thunk
             | TSec -> second_init_thunk
-	    | TInt_to_float -> int_to_float_init_thunk
+	        | TInt_to_float -> int_to_float_init_thunk
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
             | TTuple(tx1,tx2) ->
                     let (t1,t2) = (match typ with 
                             | (TconTuple l) -> l) in
                     let first = build_expr tx1 builder scope in
                     let sec = build_expr tx2 builder scope in
+                    print_endline ("tuple1 type " ^ (string_of_int(ty_to_int t1)));
                     L.build_call makeTuple 
                     [| first ; sec 
                     ; L.const_int i32_t (ty_to_int t1) 
@@ -408,6 +410,17 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     ; L.const_int i32_t (ty_to_int t) |] "none" builder
 
             | TListComp (tex, tclslst) ->
+                    let ty_code = match typ with
+                                 TconList Int -> 0
+                               | TconList Bool -> 1
+                               | TconList Char -> 2
+                               | TconList Float -> 3
+                               | TconList (TconList _) -> 4
+                               | TconList (TconTuple _) -> 5
+                               | TconList (Tmaybe _) -> 6
+                               | ty -> print_endline ("couldnt make list comp of "^(ty_to_str ty)); -1
+                    in
+                    print_endline ("matched lcomp code:" ^(string_of_int ty_code));
                     let num_vars = 
                         let rec num_list lst = (match lst with
                             | h::t -> (match h with
@@ -437,6 +450,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | [] -> []
                     in
                     let lists = get_lists tclslst in
+                    let num_lists = List.length lists in
                     let filters =  get_filters tclslst
                     in
                     
@@ -447,12 +461,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     let rec apply_map_list lsts thunk = match lsts with
                         | [] -> thunk
                         | h::t -> let map_list_thunk = L.build_call map_listl
-                                [| thunk; snd (List.hd lsts) |] 
+                                [| thunk; snd (List.hd lsts) ; L.const_int i32_t ty_code |] 
                                 "map_list_thunk" builder in
+                                print_endline "in here";
                                  apply_map_list t map_list_thunk
                     in
-                    let mapped_thunk = apply_map_list (List.tl lists) map_thunk in
- 
+                    let mapped_thunk = (if num_lists = 1 then map_thunk else (apply_map_list (List.tl lists) map_thunk)) in 
                     let rec apply_filters fltrs thunk = match fltrs with
                         | [] -> thunk
                         | h::t -> let filter_thunk = L.build_call filterl
@@ -499,9 +513,9 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				[| lv ; L.const_int i32_t 3 |] "" builder
             | Char -> L.build_call printAnyThunk 
 				[| lv ; L.const_int i32_t 2 |] "" builder
-			| TconTuple _ -> L.build_call printAnyThunk
+            | TconTuple _ -> L.build_call printAnyThunk
 				[| lv ; L.const_int i32_t 5 |] "" builder
-			| Tmaybe _ -> L.build_call printAnyThunk
+            | Tmaybe _ -> L.build_call printAnyThunk
 				[| lv ; L.const_int i32_t 6 |] "" builder
             | ty -> raise(Failure("Main is of unprintable type"^(ty_to_str ty)))
         ) in

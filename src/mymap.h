@@ -5,5 +5,5 @@ struct Thunk *mapl(struct Thunk *list, struct Thunk *func);
 
 struct Thunk *filterl(struct Thunk *list, struct Thunk *filter);
 
-struct Thunk *map_listl(struct Thunk *apps, struct Thunk *vals);
+struct Thunk *map_listl(struct Thunk *apps, struct Thunk *vals, int ty);
 #endif
