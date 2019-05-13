@@ -25,11 +25,12 @@ struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals) {
+struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals, int ty) {
 	struct List *apps = invoke(apps_thunk);
 
-	struct Thunk *new_thunk = makeEmptyList(INT);		// incorrect
-	struct List *new = invoke(new_thunk);
+	printf("maplistl with code %d\n", ty);
+        struct Thunk *new_thunk = makeEmptyList(ty);	
+        struct List *new = invoke(new_thunk);
 
 	struct Node *curr_app_node = apps->head;
 

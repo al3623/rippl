@@ -15,6 +15,6 @@ let filterl : L.llvalue =
 
 let map_listl_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
+        [| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type ; i32_t |]
 let map_listl : L.llvalue =
 	L.declare_function "map_listl" map_listl_t the_module
