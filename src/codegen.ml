@@ -213,7 +213,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     let retload = L.build_load ret "retload" builder in
                     let ret_cast = L.build_bitcast retload (L.pointer_type i8_t) "ret_cast" builder in
                     L.build_ret ret_cast builder
-            | _ -> raise(Failure "expected typed vdef")
+            | (_,TypedVdef(name, _)) -> raise(Failure (name ^ "is not an arrow type!"))
     in
 
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
@@ -485,7 +485,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let _ = build_eval_func_body eval_decls tup in
 				build_func_body fn_decls tup
 				(* build_func_body *)
-            | _ -> raise(Failure "expected typed vdef")
+            | (_, TypedVdef(name, _)) -> raise(Failure (name ^ " is not an arrow type!"))
     in
     let _ = List.iter build_decl decl_lst in
         ignore (L.build_ret (L.const_int i32_t 0) builder);
