@@ -16,14 +16,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | (TLambda(_, b), _) -> throw_away_lambda b
         | other -> other
     in
-
-	let add_terminal builder instr =
-        match L.block_terminator (L.insertion_block builder) with
-              Some _ -> ()
-            | None -> ignore (instr builder) 
-    in
     
-
     (* Get non-lambda Vdefs and lambda vdefs*)
     let (var_lst, lambda_lst) = 
         let islambda = function
@@ -34,16 +27,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
         in
     (List.filter (notlambda) decl_lst, List.filter (islambda) decl_lst)
     in
-    (* global map of variables: map var_name to llvalue - 
-     * initialized to zero values 
-     * Only non-lambdas *)
-    let global_vars: L.llvalue StringMap.t = 
-        let global_var m decl =
-            let vdef = snd decl in
-            let (name, zero) = match vdef with
-                | TypedVdef(n, _) -> (n, L.const_int i32_t 0) in
-            StringMap.add name (L.define_global name zero the_module) m in
-        List.fold_left global_var StringMap.empty var_lst in
     
     (* fn to add terminal instruction if needed *) 
     let add_terminal builder instr =
@@ -74,8 +57,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
         loaded
 	in
 
-	let null = L.const_null (L.pointer_type i8_t) in
-
     (* convert Tlambda -> Tlambda_def *)
     let tldef_convert (tlambda: typed_expr) (name: string) = 
         match tlambda with
@@ -95,17 +76,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let to_lmdef (dec: decl * typed_decl) = match dec with
             | (_,TypedVdef(n,l)) -> tldef_convert l n
         in
-    List.map to_lmdef lambda_lst
-    in
-
-    (* convert to llvm type *)
-    let rec ltyp_of_typ (typ: ty) = match typ with
-          Int -> L.pointer_type i32_t
-        | Bool -> L.pointer_type i1_t
-        | Char -> L.pointer_type i8_t
-        | Float -> L.pointer_type float_t
-        | _ -> L.pointer_type i8_t (* TODO: more types *)
-    
+    List.map to_lmdef lambda_lst    
     in
 
     (* get array of types of lambda *)
@@ -142,16 +113,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
             StringMap.add fname (L.define_function fname ftype the_module,
                 lm_def) m
     in List.fold_left gen_decls StringMap.empty lm_defs
-    in
-
-    let thunks: L.llvalue StringMap.t =
-    (* fn to add terminal instruction if needed *) 
-        let declare_thunk m (lmd: tlambda_def) =
-            let name = "$thunk_"^lmd.tlname in
-                let lval = L.declare_global struct_thunk_type name the_module in
-                    StringMap.add name lval m
-        in
-        List.fold_left declare_thunk StringMap.empty lm_defs 
     in
 
     (* build thunk for each function and put into map *)
@@ -252,21 +213,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     let retload = L.build_load ret "retload" builder in
                     let ret_cast = L.build_bitcast retload (L.pointer_type i8_t) "ret_cast" builder in
                     L.build_ret ret_cast builder
+            | (_,TypedVdef(name, _)) -> raise(Failure (name ^ "is not an arrow type!"))
     in
 
     let rec build_expr (texp: typed_expr) builder (scope: L.llvalue StringMap.t) =
-        (* convert tx to llvm pointer *)
-        let make_ptr t = match t with
-              TIntLit i -> L.build_call makeInt 
-                [| L.const_int i32_t i |] "int" builder
-            | TFloatLit f -> L.build_call makeFloat 
-                [| L.const_float float_t f |] "float" builder
-            | TCharLit c -> L.build_call makeChar
-                [| L.const_int i8_t (Char.code c) |] "char" builder
-            | TBoolLit b -> let x = if b then 1 else 0 in
-                L.build_call makeBool [| L.const_int i8_t x |] "bool" builder
-            | _ -> raise (Failure "make_ptr")
-        in
 
 		let ty_to_int = (function
 			| Int -> 0
@@ -318,7 +268,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList (Tmaybe _) -> 6
                        | ty -> print_endline ("couldnt make list of "^(ty_to_str ty)); -1
                 in
-                print_endline ("ty_code: " ^ (string_of_int(ty_code)));
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
 
@@ -340,7 +289,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                         build_expr t builder new_scope 
             )
             (* Application *)
-            | TApp(t1, t2) as tapp -> let lv1 = build_expr t1 builder scope in
+            | TApp(t1, t2) -> let lv1 = build_expr t1 builder scope in
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
 
@@ -389,22 +338,24 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | TLambda(_, _) -> raise(Failure "unexpected lambda")
             | TTuple(tx1,tx2) ->
                     let (t1,t2) = (match typ with 
-                            | (TconTuple l) -> l) in
+                            | (TconTuple l) -> l
+                            | _ -> raise(Failure "expected TconTuple")) in
                     let first = build_expr tx1 builder scope in
                     let sec = build_expr tx2 builder scope in
-                    print_endline ("tuple1 type " ^ (string_of_int(ty_to_int t1)));
                     L.build_call makeTuple 
                     [| first ; sec 
                     ; L.const_int i32_t (ty_to_int t1) 
                     ; L.const_int i32_t (ty_to_int t2) |] "tup" builder
             | TJust(tx) -> let inn = build_expr tx builder scope in
                     let t = (match typ with
-                            | (Tmaybe l) -> l) in
+                            | (Tmaybe l) -> l
+                            | _ -> raise (Failure "expected Tmaybe")) in
                     L.build_call makeMaybe 
                     [| inn ; L.const_int i32_t (ty_to_int t) |] "just" builder
             | TNone -> 
                     let t = (match typ with
-                            | (Tmaybe l) -> l) in
+                            | (Tmaybe l) -> l
+                            | _ -> raise (Failure "expected Tmaybe")) in
                     L.build_call makeMaybe 
                     [| L.const_null (L.pointer_type struct_thunk_type)
                     ; L.const_int i32_t (ty_to_int t) |] "none" builder
@@ -420,8 +371,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                | TconList (Tmaybe _) -> 6
                                | ty -> print_endline ("couldnt make list comp of "^(ty_to_str ty)); -1
                     in
-                    print_endline ("matched lcomp code:" ^(string_of_int ty_code));
-                    let num_vars = 
+                    (*let num_vars = 
                         let rec num_list lst = (match lst with
                             | h::t -> (match h with
                                     | TListVBind _ -> 1 + num_list t
@@ -429,7 +379,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                             )
                             | [] -> 0
                         )
-                    in num_list tclslst in
+                    in num_list tclslst in*)
 
                     let rec get_lists clauses = match clauses with
                         | h::t -> (match h with
@@ -450,23 +400,21 @@ let translate (decl_lst: (decl * typed_decl) list) =
                         | [] -> []
                     in
                     let lists = get_lists tclslst in
-                    let num_lists = List.length lists in
                     let filters =  get_filters tclslst
                     in
                     
                     let fn_thunk = build_expr tex builder scope in
                     let map_thunk = L.build_call mapl 
-                        [| snd (List.hd lists); fn_thunk |] "map_thunk" builder in
+                        [| snd (List.hd lists); fn_thunk; L.const_int i32_t ty_code |] "map_thunk" builder in
 
                     let rec apply_map_list lsts thunk = match lsts with
                         | [] -> thunk
                         | h::t -> let map_list_thunk = L.build_call map_listl
                                 [| thunk; snd (List.hd lsts) ; L.const_int i32_t ty_code |] 
                                 "map_list_thunk" builder in
-                                print_endline "in here";
                                  apply_map_list t map_list_thunk
                     in
-                    let mapped_thunk = (if num_lists = 1 then map_thunk else (apply_map_list (List.tl lists) map_thunk)) in 
+                    let mapped_thunk = apply_map_list (List.tl lists) map_thunk in 
                     let rec apply_filters fltrs thunk = match fltrs with
                         | [] -> thunk
                         | h::t -> let filter_thunk = L.build_call filterl
@@ -475,6 +423,8 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                 in apply_filters t filter_thunk
                     in
                     apply_filters filters mapped_thunk
+
+            | _ -> raise(Failure "couldn't build texpr")
     in
     
     (* GIVE THIS fn_decls *)
@@ -532,9 +482,10 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 (* print expr if main*)
                 ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
-                build_eval_func_body eval_decls tup; 
+                let _ = build_eval_func_body eval_decls tup in
 				build_func_body fn_decls tup
 				(* build_func_body *)
+            | (_, TypedVdef(name, _)) -> raise(Failure (name ^ " is not an arrow type!"))
     in
     let _ = List.iter build_decl decl_lst in
         ignore (L.build_ret (L.const_int i32_t 0) builder);

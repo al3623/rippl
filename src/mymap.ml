@@ -6,7 +6,7 @@ open Lib
 
 let mapl_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-		[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
+        [| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type; i32_t |]
 let mapl : L.llvalue =
 	L.declare_function "mapl" mapl_t the_module
 
