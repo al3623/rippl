@@ -204,7 +204,6 @@ void printAnyThunk(struct Thunk *primThunk, int ty) {
 	} else if (ty == LIST) {
 		printList(thing);
 	} else if (ty == TUPLE) {
-                printf("in here\n");
 		printTuple(thing);
 	} else if (ty == MAYBE) {
 		printMaybe(thing);

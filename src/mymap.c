@@ -4,10 +4,10 @@
 #include "thunk.h"
 #include "natives.h"
 
-struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func) {
+struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func, int ty) {
 	struct List *list = list_thunk->value;
 
-	struct Thunk *new_thunk = makeEmptyList(list->content_type);
+	struct Thunk *new_thunk = makeEmptyList(ty);
 	struct List *new = new_thunk->value;
 
 	struct Node *curr = list->head;
@@ -28,7 +28,6 @@ struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func) {
 struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals, int ty) {
 	struct List *apps = invoke(apps_thunk);
 
-	printf("maplistl with code %d\n", ty);
         struct Thunk *new_thunk = makeEmptyList(ty);	
         struct List *new = invoke(new_thunk);
 
@@ -36,7 +35,7 @@ struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals, int ty) {
 
 	while (curr_app_node) {
 		struct Thunk *curr_app = curr_app_node->data;
-		struct Thunk *applied_thunk = mapl(vals, curr_app);
+		struct Thunk *applied_thunk = mapl(vals, curr_app, ty);
 
 		struct Thunk *stupid_thunk_list_wrapper_new 
 			= init_thunk_literal(new);
