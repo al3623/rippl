@@ -1,0 +1,5 @@
+everyOther = fun list -> if len list <= 1
+	then list
+	else (head list) cons (everyOther~(tail (tail list)))
+
+main = everyOther~([(int_to_float x) /. 100.0 | x over [-200...100]])
