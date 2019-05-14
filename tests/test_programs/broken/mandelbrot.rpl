@@ -35,14 +35,15 @@ iterateReal = fun b ->
 	let range = [(int_to_float x) /. 100.0 | x over [-200...100]] in
 	let realRange = everyOther~range in
 	let realLine = [(iterateMandelbrot~0~0~0~b~p) | p over realRange] in
-	realLine cat "\n"
+	{- realLine cat "\n" -}
+	range
 
-main :: [char]
-main =
+main = {-
 	let range = [(int_to_float x) /. 100.0 | x over [-100...100]] in
 	let complexRange = everyOther~range in
 	let iterComplexRec = fun r ->
 		(if len r == 0
 			then " "
 			else (iterateReal~(head r)) cat (iterComplexRec~(tail r)) )
-	in iterComplexRec~complexRange
+	in iterComplexRec~complexRange -}
+	iterateReal~0.9

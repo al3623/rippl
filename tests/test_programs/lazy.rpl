@@ -1,0 +1,2 @@
+main = let list = [1/x | x over [-1...2]]
+	in head list
