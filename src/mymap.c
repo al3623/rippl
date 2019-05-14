@@ -47,10 +47,10 @@ struct Thunk *map_listl(struct Thunk *apps_thunk, struct Thunk *vals, int ty) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *filterl(struct Thunk *list_thunk, struct Thunk *filter) {
+struct Thunk *filterl(struct Thunk *list_thunk, struct Thunk *filter, int ty) {
 	struct List *list = invoke(list_thunk);
 
-	struct Thunk *new_thunk = makeEmptyList(list->content_type);
+	struct Thunk *new_thunk = makeEmptyList(ty);
 	struct List *new = new_thunk->value;
 
 	struct Node *curr = list->head;

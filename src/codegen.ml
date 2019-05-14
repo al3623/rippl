@@ -418,7 +418,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                     let rec apply_filters fltrs thunk = match fltrs with
                         | [] -> thunk
                         | h::t -> let filter_thunk = L.build_call filterl
-                                [| thunk; List.hd fltrs |] "filter_thunk"
+                                [| thunk; List.hd fltrs ; L.const_int i32_t ty_code |] "filter_thunk"
                                 builder
                                 in apply_filters t filter_thunk
                     in
