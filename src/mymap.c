@@ -5,40 +5,25 @@
 #include "natives.h"
 
 struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func, int ty) {
-	fprintf(stderr, "HERE1\n");
 	struct List *list = invoke(list_thunk);
 	
-	fprintf(stderr, "HERE2\n");
 	struct Thunk *new_thunk = makeEmptyList(ty);
 	struct List *new = invoke(new_thunk);
 
-	fprintf(stderr, "HERE3\n");
 	struct Node *curr = list->head;
 
-	fprintf(stderr, "HERE4\n");
 	while (curr) {
-		
-	fprintf(stderr, "HERE5\n");
 		struct Thunk *data = (curr->data);
-		fprintf(stderr,"%p\n",curr->next);
-
-	fprintf(stderr, "HERE5b\n");
 		invoke(func);
 	
-	fprintf(stderr, "HERE5a\n");
 		struct Thunk *newThunk = apply(func->value, data);
 
-	fprintf(stderr, "HERE6\n");
 		struct Node *newNode = malloc(sizeof(struct Node));
 		newNode->data = newThunk;
 		newNode->next = NULL;
 		appendNode(new, newNode);
 		curr = curr->next;
-	
-	fprintf(stderr, "HERE7\n");
 	}
-	
-	fprintf(stderr, "HERE8\n");
 	return init_thunk_literal(new);
 }
 
