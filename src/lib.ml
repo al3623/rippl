@@ -185,7 +185,8 @@ let printAny : L.llvalue =
 	L.declare_function "printAny" printAny_t the_module
 
 let printAnyThunk_t : L.lltype =
-	L.function_type void_t [| L.pointer_type struct_thunk_type ; i32_t |]
+	L.function_type void_t [| L.pointer_type struct_thunk_type 
+	; L.pointer_type i32_t ; i32_t |]
 let printAnyThunk : L.llvalue =
 	L.declare_function "printAnyThunk" printAnyThunk_t the_module
 

@@ -1,7 +1,5 @@
-# normSquared :: float -> float -> float
 normSquared = fun a -> fun b-> a ^. 2.0 +. b ^. 2.0
 
-#encode :: int -> char
 encode = fun count ->
 	if count == 0
 		then 'D'
@@ -13,7 +11,6 @@ encode = fun count ->
 					then 'A'
 					else ' '
 
-#iterate_mandelbrot :: int -> float -> float -> float -> float -> char
 iterate_mandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 	if (c > 200 )
 		then (encode~c)
@@ -24,12 +21,10 @@ iterate_mandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 				(a_z*.a_z -. b_z*.b_z +. a)~b~a)
 
 
-#everyOther :: [a] -> [a]
 everyOther = fun list -> if len list <= 1 
 					then list
 					else (head list) cons (everyOther~(tail (tail list)))
 
-                                            #flatten_nested :: [[a]] -> [a]
 flatten_nested = fun llist ->
 	if len llist == 0
 	then []
