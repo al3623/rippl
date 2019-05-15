@@ -14,12 +14,14 @@ let rec ast_to_str exp =
     | Var(s) -> s
 	| Tuple(a,b) -> "("^(ast_to_str a)^", "^(ast_to_str b)^")"
     (* Lists *)
-    | ListLit((Ast.CharLit c) :: tl) -> "\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
+    | ListLit((Ast.CharLit c) :: tl) -> 
+		"\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
+	| Just(e) -> "just "^(ast_to_str exp)
     | ListLit(alist) -> "[" ^ (list_to_str alist) ^ "]"
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
     | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
     | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
-
+	| None -> "none"
     | BoolLit(b) -> string_of_bool b
     | CharLit(c) -> String.make 1 c
     | IntLit n -> string_of_int n
@@ -73,6 +75,11 @@ and op_to_str s =
     | Head -> "head"
     | Tail -> "tail"
     | Len -> "len"
+	| First -> "first"
+	| Sec -> "sec"
+	| Is_none -> "is_none"
+	| From_just -> "from_just"
+	| Int_to_float -> "int_to_float"
     | _ -> ast_to_str s
 
 and ty_to_str ty =
