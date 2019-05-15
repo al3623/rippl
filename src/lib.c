@@ -346,7 +346,7 @@ void printMaybe(void *mayb, int *types, int index) {
 	if (m->is_none) {
 		printf("none");
 	} else {
-		printf("maybe ");
+		printf("just ");
 		printAnyThunk(m->data, types, nested_type_index1);
 	}
 }
