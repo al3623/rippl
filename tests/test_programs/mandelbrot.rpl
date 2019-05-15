@@ -1,7 +1,7 @@
-normSquared :: float -> float -> float
+# normSquared :: float -> float -> float
 normSquared = fun a -> fun b-> a ^. 2.0 +. b ^. 2.0
 
-encode :: int -> char
+#encode :: int -> char
 encode = fun count ->
 	if count == 0
 		then 'D'
@@ -13,7 +13,7 @@ encode = fun count ->
 					then 'A'
 					else ' '
 
-iterate_mandelbrot :: int -> float -> float -> float -> float -> char
+#iterate_mandelbrot :: int -> float -> float -> float -> float -> char
 iterate_mandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 	if (c > 200 )
 		then (encode~c)
@@ -24,12 +24,12 @@ iterate_mandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 				(a_z*.a_z -. b_z*.b_z +. a)~b~a)
 
 
-everyOther :: [a] -> [a]
+#everyOther :: [a] -> [a]
 everyOther = fun list -> if len list <= 1 
 					then list
 					else (head list) cons (everyOther~(tail (tail list)))
 
-flatten_nested :: [[a]] -> [a]
+                                            #flatten_nested :: [[a]] -> [a]
 flatten_nested = fun llist ->
 	if len llist == 0
 	then []
@@ -46,8 +46,9 @@ iter_real = fun reals -> fun complex ->
 	else (iter_complex~(head reals)~complex) 
 		cons (iter_real~(tail reals)~complex)
 
-main = let real = [(int_to_float x) /. 100.0 | x over [-200...100]] in
-	let complex = [(int_to_float y) /. 100.0 | y over [-100...100]] in
+                #main :: [[char]]
+main = let real = [(int_to_float x) /. 50.0 | x over [-100...50]] in
+	let complex = [(int_to_float y) /. 50.0 | y over [-50...50]] in
 	let real_range = everyOther~real in
 	let complex_range = everyOther~complex in
 	iter_real~real_range~complex_range
