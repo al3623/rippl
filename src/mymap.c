@@ -53,7 +53,7 @@ struct Thunk *filterl(struct Thunk *list_thunk, struct Thunk *filter, int ty) {
 	struct List *list = invoke(list_thunk);
 
 	struct Thunk *new_thunk = makeEmptyList(ty);
-	struct List *new = new_thunk->value;
+	struct List *new = invoke(new_thunk);
 
 	struct Node *curr = list->head;
 
@@ -61,15 +61,29 @@ struct Thunk *filterl(struct Thunk *list_thunk, struct Thunk *filter, int ty) {
 		// thunk inside list
 		struct Thunk *currThunk = curr->data;
 		// number of args stored inside list
-		int filled_args = currThunk->filled_args;
+		int list_filled_args = currThunk->filled_args;
+		int list_num_args = currThunk->num_args;
+		int filter_num_args = filter->num_args;
+		int filter_filled_args = filter->filled_args;
+
+		int start_offset = list_num_args - (filter_num_args-filter_filled_args);
 
 		struct Thunk **args = currThunk->args;
+		struct Thunk **start = args + start_offset;
+
 		struct Thunk *passesFilter = filter;	
 
-		while (filled_args) {
+		int count = list_filled_args - (start -args);
+
+		while (count) {
+			passesFilter = apply(passesFilter, *start);
+			start++;
+			count--;
+			/*
 			passesFilter = apply(passesFilter, *args);
 			args++;
 			filled_args--;
+			*/
 		}
 
 		void *value = invoke(passesFilter);
