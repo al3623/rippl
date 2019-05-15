@@ -30,6 +30,7 @@
 %left IN
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %right RARROW
+%nonassoc MAYBE
 %left ELSE
 
 %left ASSIGN
@@ -68,6 +69,7 @@ ty:
     | LBRACK ty RBRACK              { TconList($2) }
     | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
     | IDENT                         { Tvar($1) }
+	| MAYBE ty						{ Tmaybe($2) }
     | ty RARROW ty                  { Tarrow($1,$3) }
 
 annotation:
