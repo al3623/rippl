@@ -46,12 +46,6 @@ struct List {
 	int start;					// useful for ranges/infintes
 	int end;					// useful for ranges
 	
-	/* COMPREHENSION STUFF */
-	void *(*expr)(void *,...);	// expression for each element
-	struct List *listvbinds;	// lists the comprehension is over
-	struct Node *indexes;		// curr index in each sublist for vbindings
-	int (**filt)(void *,...);	// boolean filters for vbind values to accept
-	int num_vbinds;
 };
 
 void printBool(char b);

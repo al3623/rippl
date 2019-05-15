@@ -91,17 +91,7 @@ let _ =
 		; i32_t
 		; i32_t
 		; i32_t
-		; L.pointer_type (L.var_arg_function_type
-			(L.pointer_type i8_t)
-			[| L.pointer_type i8_t |])
-		; L.pointer_type struct_list_type
-		; L.pointer_type struct_node_type
-		; L.pointer_type
-			(L.pointer_type (L.var_arg_function_type
-			i32_t
-			[| L.pointer_type i8_t |]))
-		; i32_t
-	|] false
+		|] false
 
 let _ =
 	L.struct_set_body struct_thunk_type
