@@ -24,7 +24,6 @@ iterate_julia = fun c -> fun b_c -> fun a_c -> fun b_z -> fun a_z ->
 			else (iterate_julia~(c+1)~b_c~a_c~(2.0*.a_z*.b_z +. b_c)~
 				(a_z*.a_z -. b_z*.b_z +. a_c))
 
-
 every_other :: [a] -> [a]
 every_other = fun list -> if len list <= 1 
 					then list
@@ -48,5 +47,5 @@ iterate_complex = fun b_c -> fun a_c ->
 			else (iterate_real~b_c~a_c~(head r)) cat (iter_complex_rec~(tail r)) )
 	in iter_complex_rec~complexRange
 
-main :: int
-main = 0
+main :: [char]
+main = iterate_complex~0.0~0.0

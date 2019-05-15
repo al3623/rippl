@@ -1,0 +1,7 @@
+map = fun foo -> fun list -> if len list == 0
+		then []
+		else foo~(head list) cons (map~foo~(tail list))
+bar = fun x -> (x, not x)
+
+main :: [(bool,bool)]
+main = map~bar~[true,false,true]
