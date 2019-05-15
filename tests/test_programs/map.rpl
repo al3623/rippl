@@ -1,4 +1,0 @@
-map :: [a] -> [b] -> [a] -> [b]
-map foo list =	if len list == 0
-		then []
-		else foo (head list) cons (map f (tail list))
