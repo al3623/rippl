@@ -16,6 +16,7 @@ let i32_t      	 = L.i32_type    context
 		int filled_args;
 		struct Thunk **args;
 		void *value;
+                int is_ite; 
 	};
 *)
 let struct_thunk_type : L.lltype = L.named_struct_type context "Thunk" 
@@ -101,7 +102,8 @@ let _ =
 		; i32_t									(* int filled_args *)
 		; L.pointer_type 
 			(L.pointer_type struct_thunk_type)	(* struct Thunk **args *)
-		; L.pointer_type i8_t					(* void *value *)
+		; L.pointer_type i8_t
+                ; i32_t                                        (* void *value *)
 	|] false
 
 
