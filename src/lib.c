@@ -193,7 +193,7 @@ void printAnyThunk(struct Thunk *primThunk, int *types, int index) {
 	} else if (ty == LIST) {
 		printList(thing, types, index);
 	} else if (ty == TUPLE) {
-		printTuple(thing);
+		printTuple(thing, types, index);
 	} else if (ty == MAYBE) {
 		printMaybe(thing, types, index);
 	}
@@ -216,17 +216,6 @@ void printList(struct List *list, int *types, int index) {
         }
         if (type != CHAR) 
             printf("]");
-}
-
-void printInfinteList(void *list) {
-	struct List *llist = (struct List*) list;
-	
-	int ty = llist->content_type;
-	struct Node *head = llist->head;
-
-	printf("[");
-	printAny((head->data)->value, ty);
-	printf("...]");
 }
 
 void printCompList(void *list);

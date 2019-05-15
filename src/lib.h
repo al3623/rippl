@@ -62,10 +62,8 @@ void printList(struct List *list, int *ty, int index);
 void printTuple(void *tup, int *ty, int index);
 void printMaybe(void *may, int *ty, int index);
 void printRangeList(struct Thunk *list);
-void printInfinteList(void *list);
 void printCompList(void *list);
-void printTuple(void *tup);
-void printMaybe(void *mayb);
+void printMaybe(void *mayb, int *ty, int index);
 
 struct Thunk *makeInt(int x);
 struct Thunk *makeBool(char x);

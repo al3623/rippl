@@ -179,11 +179,6 @@ let printPrim_t : L.lltype =
 let printPrim : L.llvalue =
 	L.declare_function "printPrim" printPrim_t the_module
 
-let printAny_t : L.lltype =
-	L.function_type void_t [| L.pointer_type i8_t ; i32_t |]
-let printAny : L.llvalue =
-	L.declare_function "printAny" printAny_t the_module
-
 let printAnyThunk_t : L.lltype =
 	L.function_type void_t [| L.pointer_type struct_thunk_type 
 	; L.pointer_type i32_t ; i32_t |]

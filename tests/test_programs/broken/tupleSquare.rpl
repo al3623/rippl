@@ -1,4 +1,5 @@
 tupleSquare :: int -> [(int, int)]
 tupleSquare = fun n -> [(i,j) | i over [0...n], j over [0...n]]
 
-main = tupleSquare~5
+main :: [(int,int)]
+main = tupleSquare~3

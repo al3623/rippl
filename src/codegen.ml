@@ -462,25 +462,25 @@ let translate (decl_lst: (decl * typed_decl) list) =
         | _ -> raise(Failure "expected tarrow vdef O_o")
     in
     
-    let print_expr (lv: L.llvalue) (vtype: ty) =
+    let print_expr (lv: L.llvalue) (vtype: ty) ty_array =
         (* call invoke on thunk *)
         let _ = L.build_call invoke [| lv |] "invoke" builder in
         (* print *)
         let _ = (match vtype with
             | TconList(t) -> L.build_call printAnyThunk 
-				[| lv ; L.const_int i32_t 4|] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | Int -> L.build_call printAnyThunk 
-				[| lv ; L.const_int i32_t 0 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | Bool -> L.build_call printAnyThunk 
-				[| lv ; L.const_int i32_t 1 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | Float -> L.build_call printAnyThunk 
-				[| lv ; L.const_int i32_t 3 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | Char -> L.build_call printAnyThunk 
-				[| lv ; L.const_int i32_t 2 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | TconTuple _ -> L.build_call printAnyThunk
-				[| lv ; L.const_int i32_t 5 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | Tmaybe _ -> L.build_call printAnyThunk
-				[| lv ; L.const_int i32_t 6 |] "" builder
+				[| lv ; ty_array ; L.const_int i32_t 0 |] "" builder
             | ty -> raise(Failure("Main is of unprintable type"^(ty_to_str ty)))
         ) in
         L.build_call printf_func [| char_format_str ; L.const_int i8_t (Char.code('\n')) |] "printf" builder
@@ -515,11 +515,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
 			ignore (L.build_store (L.const_int i32_t 6) pos builder);
 			write_type_array (2 * i + 2) inner_ty arr
 		| _ -> raise (Failure "main should be a concrete non-arrow type!")
-	
-			
-	
-
-
 
 	in
 
@@ -532,7 +527,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 					"ty_heap" builder in
 				write_type_array 0 (snd texp) ty_heap;
 				let v = build_expr texp builder StringMap.empty in
-                ignore (print_expr v (snd texp))
+                ignore (print_expr v (snd texp) ty_heap)
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
                 let _ = build_eval_func_body eval_decls tup in
 				build_func_body fn_decls tup
