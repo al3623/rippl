@@ -718,6 +718,7 @@ void *length_eval(struct Thunk *t) {
 
 void *head(struct Thunk *lthunk) {
 	struct List *list = invoke(lthunk);
+	
 	struct Thunk *data = (list->head)->data;	
 	void *value = invoke(data);
 	return value;
@@ -828,5 +829,25 @@ void *int_to_float(struct Thunk *i) {
 void *int_to_float_eval(struct Thunk *t) {
 	struct Thunk *th = ((t->args)[0]);
 	void *result = int_to_float(th);
+	return result;
+}
+
+void *ite(struct Thunk *cond_thunk, struct Thunk *then_thunk,
+	struct Thunk *else_thunk){
+	void *val = invoke(cond_thunk);
+	char boolean_val = *(char *)(val);
+	if (boolean_val){
+	    return then_thunk;
+	else {
+	    return else_thunk;
+	}
+}
+
+void *ite_eval(struct Thunk *t){
+	struct Thunk *cond_thunk = ((t->args)[0]);
+	struct Thunk *then_thunk = ((t->args)[1]);
+	struct Thunk *else_thunk = ((t->args)[1]);
+	void * result = malloc(sizeof(struct Thunk));
+	*result = *ite(cond_thunk, then_thunk, else_thunk);
 	return result;
 }
