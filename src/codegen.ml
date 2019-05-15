@@ -22,7 +22,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| Tmaybe t -> 1 + get_type_depth t
 		| TconTuple(t1,t2) -> let d1 = get_type_depth t1 in
 			let d2 = get_type_depth t2 in
-			if d2 > d1 then d2 else d1
+			(if d2 > d1 then d2 else d1) + 1
 		| _ -> 1
 	in
 
@@ -527,6 +527,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
         match tdecl with
             | (_, TypedVdef("main",texp)) ->
                 let type_depth = get_type_depth (snd texp) in
+				print_endline (string_of_int type_depth);
 				let ty_heap = L.build_array_alloca i32_t 
 					(L.const_int i32_t ((expon 2 (type_depth))-1 ) ) 
 					"ty_heap" builder in
