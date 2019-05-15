@@ -280,7 +280,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList (TconList _) -> 4
                        | TconList (TconTuple _) -> 5
                        | TconList (Tmaybe _) -> 6
-                       | ty -> print_endline ("couldnt make list of "^(ty_to_str ty)); -1
+                       | ty -> -1
                 in
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
