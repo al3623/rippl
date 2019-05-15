@@ -11,6 +11,20 @@ open Mymap
 module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
+	let rec expon base pow = if pow = 0
+		then 1
+		else base * (expon base (pow -1))
+	in
+
+	let rec get_type_depth = function
+		| Int | Bool | Float | Char -> 1
+		| TconList t -> 1 + get_type_depth t
+		| Tmaybe t -> 1 + get_type_depth t
+		| TconTuple(t1,t2) -> let d1 = get_type_depth t1 in
+			let d2 = get_type_depth t2 in
+			if d2 > d1 then d2 else d1
+		| _ -> 1
+	in
 
     let rec throw_away_lambda = function
         | (TLambda(_, b), _) -> throw_away_lambda b
@@ -477,9 +491,11 @@ let translate (decl_lst: (decl * typed_decl) list) =
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
             | (_, TypedVdef("main",texp)) ->
-                (* build expr *)
-                let v = build_expr texp builder StringMap.empty in
-                (* print expr if main*)
+                let type_depth = get_type_depth (snd texp) in
+				let ty_heap = L.build_array_alloca i32_t 
+					(L.const_int i32_t (expon 2 (type_depth - 1)) ) 
+					"ty_heap" builder in
+				let v = build_expr texp builder StringMap.empty in
                 ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
                 let _ = build_eval_func_body eval_decls tup in
