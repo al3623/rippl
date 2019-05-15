@@ -13,7 +13,7 @@ module StringMap = Map.Make(String)
 let translate (decl_lst: (decl * typed_decl) list) =
 	let rec expon base pow = if pow = 0
 		then 1
-		else base * (expon base (pow -1))
+		else base * (expon base (pow - 1))
 	in
 
 	let rec get_type_depth = function
@@ -526,7 +526,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
             | (_, TypedVdef("main",texp)) ->
                 let type_depth = get_type_depth (snd texp) in
 				let ty_heap = L.build_array_alloca i32_t 
-					(L.const_int i32_t (expon 2 (type_depth - 1)) ) 
+					(L.const_int i32_t ((expon 2 (type_depth))-1 ) ) 
 					"ty_heap" builder in
 				write_type_array 0 (snd texp) ty_heap;
 				let v = build_expr texp builder StringMap.empty in
