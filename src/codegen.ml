@@ -527,7 +527,6 @@ let translate (decl_lst: (decl * typed_decl) list) =
         match tdecl with
             | (_, TypedVdef("main",texp)) ->
                 let type_depth = get_type_depth (snd texp) in
-				print_endline (string_of_int type_depth);
 				let ty_heap = L.build_array_alloca i32_t 
 					(L.const_int i32_t ((expon 2 (type_depth))-1 ) ) 
 					"ty_heap" builder in
