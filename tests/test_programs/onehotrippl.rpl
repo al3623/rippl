@@ -1,0 +1,8 @@
+map = fun f -> fun list -> if len list == 0
+		then []
+		else f~(head list) cons (map~f~(tail list))
+foo = fun x -> x + 3
+
+main :: [int]
+main = let l = map~(fun x -> x + 3)~[2,5,66] in [ x | x over l, x > 10 ] 
+
