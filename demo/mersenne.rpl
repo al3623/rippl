@@ -1,0 +1,4 @@
+mersenne = fun n -> [x^2-1 | x over [1...n]]
+
+main :: [int]
+main = mersenne~10
