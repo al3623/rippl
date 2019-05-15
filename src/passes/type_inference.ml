@@ -442,9 +442,14 @@ let type_paired_program annotvdef_list =
 		(fun s1 -> fun s2 -> composeSubst s1 s2)
 		(List.hd substList) substList in
 	let annotIVdefs' = List.map
-		(fun (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
-		let finalUnion = mgu tya ty in
-		let fullUnion = composeSubst finalUnion allSubsts in
-			(Annot(na,tya),InferredVdef(n,(s,ix, apply fullUnion ty)))) annotIVdefs in
+		(fun x -> match x with 
+                    (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
+		        let finalUnion = mgu tya ty in
+		        let fullUnion = composeSubst finalUnion allSubsts in
+		        (Annot(na,tya),
+                                InferredVdef(n,(s,ix, apply fullUnion ty)))
+                    |_ -> raise (Failure("no"));
+                ) annotIVdefs in
 		(allSubsts,annotIVdefs')
+                   
 
