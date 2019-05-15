@@ -1,3 +1,4 @@
+collatz :: a -> a
 collatz = fun x -> 
 	let rec_collatz = fun n -> fun l ->
 		if n == 1 
