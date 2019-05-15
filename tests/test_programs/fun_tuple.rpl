@@ -1,6 +1,7 @@
 main :: [int]
 main = 
         let i = 69 in
-        let fun_tuples = [((fun y -> y + x), z) | x over [1, 2, 3, i], z over [4, 5, 6], x!=i] in
+        let j = 420 in
+        let fun_tuples = [((fun q -> fun y -> y + x + q)~j, z) | x over [1, 2, 3, i], z over [4, 5, 6], x!=i] in
         let eval_tuples = [ (first t) ~ (sec t) | t over fun_tuples] in
         eval_tuples

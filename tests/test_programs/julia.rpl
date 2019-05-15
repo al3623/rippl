@@ -49,4 +49,4 @@ iterate_complex = fun b0 -> fun a0 ->
 	in iter_complex_rec~complexRange
 
 main :: [char]
-main = iterate_complex~0.26~0.0
+main = iterate_complex~(-.0.5)~0.0

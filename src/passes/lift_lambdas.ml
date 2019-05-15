@@ -521,7 +521,7 @@ let lift_decl curr_list d = match d with
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
-            let mang_ast = print_map 0; mangle_close nl_ast false false in
+            let mang_ast = (*print_map 0;*) mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
             (*print_map 0;*)
