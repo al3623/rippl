@@ -255,7 +255,6 @@ and get_closure_vars exp scope nested last_lam = match exp with
 
 	| Ite(e4, e5, e6) -> 
 
-		StringSet.iter (print_endline) scope;
     	let (sc1, st1) = (get_closure_vars e4 scope nested false) in
     	let (sc2, st2) = (get_closure_vars e5 scope nested false) in
     	let (sc3, st3) = (get_closure_vars e6 scope nested false) in
