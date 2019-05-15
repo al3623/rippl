@@ -150,6 +150,15 @@ void *second(struct Thunk *lthunk);
 void *second_eval(struct Thunk *t);
 extern struct Thunk second_init_thunk[1];
 
+// maybe operations
+void *isNone(struct Thunk *the_thunk);
+void *is_none_eval(struct Thunk *t);
+extern struct Thunk is_none_init_thunk[1];
+
+void *fromJust(struct Thunk *th_thunk);
+void *from_just_eval(struct Thunk *t);
+extern struct Thunk from_just_init_thunk[1];
+
 void *int_to_float(struct Thunk *t);
 void *int_to_float_eval(struct Thunk *t);
 extern struct Thunk int_to_float_init_thunk[1];

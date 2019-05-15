@@ -385,6 +385,12 @@ let rec ti env expr =
 					let polyty2 = newTyVar "b" in
 					(nullSubst, ISec,
 					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
+                | Is_none -> let polyty = newTyVar "a" in 
+                                       (nullSubst, IIs_none,
+                                       (Tarrow(Tmaybe polyty, Bool)))
+                | From_just -> let polyty = newTyVar "a" in 
+                                        (nullSubst, IFrom_just,
+                                        (Tarrow(Tmaybe polyty, polyty)))
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 

@@ -66,6 +66,10 @@ let length_init_thunk = L.define_global "length_init_thunk" (L.const_null struct
 let head_init_thunk = L.define_global "head_init_thunk" (L.const_null struct_thunk_type) the_module
 let tail_init_thunk = L.define_global "tail_init_thunk" (L.const_null struct_thunk_type) the_module
 
+(* Maybe operations *)
+let is_none_init_thunk = L.define_global "is_none_init_thunk" (L.const_null struct_thunk_type) the_module
+let from_just_init_thunk = L.define_global "from_just_init_thunk" (L.const_null struct_thunk_type) the_module
+
 (* Tuple operations *)
 let first_init_thunk = L.define_global "first_init_thunk" (L.const_null struct_thunk_type) the_module
 let second_init_thunk = L.define_global "second_init_thunk" (L.const_null struct_thunk_type) the_module

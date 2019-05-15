@@ -788,6 +788,35 @@ void *second_eval(struct Thunk *t) {
 	return result;
 }
 
+void *isNone(struct Thunk *the_thunk){
+    	struct Maybe *mb = invoke(the_thunk);
+ 	int is_none = mb -> is_none;
+	char *is_none_char = malloc(sizeof(char));
+	*is_none_char = (char)is_none;
+	return is_none_char;
+}
+
+void *fromJust(struct Thunk *the_thunk){
+	struct Maybe *mb = invoke(the_thunk);
+	struct Thunk *data = mb -> data;
+	void *value = invoke(data);
+	return value;
+}
+
+void *from_just_eval(struct Thunk *t){
+	struct Thunk *argy = ((t -> args)[0]);
+	void *result = fromJust(argy);
+	return result;
+}
+
+
+void *is_none_eval(struct Thunk *t){
+	struct Thunk *argy = ((t->args)[0]);
+	void *result = isNone(argy);
+	return result;
+}
+
+
 void *int_to_float(struct Thunk *i) {
 	int *val = invoke(i);
 	float *result = malloc(sizeof(float));
