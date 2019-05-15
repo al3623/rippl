@@ -307,11 +307,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
 
-            | TIte(cond, then_ex, else_ex) ->
-                let cond_ = build_expr cond builder scope in
-                let then_ = build_expr then_ex builder scope in
-                let else_ = build_expr else_ex builder scope in
-                L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
+            | TIte(cond, then_ex, else_ex) -> ite_init_thunk 
 
             | TAdd -> add_init_thunk
             | TSub -> sub_init_thunk       
