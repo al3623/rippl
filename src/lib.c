@@ -45,6 +45,9 @@ struct Thunk tail_init_thunk[1];
 struct Thunk first_init_thunk[1];
 struct Thunk second_init_thunk[1];
 
+struct Thunk is_none_init_thunk[1];
+struct Thunk from_just_init_thunk[1];
+
 struct Thunk int_to_float_init_thunk[1];
 
 struct Thunk *makeInt(int x) {
@@ -92,6 +95,7 @@ struct Thunk *makeMaybe(struct Thunk *data, int ty) {
 	may->data = data;
 	return init_thunk_literal(may);
 }
+
 
 struct Thunk *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
@@ -330,6 +334,9 @@ void initNativeThunks() {
 	// Tuple operations
 	init_thunk(first_init_thunk, &first_eval, 1);
 	init_thunk(second_init_thunk, &second_eval, 1);
+
+	init_thunk(is_none_init_thunk, &is_none_eval, 1);
+	init_thunk(from_just_init_thunk, &from_just_eval, 1);
 
 	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
 }
