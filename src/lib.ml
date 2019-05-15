@@ -74,6 +74,8 @@ let from_just_init_thunk = L.define_global "from_just_init_thunk" (L.const_null 
 let first_init_thunk = L.define_global "first_init_thunk" (L.const_null struct_thunk_type) the_module
 let second_init_thunk = L.define_global "second_init_thunk" (L.const_null struct_thunk_type) the_module
 
+let ite_init_thunk = L.define_global "ite_init_thunk" (L.const_null struct_thunk_type) the_module 
+
 let int_to_float_init_thunk = L.define_global "int_to_float_init_thunk" (L.const_null
 	struct_thunk_type) the_module
 
@@ -193,13 +195,13 @@ let printBool_t : L.lltype =
 	L.function_type void_t [| i8_t |]
 let printBool : L.llvalue =
 	L.declare_function "printBool" printBool_t the_module
-let makeIte_t : L.lltype = 
+(*let makeIte_t : L.lltype = 
         L.function_type (L.pointer_type struct_thunk_type) 
         [| L.pointer_type struct_thunk_type ; 
         L.pointer_type struct_thunk_type ; 
         L.pointer_type struct_thunk_type |]
 let makeIte : L.llvalue = 
-        L.declare_function "makeIte" makeIte_t the_module
+        L.declare_function "makeIte" makeIte_t the_module*)
         
 
 let initNativeThunks_t : L.lltype =

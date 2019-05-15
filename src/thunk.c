@@ -4,21 +4,23 @@
 #include "natives.h"
 
 struct Thunk *init_thunk(struct Thunk *thunk,
-	void *(*eval)(struct Thunk  *), int num_args) {
+	void *(*eval)(struct Thunk  *), int num_args, int is_ite) {
 
 	thunk->eval = eval;
 	thunk->num_args = num_args;
 	thunk->filled_args = 0;
 	thunk->args = malloc(num_args * sizeof(struct Thunk*));
 	thunk->value = NULL;
+	thunk ->is_ite = is_ite;
 
 	return thunk;
 }
 
 struct Thunk *init_thunk_literal(void *data) {
 	struct Thunk *lit = malloc(sizeof(struct Thunk));
-	lit = init_thunk(lit,NULL, 1);
+	lit = init_thunk(lit,NULL, 1, 0);
 
+	lit->is_ite = 0;
 	lit->filled_args = 1;
 	lit->value = data;
 	(lit->args)[0] = lit;
@@ -76,7 +78,9 @@ void *invoke(struct Thunk *t) {
 		} else {
 			int i;
 			for (i = 0; i < t->num_args; i++) {
-		                invoke(t->args[i]);
+			    	if (!(t->is_ite)) {
+		                	invoke(t->args[i]);
+				}
 			}
 
 			t->value = t->eval(t);

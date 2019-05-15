@@ -836,17 +836,17 @@ void *ite(struct Thunk *cond_thunk, struct Thunk *then_thunk,
 	void *val = invoke(cond_thunk);
 	char boolean_val = *(char *)(val);
 	if (boolean_val){
-	    return then_thunk;
+	    return invoke(then_thunk);
+	}
 	else {
-	    return else_thunk;
+	    return invoke(else_thunk);
 	}
 }
 
 void *ite_eval(struct Thunk *t){
 	struct Thunk *cond_thunk = ((t->args)[0]);
 	struct Thunk *then_thunk = ((t->args)[1]);
-	struct Thunk *else_thunk = ((t->args)[1]);
-	void * result = malloc(sizeof(struct Thunk));
-	*result = *ite(cond_thunk, then_thunk, else_thunk);
-	return result;
+	struct Thunk *else_thunk = ((t->args)[2]);
+	//struct Thunk* result = malloc(sizeof(struct Thunk));
+	return ite(cond_thunk, then_thunk, else_thunk);
 }
