@@ -189,18 +189,6 @@ struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
 	return init_thunk_literal(appendNode(invoke(list),node));
 }
 
-void printAny(void *thing, int ty) {
-	if (ty <= FLOAT) {
-		printPrim(thing, ty);
-	} else if (ty == LIST) {
-		printList(thing);
-	} else if (ty == TUPLE) {
-		printTuple(thing);
-	} else if (ty == MAYBE) {
-		printMaybe(thing);
-	}
-}
-
 void printAnyThunk(struct Thunk *primThunk, int *types, int index) {
 	int ty = types[index];
 	void *thing = invoke(primThunk);
