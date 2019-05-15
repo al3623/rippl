@@ -30,7 +30,6 @@ ix =
     | IIte of (Ast.ty SubstMap.t * inferred_expr * inferred_expr * inferred_expr)
 	| IListComp of (Ast.ty SubstMap.t * inferred_expr * iclause list)
 	| IListRange of (Ast.ty SubstMap.t * inferred_expr * inferred_expr)
-	| IInfList of (Ast.ty SubstMap.t * inferred_expr)
     | IListLit of (inferred_expr list)
 and iclause = 
 	| IListVBind of (string * inferred_expr)

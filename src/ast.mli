@@ -20,7 +20,6 @@ type expr =
     | Ite of (expr * expr * expr)
 	| ListComp of (expr * clause list)
 	| ListRange of (expr * expr)
-	| InfList of expr
     | ListLit of expr list
 and clause = 
 	| ListVBind of (string * expr)

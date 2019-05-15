@@ -86,7 +86,6 @@ expr:
     /* | expr expr                { App($1,$2) } */
     | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
-    | WILDCARD                    { WildCard }
     
     | lists                         { $1 }
 
@@ -162,7 +161,6 @@ literals:
 lists:
 	| LBRACK prim_list RBRACK { ListLit($2) }
 	| LBRACK list_range RBRACK { $2 }
-	| LBRACK inf_list RBRACK { $2 }
 	| LBRACK list_comp RBRACK { $2 }
 
 prim_list:
@@ -172,9 +170,6 @@ prim_list:
 
 list_range:
 	| expr LRANGE expr 		{ ListRange($1,$3) }
-
-inf_list:
-	| expr LRANGE			{ InfList($1) }
 
 list_comp:
 	| expr BAR clauses		{ ListComp($1,$3) }

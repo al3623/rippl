@@ -28,7 +28,6 @@ tx =
     | TIte of (typed_expr * typed_expr * typed_expr)
 	| TListComp of (typed_expr * tclause list)
 	| TListRange of (typed_expr * typed_expr)
-	| TInfList of typed_expr
     | TListLit of typed_expr list
 and tclause = 
 	| TListVBind of (string * typed_expr)

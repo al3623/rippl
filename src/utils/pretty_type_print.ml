@@ -17,7 +17,6 @@ let rec ast_to_str exp =
     | ListLit((Ast.CharLit c) :: tl) -> "\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
     | ListLit(alist) -> "[" ^ (list_to_str alist) ^ "]"
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
-    | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
     | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
 
     | BoolLit(b) -> string_of_bool b
