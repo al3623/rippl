@@ -46,7 +46,7 @@ iter_real = fun reals -> fun complex ->
 	else (iter_complex~(head reals)~complex) 
 		cons (iter_real~(tail reals)~complex)
 
-                #main :: [[char]]
+main :: [[char]]
 main = let real = [(int_to_float x) /. 50.0 | x over [-100...50]] in
 	let complex = [(int_to_float y) /. 50.0 | y over [-50...50]] in
 	let real_range = everyOther~real in
