@@ -488,6 +488,41 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     in
 
+	let rec write_type_array i ty arr = match ty with
+		| Int -> 
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 0) pos builder)
+		| Bool ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 1) pos builder)
+		| Char ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 2) pos builder)
+		| Float ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 3) pos builder)
+		| TconList (inner_ty) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 4) pos builder);
+			write_type_array (2 * i + 1) inner_ty arr
+		| TconTuple (inner_ty1, inner_ty2) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 5) pos builder);
+			write_type_array (2 * i + 1) inner_ty1 arr;
+			write_type_array (2 * i + 2) inner_ty2 arr
+		| Tmaybe (inner_ty) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 6) pos builder);
+			write_type_array (2 * i + 2) inner_ty arr
+		| _ -> raise (Failure "main should be a concrete non-arrow type!")
+	
+			
+	
+
+
+
+	in
+
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
             | (_, TypedVdef("main",texp)) ->
@@ -495,6 +530,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 				let ty_heap = L.build_array_alloca i32_t 
 					(L.const_int i32_t (expon 2 (type_depth - 1)) ) 
 					"ty_heap" builder in
+				write_type_array 0 (snd texp) ty_heap;
 				let v = build_expr texp builder StringMap.empty in
                 ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
