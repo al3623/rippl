@@ -14,7 +14,7 @@ ix =
     | IIntLit of int | IFloatLit of float | IBoolLit of bool 
     | ICharLit of char | IWildCard
     | IAdd | ISub | IMult | IDiv | IMod | IPow
-    | IAddF | ISubF | IMultF | IDivF | IPowF | INeg
+    | IAddF | ISubF | IMultF | IDivF | IPowF | INeg | INegF
     | IEq | IEqF | INeq | INeqF | IGeq | IGeqF | ILeq | ILeqF
     | ILess | ILessF | IGreater | IGreaterF
     | IAnd | IOr | INot 
@@ -22,6 +22,7 @@ ix =
 	| IFirst | ISec
 	| ITuple of (inferred_expr * inferred_expr)
 	| IIs_none | IFrom_just | IJust of inferred_expr | INone
+	| IInt_to_float
     | IVar of (string)
     | ILet of (Ast.ty SubstMap.t * iassign * inferred_expr)
     | ILambda of (Ast.ty SubstMap.t * string * inferred_expr)

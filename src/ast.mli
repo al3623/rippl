@@ -2,7 +2,7 @@ type expr =
     | IntLit of int | FloatLit of float | BoolLit of bool 
     | CharLit of char | WildCard
     | Add | Sub | Mult | Div | Mod | Pow
-    | AddF | SubF | MultF | DivF | PowF | Neg
+    | AddF | SubF | MultF | DivF | PowF | Neg | NegF
     | Eq | EqF | Neq | NeqF | Geq | GeqF | Leq | LeqF
     | Less | LessF | Greater | GreaterF
     | And | Or | Not 
@@ -12,6 +12,7 @@ type expr =
 	| Tuple of (expr * expr)
 	(* Maybe operations *)
 	| Is_none | From_just | Just of expr | None
+	| Int_to_float
     | Var of string
     | Let of (assign * expr)
     | Lambda of (string * expr)

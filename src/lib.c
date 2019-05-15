@@ -5,6 +5,51 @@
 #include <string.h>
 #include "natives.h"
 
+struct Thunk add_init_thunk[1];
+struct Thunk sub_init_thunk[1];
+struct Thunk mult_init_thunk[1];
+struct Thunk divi_init_thunk[1];
+struct Thunk mod_init_thunk[1];
+struct Thunk powe_init_thunk[1];
+struct Thunk eq_init_thunk[1];
+struct Thunk neq_init_thunk[1];
+struct Thunk geq_init_thunk[1];
+struct Thunk leq_init_thunk[1];
+struct Thunk less_init_thunk[1];
+struct Thunk greater_init_thunk[1];
+struct Thunk neg_init_thunk[1];
+
+struct Thunk addf_init_thunk[1];
+struct Thunk subf_init_thunk[1];
+struct Thunk multf_init_thunk[1];
+struct Thunk divf_init_thunk[1];
+struct Thunk powef_init_thunk[1];
+struct Thunk eqf_init_thunk[1];
+struct Thunk neqf_init_thunk[1];
+struct Thunk geqf_init_thunk[1];
+struct Thunk leqf_init_thunk[1];
+struct Thunk lessf_init_thunk[1];
+struct Thunk greaterf_init_thunk[1];
+struct Thunk negf_init_thunk[1];
+
+struct Thunk andb_init_thunk[1];
+struct Thunk orb_init_thunk[1];
+struct Thunk notb_init_thunk[1];
+
+struct Thunk cons_init_thunk[1];
+struct Thunk cat_init_thunk[1];
+struct Thunk length_init_thunk[1];
+struct Thunk head_init_thunk[1];
+struct Thunk tail_init_thunk[1];
+
+struct Thunk first_init_thunk[1];
+struct Thunk second_init_thunk[1];
+
+struct Thunk is_none_init_thunk[1];
+struct Thunk from_just_init_thunk[1];
+
+struct Thunk int_to_float_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
@@ -27,22 +72,19 @@ struct Thunk *makeFloat(float x) {
 	return init_thunk_literal(f);
 }
 
-struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2) {
-	struct Tuple *newtup = malloc(sizeof(struct Tuple));
+struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2) {
+        struct Tuple *newtup = malloc(sizeof(struct Tuple));
 
 	newtup->t1 = t1;
 	newtup->t2 = t2;
 
-	struct Thunk *thunk_data1 = init_thunk_literal(data1);
-	struct Thunk *thunk_data2 = init_thunk_literal(data2);
+	newtup->first = data1;
+	newtup->second = data2;
 
-	newtup->first = thunk_data1;
-	newtup->second = thunk_data2;
-
-	return newtup;
+	return init_thunk_literal(newtup);
 }
 
-struct Maybe *makeMaybe(void *data, int ty) {
+struct Thunk *makeMaybe(struct Thunk *data, int ty) {
 	struct Maybe *may = malloc(sizeof(struct Maybe));
 	if (data) {
 		may->is_none = 0;
@@ -50,10 +92,10 @@ struct Maybe *makeMaybe(void *data, int ty) {
 		may->is_none = 1;
 	}
 
-	struct Thunk *data_thunk = init_thunk_literal(data);
-	may->data = data_thunk;
-	return may;
+	may->data = data;
+	return init_thunk_literal(may);
 }
+
 
 struct Thunk *makeEmptyList(int ty) {
 	struct List *new = malloc(sizeof(struct List));	
@@ -70,15 +112,15 @@ struct Thunk *makeEmptyList(int ty) {
 	return init_thunk_literal(new);
 }
 
-struct Thunk *makeRangeList(int start, int end) {
+struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end) {
 	struct List *list = malloc(sizeof(struct List));
-	list->start = start;
-	list->end = end;
+	list->start = *(int *)(invoke(start));
+	list->end = *(int *)(invoke(end));
 	list->content_type = INT;
 	list->type = RANGE;
-	list->curr_index = start;
+	list->curr_index = list->start;
 
-	struct Thunk *data = makeInt(start);
+	struct Thunk *data = makeInt(list->start);
 	list->head = makeNode(data);
 	list->last_eval = list->head;
 
@@ -147,119 +189,40 @@ struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node) {
 	return init_thunk_literal(appendNode(invoke(list),node));
 }
 
-void printAny(void *thing, int ty) {
+void printAnyThunk(struct Thunk *primThunk, int *types, int index) {
+	int ty = types[index];
+	void *thing = invoke(primThunk);
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
 	} else if (ty == LIST) {
-		printList(thing);
+		printList(thing, types, index);
 	} else if (ty == TUPLE) {
-		printTuple(thing);
+		printTuple(thing, types, index);
 	} else if (ty == MAYBE) {
-		printMaybe(thing);
+		printMaybe(thing, types, index);
 	}
 }
 
-void printAnyThunk(struct Thunk *primThunk, int ty) {
-	void *thing = primThunk->value;
-	if (ty <= FLOAT) {
-		printPrim(thing, ty);
-	} else if (ty == LIST) {
-		printList(thing);
-	} else if (ty == TUPLE) {
-		printTuple(thing);
-	} else if (ty == MAYBE) {
-		printMaybe(thing);
-	}
-}
+void printList(struct List *list, int *types, int index) {
+	struct Node *curr = list->head;		
+	int type = list->content_type;
 
-void printList(void *list_thunk) {
-	// TODO lol does this work 
-/*	struct List *list = invoke(list_thunk);
+	int nested_type_index = (2 * index) + 1;
 
-	int type = llist->type;	
-	struct Node *curr = llist->head;		
-	int content_type = llist->content_type;
-
-	if (type == RANGE) {
-		printRangeList(list);
-	} else if (type == INFINITE) {
-		printInfinteList(list);
-	} else if (type == COMP) {
-		//TODO
-	} else  {
-		printPrimList(list);
-	}*/
-}
-
-void printPrimList(struct Thunk *list_thunk) {
-	struct List *list = invoke(list_thunk);
-	
-	int ty = list->content_type;
-	struct Node *curr = list->head;
-
-	if (ty!= CHAR)
-		printf("[");
-	while (curr) {
-		invoke(curr->data);
-		printAny((curr->data)->value, ty);	
-		curr = curr->next;
-		if (curr && ty != CHAR) {
-			printf(", ");
-		}
-	}	
-	if (ty != 2)
-		printf("]");
-}
-
-void printInfinteList(void *list) {
-	struct List *llist = (struct List*) list;
-	
-	int ty = llist->content_type;
-	struct Node *head = llist->head;
-
-	printf("[");
-	printAny((head->data)->value, ty);
-	printf("...]");
-}
-
-void printRangeList(void *list) {
-	struct List *llist = (struct List*) list;
-	
-	int ty = llist->content_type;
-	struct Node *head = llist->head;	
-
-	if (llist->curr_index == llist->end) {
-		printPrimList(list);
-	} else {
-		explodeRangeList(list);
-		printPrimList(list);
-	}
+        if (type != CHAR) 
+            printf("[");
+        while (curr != NULL) {
+                struct Thunk *ndata = curr->data;
+                printAnyThunk(ndata, types, nested_type_index);
+                curr = curr->next;
+                if (curr && type != CHAR)
+                    printf(", ");
+        }
+        if (type != CHAR) 
+            printf("]");
 }
 
 void printCompList(void *list);
-
-void printTuple(void *tup) {
-	struct Tuple *tupl = (struct Tuple*)tup;
-	int t1 = tupl->t1;
-	int t2 = tupl->t2;
-
-	printf("(");
-	printAny(((tupl->first))->value, t1);		
-	printf(", ");
-	printAny((tupl->second)->value, t2);
-	printf(")");	
-}
-
-void printMaybe(void *may) {
-	struct Maybe* mayb = (struct Maybe*)may;
-	int ty = mayb->ty;
-	if (mayb->is_none) {
-		printf("None");
-	} else {
-		printf("Some ");
-		printAny((mayb->data)->value, ty);
-	}
-}
 
 void printPrim(void *data, int ty) {
 	if (ty == INT) {
@@ -285,94 +248,111 @@ void printBool(char b) {
     printf("%s", b != 0 ? "true" : "false");
 }
 
+
+struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk, 
+	struct Thunk *else_thunk){
+	
+    void *val = invoke(cond_thunk);
+    char boolean_val = *(char *)(val);
+    if(boolean_val){
+        return then_thunk;	
+    } else {
+	return else_thunk;
+    }
+}
+
+void initNativeThunks() {
+	// Integer operations
+	init_thunk(add_init_thunk, &add_eval, 2);
+	init_thunk(sub_init_thunk, &sub_eval, 2);
+	init_thunk(mult_init_thunk, &mult_eval, 2);
+	init_thunk(divi_init_thunk, &divi_eval, 2);
+	init_thunk(mod_init_thunk, &mod_eval, 2);
+	init_thunk(powe_init_thunk, &powe_eval, 2);
+	init_thunk(eq_init_thunk, &eq_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(geq_init_thunk, &geq_eval, 2);
+	init_thunk(leq_init_thunk, &leq_eval, 2);
+	init_thunk(powe_init_thunk, &powe_eval, 2);
+	init_thunk(eq_init_thunk, &eq_eval, 2);
+	init_thunk(neq_init_thunk, &neq_eval, 2);
+	init_thunk(geq_init_thunk, &geq_eval, 2);
+	init_thunk(less_init_thunk, &less_eval, 2);
+	init_thunk(greater_init_thunk, &greater_eval, 2);
+	init_thunk(neg_init_thunk, &neg_eval, 1);
+
+	// Float operations
+	init_thunk(addf_init_thunk, &addf_eval, 2);
+	init_thunk(subf_init_thunk, &subf_eval, 2);
+	init_thunk(multf_init_thunk, &multf_eval, 2);
+	init_thunk(divf_init_thunk, &divf_eval, 2);
+	init_thunk(powef_init_thunk, &powef_eval, 2);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2);
+	init_thunk(leqf_init_thunk, &leqf_eval, 2);
+	init_thunk(powef_init_thunk, &powef_eval, 2);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2);
+	init_thunk(lessf_init_thunk, &lessf_eval, 2);
+	init_thunk(greaterf_init_thunk, &greaterf_eval, 2);
+	init_thunk(negf_init_thunk, &negf_eval, 1);
+
+	// Boolean operations
+	init_thunk(andb_init_thunk, &andb_eval, 2);
+	init_thunk(orb_init_thunk, &orb_eval, 2);
+	init_thunk(notb_init_thunk, &notb_eval, 1);
+
+	// List operations
+	init_thunk(cons_init_thunk, &cons_eval, 2);
+	init_thunk(cat_init_thunk, &cat_eval, 2);
+	init_thunk(length_init_thunk, &length_eval, 1);
+	init_thunk(head_init_thunk, &head_eval, 1);
+	init_thunk(tail_init_thunk, &tail_eval, 1);
+
+	// Tuple operations
+	init_thunk(first_init_thunk, &first_eval, 1);
+	init_thunk(second_init_thunk, &second_eval, 1);
+
+	init_thunk(is_none_init_thunk, &is_none_eval, 1);
+	init_thunk(from_just_init_thunk, &from_just_eval, 1);
+
+	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
+}
+
+void printTuple(void *tup, int *types, int index) {
+	struct Tuple *t = tup;
+	int nested_type_index1 = (2 * index) + 1;
+	int nested_type_index2 = (2 * index) + 2;
+	int t1 = types[nested_type_index1];
+	int t2 = types[nested_type_index2];
+
+	printf("(");
+	printAnyThunk(t->first,types, nested_type_index1);
+	printf(", ");
+	printAnyThunk(t->second,types, nested_type_index2);
+	printf(")");
+}
+
+void printMaybe(void *mayb, int *types, int index) {
+	struct Maybe* m = mayb;
+	int nested_type_index1 = (2 * index) + 2;
+	m->ty = types[nested_type_index1];
+	if (m->is_none) {
+		printf("none");
+	} else {
+		printf("maybe ");
+		printAnyThunk(m->data, types, nested_type_index1);
+	}
+}
 /*
 int main() {
-	struct List *front = makeRangeList(1,5);
-	explodeRangeList(front);
-	printf("front:\t");
-	printPrimList(front);
-	printf("\n");
-
-	struct List *end = makeRangeList(6,10);
-	explodeRangeList(end);
-	printf("end:\t");
-	printPrimList(end);
-	printf("\n");
-
-	printf("front length: %d\n", length(front));
-	printf("end length: %d\n", length(end));
-
-	printf("front head: %d\n", *(int *)head(front));
-	printf("end head: %d\n", *(int *)head(end));
-
-	struct List *front_tail = tail(front);
-	struct List *end_tail = tail(end);
-	
-	printf("front_tail: ");
-	printPrimList(front_tail);
-	printf("\n");
-
-	printf("end_tail: ");
-	printPrimList(end_tail);
-	printf("\n");
-
-	int _100 = 100;
-
-	struct List *front_cons100 = cons(&_100, front);
-	struct List *end_cons100 = cons(&_100, end);
-
-	printf("front cons 100: ");
-	printPrimList(front_cons100);
-	printf("\n");
-
-	printf("end cons 100: ");
-	printPrimList(end_cons100);
-	printf("\n");
-
-	struct List *cat_front_end = cat(front, end);
-	printf("cat front end: ");
-	printPrimList(cat_front_end);
-	printf("\n");
-
-	struct List *cat_fronttail_endtail = cat(front_tail, end_tail);
-	printf("cat front_tail end_tail: ");
-	printPrimList(cat_fronttail_endtail);
-	printf("\n");
-
+	initNativeThunks();
 	int _2 = 2;
 	struct Thunk *two = init_thunk_literal(&_2);
-	struct Thunk mul[1];
-	init_thunk(mul,mult_eval,2);
-	struct Thunk *mult2 = apply(mul, two);
-
-	struct List *mult2_cat_fronttail_endtail = map(cat_fronttail_endtail,mult2);
-	printf("map mult2 cat fronttail endtail: ");
-	printPrimList(mult2_cat_fronttail_endtail);
+	printAnyThunk(two,0);
 	printf("\n");
-	
-	printf("front:\t");
-	printPrimList(front);
-	printf("\n");
-
-	printf("end:\t");
-	printPrimList(end);
-	printf("\n");
-
-	printf("front_tail: ");
-	printPrimList(front_tail);
-	printf("\n");
-
-	printf("end_tail: ");
-	printPrimList(end_tail);
-	printf("\n");
-
-	printf("cat front end: ");
-	printPrimList(cat_front_end);
-	printf("\n");
-
-	printf("cat front_tail end_tail: ");
-	printPrimList(cat_fronttail_endtail);
-	printf("\n");
-
-	return 0;
+	struct Thunk *app_itf = apply(int_to_float_init_thunk,two);
+	printAnyThunk(app_itf,3);
 }*/

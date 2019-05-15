@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define	INT			0
+#define	INT		0
 #define	BOOL		1
 #define	CHAR		2
 #define	FLOAT		3
@@ -57,13 +57,13 @@ struct List {
 void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
-void printList(void *list);
-void printTuple(void *tup);
-void printMaybe(void *may);
-void printPrimList(struct Thunk *list);
-void printRangeList(void *list);
-void printInfinteList(void *list);
+void printAnyThunk(struct Thunk *t, int *ty, int index);
+void printList(struct List *list, int *ty, int index);
+void printTuple(void *tup, int *ty, int index);
+void printMaybe(void *may, int *ty, int index);
+void printRangeList(struct Thunk *list);
 void printCompList(void *list);
+void printMaybe(void *mayb, int *ty, int index);
 
 struct Thunk *makeInt(int x);
 struct Thunk *makeBool(char x);
@@ -72,14 +72,18 @@ struct Thunk *makeFloat(float x);
 struct Node *makeNode(struct Thunk *data);
 struct Thunk *makeEmptyList(int ty);
 struct Thunk *makeInfinite(int start);
-struct Thunk *makeRangeList(int start, int end);
-struct Tuple *makeTuple(void *data1, void *data2, int t1, int t2);
-struct Maybe *makeMaybe(void *data, int ty);
+struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end);
+struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2);
+struct Thunk *makeMaybe(struct Thunk *data, int ty);
 
 void explodeRangeList(void *list);
 void evalNextNode(void *list);
 struct List *appendNode(struct List *list, struct Node *node);
 struct Thunk *appendNodeThunk(struct Thunk *list, struct Node *node);
 struct Node *evalNextNodeComp(void *list, int num_vbinds);
+void initNativeThunks();
+
+struct Thunk *makeIte(struct Thunk *cond, struct Thunk *then_thunk, 
+	struct Thunk *else_thunk);
 
 #endif

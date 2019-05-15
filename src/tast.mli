@@ -11,9 +11,9 @@ type typed_expr = tx * ty
 and
 tx =
     | TIntLit of int | TFloatLit of float | TBoolLit of bool 
-    | TCharLit of char | TWildCard
+    | TCharLit of char | TWildCard | TInt_to_float
     | TAdd | TSub | TMult | TDiv | TMod | TPow
-    | TAddF | TSubF | TMultF | TDivF | TPowF | TNeg
+    | TAddF | TSubF | TMultF | TDivF | TPowF | TNeg | TNegF
     | TEq | TEqF | TNeq | TNeqF | TGeq | TGeqF | TLeq | TLeqF
     | TLess | TLessF | TGreater | TGreaterF
     | TAnd | TOr | TNot 

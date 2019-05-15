@@ -1,0 +1,7 @@
+skip = fun list ->
+	if len list <= 1
+	then list
+	else (head list) cons (skip~(tail (tail list)))
+
+main :: [int]
+main = skip~[1...4]

@@ -12,9 +12,10 @@ let rec ast_to_str exp =
 		^ (ast_to_str arg1) ^ ")~" ^ (ast_to_str arg2)
     | App(op, e) ->  "(" ^ (op_to_str op) ^ ")~" ^ (ast_to_str e)
     | Var(s) -> s
-
+	| Tuple(a,b) -> "("^(ast_to_str a)^", "^(ast_to_str b)^")"
     (* Lists *)
-    | ListLit(char_list) -> "\"" ^ (char_list_to_str char_list) ^ "\""
+    | ListLit((Ast.CharLit c) :: tl) -> "\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
+    | ListLit(alist) -> "[" ^ (list_to_str alist) ^ "]"
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
     | InfList(e) -> "[" ^ (ast_to_str e) ^ "...]"
     | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
@@ -23,7 +24,6 @@ let rec ast_to_str exp =
     | CharLit(c) -> String.make 1 c
     | IntLit n -> string_of_int n
     | FloatLit f -> string_of_float f
-    
     | WildCard -> "_"
     | _ -> ""
 
@@ -85,8 +85,13 @@ and ty_to_str ty =
     | TconTuple(t1,t2) -> "(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
     | Tmaybe(t) -> "Maybe " ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
-    | Tarrow(t1,t2) -> (ty_to_str t1) ^ " -> " ^ (ty_to_str t2)
+    | Tarrow(t1,t2) -> (nestarrow t1) ^ " -> " ^ (ty_to_str t2)
     | Tforall(_,t) -> ty_to_str t
+
+and nestarrow ty =
+	match ty with
+	| Tarrow(t,t1) -> "("^(nestarrow t)^" -> "^(ty_to_str t1)^")"
+	| el -> ty_to_str el
 
 
 and char_list_to_str cl =
@@ -98,6 +103,9 @@ and char_list_to_str cl =
         | _ -> 'F'
         in List.fold_left (^) "" (List.map (String.make 1) (List.map convert charlist))
 
+and list_to_str el = match el with
+        | [] -> ""
+        | hd::tl ->  List.fold_left (fun curr_str e -> curr_str ^ (ast_to_str e) ^ ",") "" el
 let rec print_annot_pairs lst = match lst with
 	| (Annot(n1, t), Vdef(n2, e)) :: tl ->
 		print_endline ("a_name: " ^ n1 ^ ", v_name: " ^ n2 ^ ", type:" ^ (ty_to_str t));

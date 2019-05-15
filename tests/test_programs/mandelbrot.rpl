@@ -1,7 +1,5 @@
-normSquared :: float -> float -> float
 normSquared = fun a -> fun b-> a ^. 2.0 +. b ^. 2.0
 
-encode :: int -> char
 encode = fun count ->
 	if count == 0
 		then 'D'
@@ -13,40 +11,39 @@ encode = fun count ->
 					then 'A'
 					else ' '
 
-
-iterateMandelbrot :: int -> float -> float -> float -> float -> char
-iterateMandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
+iterate_mandelbrot = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
 	if (c > 200 )
 		then (encode~c)
 		else if ((normSquared~(a_z *. a_z -. b_z *. b_z +. a)~
 				(2.0 *. a_z *. a_z +. b)) >. 4.0)
 			then (encode~c)
-			else (iterateMandelbrot~(c+1)~(2.0*.a_z*.b_z +. b)~
+			else (iterate_mandelbrot~(c+1)~(2.0*.a_z*.b_z +. b)~
 				(a_z*.a_z -. b_z*.b_z +. a)~b~a)
 
 
-everyOther :: [a] -> [a]
-everyOther = fun list -> if len list == 0 
-					then []
-					else if len list == 1
-						then [head list]
-						else (head list) cons (tail (tail list))
+everyOther = fun list -> if len list <= 1 
+					then list
+					else (head list) cons (everyOther~(tail (tail list)))
 
-iterateReal :: float -> [char]
-iterateReal = fun b ->
-	let range = [x /. 100 | x over [-200...100]] in
-	let realRange = everyOther~range in
-	let realLine = [(iterateMandelbrot~0~0~0~b~p) | p over realRange] in
-	realLine cat "\n"
+flatten_nested = fun llist ->
+	if len llist == 0
+	then []
+	else ((head llist) cat (flatten_nested~(tail llist)))
 
-{-
-iterateComplex :: [char]
-iterateComplex =
-	let range = [x /. 100.0 | x over [-100...100]] in
-	let complexRange = everyOther~range in
-	let iterComplexRec = fun r ->
-		(if len r == 0
-			then " "
-			else (iterateReal~(head r)) cat (iterComplexRec~(tail r)) )
-	in iterComplexRec~complexRange
--}
+iter_complex = fun x -> fun ys ->
+	if len ys == 0
+	then ['\n']
+	else (iterate_mandelbrot~0~0~0~x~(head ys)) cons (iter_complex~x~(tail ys))
+
+iter_real = fun reals -> fun complex ->
+	if len reals == 0
+	then [['\n']]
+	else (iter_complex~(head reals)~complex) 
+		cons (iter_real~(tail reals)~complex)
+
+main :: [[char]]
+main = let real = [(int_to_float x) /. 50.0 | x over [-100...50]] in
+	let complex = [(int_to_float y) /. 50.0 | y over [-50...50]] in
+	let real_range = everyOther~real in
+	let complex_range = everyOther~complex in
+	iter_real~real_range~complex_range

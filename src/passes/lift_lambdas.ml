@@ -22,19 +22,21 @@ let print_map _ =
 
 
 (* If main has a lambda wrapping its code, remove the lamba *)
-let rec transform_main d_list = match d_list with 
+let rec transform_main d_list m_found = match d_list with 
 	| Vdef (name, exp) :: ds1 -> (if name = "main" 
-		then let new_expr = (match exp with
+		then (let new_expr = (match exp with
 		| Lambda (_,ret_expr) -> ret_expr
 		| _ -> exp) 
-		in Vdef (name,new_expr)
-		else Vdef (name,exp)) :: transform_main ds1
-	| other :: ds2 -> other :: transform_main ds2
-	| [] -> []
+		in (Vdef (name,new_expr)) :: ds1)
+		else (Vdef (name,exp) :: transform_main ds1 false))
+	| other :: ds2 -> other :: transform_main ds2 false
+	| [] -> if m_found then [] else raise(Failure "main not found!")
 
 
 let rec m_replace og_ex m_ex ex = match ex with
 	| App(e1, e2) -> App(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
+	| Just(e1) -> Just(m_replace og_ex m_ex e1)
+	| Tuple(e1, e2) -> Tuple(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2)
 	| Ite(e1, e2, e3) -> Ite(m_replace og_ex m_ex e1, m_replace og_ex m_ex e2, m_replace og_ex m_ex e3)
 	| Lambda(e1, e2) -> Lambda(e1, m_replace og_ex m_ex e2)
 	| Let(Assign(s2, e2), e3) -> Let(Assign(s2, (m_replace og_ex m_ex e2)), (m_replace og_ex m_ex e3))
@@ -76,6 +78,7 @@ let rec check_clauses clauses seen_v seen_f vnames wrapped_clauses= match clause
 let rec transform_comps expr = match expr with
 	| Lambda(e1, e2) -> Lambda(e1, transform_comps e2)
 	| App(e1, e2) -> App(transform_comps e1, transform_comps e2)
+	| Just(e1) -> Just(transform_comps e1)
 	| Ite(e1, e2, e3) -> Ite(transform_comps e1, transform_comps e2, transform_comps e3)
 	| Let(Assign(n, e1), e2) -> Let(Assign(n, transform_comps e1), transform_comps e2)
 	| InfList(e1) -> InfList(transform_comps e1)
@@ -141,6 +144,8 @@ let rec find_lambdas nested = function
 
     	(StringSet.empty, App(st2, st3))
 
+    | Just(e1) -> let (_, st1) = find_lambdas true e1 in
+    	(StringSet.empty, Just(st1))
 
     | Ite(e4, e5, e6) -> 
     	let (_, st4) = find_lambdas nested e4 in 
@@ -164,7 +169,6 @@ let rec find_lambdas nested = function
     	if List.length e1 = 0 then (StringSet.empty, ListLit([])) 
     	else
     		let trav_list = List.fold_left (list_helperf_ex nested) [] e1 in
-
     		(StringSet.empty, ListLit((List.rev trav_list))) 
 
     | ListComp(e1, e2) -> (match e2 with
@@ -189,23 +193,29 @@ let rec find_lambdas nested = function
 		else
 			(StringSet.empty, Lambda(p2, (snd (find_lambdas false e10))))
 
+    | Tuple(e1, e2) ->
+    	let (_, st1) = find_lambdas true e1 in 
+    	let (_, st2) =  find_lambdas true e2 in
+
+    	(StringSet.empty, Tuple(st1, st2))
+
     | other -> (StringSet.empty, other)
 
 and list_helperf_ex nested exl ex =
-	let (_, st) = find_lambdas nested ex in
+	let (_, st) = find_lambdas true ex in
 	st :: exl
 
 and list_helperf_cla nested clal cla =
-	let (_, st) = find_lambdas_clause nested cla in
+	let (_, st) = find_lambdas_clause true cla in
 	st :: clal
 
 and find_lambdas_clause nested = function
 	| Filter(e1) ->
-    	let (_, st1) = find_lambdas nested e1 in
+    	let (_, st1) = find_lambdas true e1 in
     	(StringSet.empty, Filter(st1))
 
     | ListVBind(e1, e2) ->
-    	let (_, st2) =  find_lambdas nested e2 in
+    	let (_, st2) =  find_lambdas true e2 in
 
     	(StringSet.empty, ListVBind(e1, st2))
 
@@ -242,6 +252,16 @@ and get_closure_vars exp scope nested last_lam = match exp with
 		let (sc2, st2) = (get_closure_vars e5 scope nested false) in
 
 		(StringSet.union sc1 sc2, App(st1, st2))
+
+	| Just(e1) ->
+		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
+		(sc1, Just(st1))
+
+	| Tuple(e1, e2) ->
+		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
+		let (sc2, st2) = (get_closure_vars e2 scope nested false) in
+
+		(StringSet.union sc1 sc2, Tuple(st1, st2))
 
 	| InfList(e1) ->
     	let (sc1, st1) = (get_closure_vars e1 scope nested false) in
@@ -358,6 +378,8 @@ let rec repl_body body cl_to_mang tl_seen = match body with
 			| Some(mp) -> Var(mp) (* ok epic, it's a closure variable.. let's use the mangled parameter name *)
 			| _ -> Var(s1))) (* not from closure, just use the same name*)
 	| App(e1, e2) -> App(repl_body e1 cl_to_mang tl_seen, repl_body e2 cl_to_mang tl_seen)
+	| Just(e1) -> Just(repl_body e1 cl_to_mang tl_seen)
+	| Tuple(e1, e2) -> Tuple(repl_body e1 cl_to_mang tl_seen, repl_body e2 cl_to_mang tl_seen)
 	| Let(Assign(n, e1), e2) -> (match e1 with 
 		| Lambda(_, _) -> Let(Assign(n, e1), (if not tl_seen then (repl_body e2 cl_to_mang tl_seen) else e2))
 		| _ -> Let(Assign(n, repl_body e1 cl_to_mang tl_seen), repl_body e2 cl_to_mang tl_seen))
@@ -380,6 +402,8 @@ and repl_bodyc body cl_to_mang tl_seen = match body with
 let rec mangle_close e nested tl_seen = match e with
 	| Var(s1) -> Var(s1)
 	| App(e1, e2) -> App(mangle_close e1 nested tl_seen, mangle_close e2 nested tl_seen)
+	| Just(e1) -> Just(mangle_close e1 nested tl_seen)
+	| Tuple(e1, e2) -> Tuple(mangle_close e1 nested tl_seen, mangle_close e2 nested tl_seen)
 	| Ite(e3, e4, e5) -> Ite(mangle_close e3 nested tl_seen, mangle_close e4 nested tl_seen, mangle_close e5 nested tl_seen)
 	| Let(Assign(n, rexp), inexp) -> (match rexp with
 		| Lambda(lparam, lbody) ->
@@ -431,6 +455,13 @@ let rec lift exp decl_list = match exp with
 		let (body1, dlist1) = lift e1 decl_list in
 		let (body2, dlist2) = lift e2 dlist1 in
 		(App(body1, body2), dlist2)
+	| Just(e1) ->
+		let (body1, dlist1) = lift e1 decl_list in
+		(Just(body1), dlist1)
+	| Tuple(e1, e2) -> 
+		let (body1, dlist1) = lift e1 decl_list in
+		let (body2, dlist2) = lift e2 dlist1 in
+		(Tuple(body1, body2), dlist2)
 	| Ite(e1, e2, e3) -> 
 		let (body1, dlist1) = lift e1 decl_list in
 		let (body2, dlist2) = lift e2 dlist1 in
@@ -481,7 +512,7 @@ let lift_decl curr_list d = match d with
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
-            let mang_ast = (*print_map 0; *)mangle_close nl_ast false false in
+            let mang_ast = (*print_map 0;*) mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
             (*print_map 0;*)

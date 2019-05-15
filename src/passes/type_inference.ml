@@ -36,7 +36,7 @@ let rec ftv = function
 let rec apply s = function
     | Tvar(n) -> 
 		(match SubstMap.find_opt n s with
-        | Some t -> (*(print_endline ("APPLY LOOKUP: "^n^":"^(ty_to_str t)));*)t
+        | Some t -> apply s t
         | None -> Tvar(n)
     )
     | Tarrow (t1, t2) -> Tarrow ( apply  s t1, apply s t2 )
@@ -52,7 +52,8 @@ let collision key e1 e2 = Some e1
 let nullSubst : ty SubstMap.t = SubstMap.empty
 
 let composeSubst (s1 : ty SubstMap.t) (s2 : ty SubstMap.t) = 
-    SubstMap.union collision (SubstMap.map (apply s1) s2) s1
+    SubstMap.union collision (SubstMap.map (apply s1) s2) 
+		(SubstMap.map (apply s2) s1)
 
 (* removes element from typing environment *)
 let remove (env : ty SubstMap.t) var =
@@ -111,26 +112,12 @@ let rec mgu ty1 ty2 =
 	match ty1, ty2 with
     | Tarrow(l, r), Tarrow(l', r') -> 
             let s1 = mgu l l' in
-(*			print_string "MGU s1: ";
-			printSubst s1; *)
-            let s2 = mgu (apply s1 r) (apply s1 r') in
-(*			print_endline("MGU apply r1: " ^ (ty_to_str (apply s1 r)));
-			print_endline("MGU apply r2: " ^ (ty_to_str (apply s1 r')));
-			print_endline("MGU r1: " ^ (ty_to_str r));
-			print_endline("MGU r2: "^ (ty_to_str r')); 
- 			print_string "MGU s2: ";
-			printSubst s2;       
-			print_string "MGU ret subst: ";
-			printSubst (composeSubst s1 s2);    *)
+            let s2 = mgu (apply s1 r) (apply s1 r') in   
 			composeSubst s1 s2
     | Tvar(u), t -> varBind u t
     | t, Tvar(u) -> varBind u t
     | Int, Int -> nullSubst
     | Bool, Bool -> nullSubst
-	(* Lol does this work *)
-	| Float, Int -> nullSubst 
-	| Int, Float -> nullSubst
-	(* probably not *)
     | Float, Float -> nullSubst
     | Char, Char -> nullSubst
     | TconList(t), TconList(t') -> mgu t t'
@@ -172,9 +159,14 @@ let rec ti env expr =
 			| (ListRange _) as l -> ti env l
 			| (InfList _) as l -> ti env l
 			| (ListLit _) as l -> ti env l
-			| _ -> raise (Failure( 
-			"list comprehension variable "^v^" is not defined over a list"))) 
-			in (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+			| (Var _) as l -> ti env l
+			| t -> raise (Failure( 
+			"list comprehension variable "^v^" is not defined over list")))
+			in (match ty with
+				| TconList _ -> (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+				| _ ->  raise (Failure( 
+			"list comprehension variable "^v^" is not defined over list")))
+
 		| [] -> []
 		| _ -> raise (Failure "Unexpected filter")
 	in
@@ -282,23 +274,11 @@ let rec ti env expr =
 			(fullSubst, IListLit(merged_ix_list), TconList ty))
 	| ListRange(e1, e2) -> 
 		let (subst1, tex1, ty1) = ti env e1 in
-(*		print_string "RANGE subst1: ";
-		printSubst subst1;*)
 		let (subst2,tex2, ty2) = ti (applyenv subst1 env) e2 in	
-(*		print_string "RANGE subst2: ";
-		printSubst subst2;*)
 		let subst3 = mgu (apply subst2 ty1) ty2 in
-(*		print_string "RANGE subst3: ";
-		printSubst subst3;*)
 		let subst4 = mgu (apply subst3 ty2) Int in
-(*		print_string "RANGE subst4: ";
-		printSubst subst4;*)
 		let fullsubst = composeSubst subst1 (composeSubst subst2 
 			(composeSubst subst3 subst4)) in
-(*		print_string "RANGE fullsubst: ";
-		printSubst fullsubst;
-		print_endline ("RANGE ty1: "^(ty_to_str (apply fullsubst ty1)));
-		print_endline ("RANGE ty2: "^(ty_to_str (apply fullsubst ty2)));*)
 		(fullsubst
 			, IListRange(subst4, 
 				(subst1,tex1,apply fullsubst ty1), 
@@ -321,7 +301,6 @@ let rec ti env expr =
                 )
         | Let(Assign(x, e1), e2) -> 
 				let (s1,tex1,t1) as ix1 = ti env e1 in
-(*				(print_endline ("let assign ty: "^ (ty_to_str t1))); *)
                 let t' = generalize (applyenv s1 env) t1 in 
                 let env'' = (TyEnvMap.add x t' (applyenv s1 env)) in 
                 let (s2, tex2, t2) as ix2 = ti (applyenv s1 env'') e2 in
@@ -338,15 +317,8 @@ let rec ti env expr =
 	| App(e1,e2) -> 
 		let tv = newTyVar "app" in
 		let (s1, tx1, t1) as ix1 = ti env e1 in
-(*		print_endline ("APP t1: " ^ (ty_to_str t1));*)
 		let (s2, tx2, t2) as ix2 = ti (applyenv s1 env) e2 in
 		let s3 = mgu (apply s2 t1) (Tarrow( t2, tv)) in
-(*		print_endline ("APP t2: " ^ (ty_to_str t2));
-		print_string "APP s3: ";
-		printSubst s3;
-		print_string "APP ret subst: ";
-		printSubst (composeSubst (composeSubst s1 s2) s3);
-		print_endline ("APP ret ty: "^(ty_to_str(apply s3 tv)));*)
 		((composeSubst (composeSubst s1 s2) s3)
 		, IApp(s3,ix1,ix2)
 		, apply s3 tv)
@@ -374,6 +346,7 @@ let rec ti env expr =
         | DivF -> (nullSubst, IDivF, Tarrow(Float,Tarrow(Float,Float)))
         | PowF -> (nullSubst, IPowF, Tarrow(Float,Tarrow(Float,Float)))
         | Neg -> (nullSubst, INeg, Tarrow(Int, Int))
+        | NegF -> (nullSubst, INegF, Tarrow(Float, Float))
         | Eq -> (nullSubst, IEq, Tarrow(Int,Tarrow(Int,Bool)))
         | EqF -> (nullSubst, IEqF, Tarrow(Float,Tarrow(Float,Bool)))
         | Neq -> (nullSubst, INeq, Tarrow(Int,Tarrow(Int,Bool)))
@@ -388,7 +361,8 @@ let rec ti env expr =
         | GreaterF -> (nullSubst, IGreaterF, Tarrow(Float,Tarrow(Float,Bool)))
         | And -> (nullSubst, IAnd, Tarrow(Bool,Tarrow(Bool,Bool)))
         | Or -> (nullSubst, IOr, Tarrow(Bool,Tarrow(Bool,Bool)))
-        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))    
+        | Not -> (nullSubst, INot, Tarrow(Bool,Bool))   
+		| Int_to_float -> (nullSubst, IInt_to_float, Tarrow(Int,Float)) 
 		| Cons -> let polyty = newTyVar "a" in
 			(nullSubst, ICons, Tarrow(polyty, 
 			Tarrow (TconList polyty, TconList polyty)))
@@ -411,6 +385,12 @@ let rec ti env expr =
 					let polyty2 = newTyVar "b" in
 					(nullSubst, ISec,
 					(Tarrow(TconTuple(polyty1,polyty2),polyty2)))
+                | Is_none -> let polyty = newTyVar "a" in 
+                                       (nullSubst, IIs_none,
+                                       (Tarrow(Tmaybe polyty, Bool)))
+                | From_just -> let polyty = newTyVar "a" in 
+                                        (nullSubst, IFrom_just,
+                                        (Tarrow(Tmaybe polyty, polyty)))
         (* TODO: rest of add things *)
         | _ -> raise (Failure "not yet implemented in type inference") 
 
@@ -424,6 +404,7 @@ let rec ti env expr =
 let rec typeUpdateEnv env = function
 	| ((a,Vdef(name,expr))::xs) ->
 		let (substs, ix, ty) = ti env expr in
+		printSubst substs;
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
@@ -431,8 +412,8 @@ let rec typeUpdateEnv env = function
                 | Some si -> instantiate si) in
 		let newSubst = mgu newTy oldTy in
 		let newPair = (a, InferredVdef(name,
-			(composeSubst newSubst substs, ix,ty))) in
-		newPair::(typeUpdateEnv (applyenv newSubst env) xs)
+			(composeSubst newSubst substs, ix, apply newSubst ty))) in
+			(newPair::(typeUpdateEnv (applyenv newSubst env) xs))
 	| [] -> []
 	| ((_,Annot(_))::xs) -> raise (Failure "cannot tiVdef on annotation")
 
@@ -461,7 +442,9 @@ let type_paired_program annotvdef_list =
 		(fun s1 -> fun s2 -> composeSubst s1 s2)
 		(List.hd substList) substList in
 	let annotIVdefs' = List.map
-		(fun (a, InferredVdef(n,(s,ix,ty))) -> 
-			(a,InferredVdef(n,(s,ix, apply allSubsts ty)))) annotIVdefs in
-		annotIVdefs'
+		(fun (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
+		let finalUnion = mgu tya ty in
+		let fullUnion = composeSubst finalUnion allSubsts in
+			(Annot(na,tya),InferredVdef(n,(s,ix, apply fullUnion ty)))) annotIVdefs in
+		(allSubsts,annotIVdefs')
 

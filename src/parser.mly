@@ -16,6 +16,7 @@
 %token DIVIDEF TIMESF POWF OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER 
 %token GREATERF LEQ LEQF GEQ GEQF LEN CONS HEAD CAT TAIL ASSIGN BAR NEWLINE
 %token DOUBLECOL INTTYPE FLOATTYPE BOOLTYPE CHARTYPE
+%token INT_TO_FLOAT
 %token MAYBE JUST NONE APP
 %token FIRST SEC
 %token IS_NONE FROM_JUST
@@ -26,20 +27,21 @@
 %token <float> FLOATLIT
 %token <string> IDENT
 
-%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %left IN
-%left RARROW
+%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
+%right RARROW
 %left ELSE
 
 %left ASSIGN
 %left PLUS MINUS PLUSF MINUSF
 %left TIMES DIVIDE MOD TIMESF DIVIDEF
-%nonassoc UMINUS
+%nonassoc UMINUS UMINUSF
 %left POW POWF
 %left CONS CAT
 %nonassoc FIRST SEC LEN TAIL HEAD
 %nonassoc JUST IS_NONE FROM_JUST
 %left APP
+%left INT_TO_FLOAT /* TODO: CHECK THIS */
 %nonassoc PAREN
 
 %start program
@@ -118,6 +120,7 @@ expr:
     | expr POW expr         { App (App(Pow, $1), $3) }
     | expr POWF expr        { App (App(PowF, $1), $3) }
     | MINUS expr %prec UMINUS { App(Neg, $2) }
+    | MINUSF expr %prec UMINUSF { App(NegF, $2) }
 
     /* LIST OPERATIONS */
     | expr CONS expr        { App (App(Cons, $1), $3) }
@@ -142,6 +145,8 @@ expr:
 	| NONE							{ None }
 	| IS_NONE expr					{ App(Is_none, $2) }
 	| FROM_JUST expr				{ App(From_just, $2) }
+
+	| INT_TO_FLOAT expr				{ App(Int_to_float, $2) }
 	
 	/* LIST OPERATORS */
     

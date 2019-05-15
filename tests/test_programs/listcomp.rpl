@@ -1,0 +1,9 @@
+divides = fun x -> fun y -> if (x/y*y == x) then true else false
+
+is_prime = fun n -> if n < 2 then false else 
+                let lst = [2...n] in
+                let d = [ z | z over lst, (divides~n~z) ] in
+                if head d == n then true else false
+
+main :: [int]
+main = [n | n over [2...99], is_prime~n ]

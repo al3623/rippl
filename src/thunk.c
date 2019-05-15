@@ -25,7 +25,14 @@ struct Thunk *init_thunk_literal(void *data) {
 	return lit;
 }
 
-struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
+struct Thunk *apply(struct Thunk *in_thunk, struct Thunk *arg) {
+        if (in_thunk->eval == NULL) {
+                fprintf(stderr, "eval is null\n");
+                return apply(in_thunk->value, arg);
+        }
+
+        struct Thunk *thunk = invoke(in_thunk);
+
 	struct Thunk *new_thunk = malloc(sizeof(struct Thunk));
 	memcpy(new_thunk, thunk, sizeof(struct Thunk));
 	new_thunk->args = malloc(new_thunk->num_args * sizeof(struct Thunk*));
@@ -36,15 +43,27 @@ struct Thunk *apply(struct Thunk *thunk, struct Thunk *arg) {
 		new_thunk->value = new_thunk;
 	}
 
-	if (new_thunk->filled_args < new_thunk->num_args) {
+
+	if (new_thunk->filled_args < new_thunk->num_args) {	
 		(new_thunk->args)[new_thunk->filled_args] = arg;
 		new_thunk->filled_args++;
 	} else {
-		fprintf(stderr, "not a thunk, can't be applied");
-		exit(1);
+                fprintf(stderr, "lets recurse!\n");
+                struct Thunk *last_arg_thunk = apply( (new_thunk->args)[new_thunk->num_args - 1], arg);
+                new_thunk->args[new_thunk->num_args - 1] = last_arg_thunk;
+                
+	       /*// Top thunk is filled, let's fill in the last arg
+		struct Thunk *last_arg = new_thunk->args[new_thunk->num_args - 1];
+		if (last_arg->filled_args < last_arg->num_args) {
+			(last_arg->args)[last_arg->filled_args] = arg;
+			last_arg->filled_args++;
+		} else {
+			fprintf(stderr, "fully applied");
+			exit(1);
+		}*/
 	}
-	return new_thunk;
 
+        return new_thunk;
 }
 
 
@@ -57,8 +76,9 @@ void *invoke(struct Thunk *t) {
 		} else {
 			int i;
 			for (i = 0; i < t->num_args; i++) {
-				invoke(t->args[i]);
+		                invoke(t->args[i]);
 			}
+
 			t->value = t->eval(t);
 			return t->value;
 		}

@@ -95,14 +95,14 @@ let _ =
 	(if printDecl && (not printLifted)
 		then List.iter print_decls program
 		else ());
-    let m_program = Lift_lambdas.transform_main program in
+    let m_program = Lift_lambdas.transform_main program false in
     let program_ll = Lift_lambdas.close_and_lift m_program in
 	(if printLifted
 		then List.iter print_decls program_ll
 		else ());
 	let pair_program = Pair_annots.pair_av program_ll in
-    let pair_iprogram = Type_inference.type_paired_program pair_program in
-	let pair_tprogram = Remove_substs.remove_subst_pairs pair_iprogram in
+    let (subst,pair_iprogram) = Type_inference.type_paired_program pair_program in
+	let pair_tprogram = Remove_substs.remove_subst_pairs subst pair_iprogram in
 	(if printTypes
 		then print_all_types pair_tprogram
 		else ());
@@ -118,7 +118,7 @@ let _ =
 			then raise (Failure "llc: non-zero exit code") 
 		else if (command 
 			("gcc -L"^home^"/rippl/src "
-			^ file ^".s -lall -o"
+			^ file ^".s -lall -lm  -o"
 			^ base_no_path ) != 0)
 			then raise (Failure "gcc: non-zero exit code")
-		else ()*)
+		else ()

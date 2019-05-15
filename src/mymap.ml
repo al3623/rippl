@@ -4,17 +4,17 @@ open Tast
 open Structs
 open Lib
 
-let map_t : L.lltype =
+let mapl_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-		[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
-let map : L.llvalue =
-	L.declare_function "map" map_t the_module
+        [| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type; i32_t |]
+let mapl : L.llvalue =
+	L.declare_function "mapl" mapl_t the_module
 
-let filter : L.llvalue =
-	L.declare_function "filter" map_t the_module
+let filterl : L.llvalue =
+	L.declare_function "filterl" mapl_t the_module
 
-let map_list_t : L.lltype =
+let map_listl_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)
-	[| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type |]
-let map_list : L.llvalue =
-	L.declare_function "map_list" map_list_t the_module
+        [| L.pointer_type struct_thunk_type ; L.pointer_type struct_thunk_type ; i32_t |]
+let map_listl : L.llvalue =
+	L.declare_function "map_listl" map_listl_t the_module
