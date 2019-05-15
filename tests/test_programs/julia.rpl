@@ -45,7 +45,7 @@ iterate_complex = fun b0 -> fun a0 ->
 	let iter_complex_rec = fun r ->
 		(if len r == 0
 			then " "
-			else (iterate_real~(head r)) cat (iter_complex_rec~(tail r)) )
+			else (iterate_real~b0~a0~(head r)) cat (iter_complex_rec~(tail r)) )
 	in iter_complex_rec~complexRange
 
 main :: [char]
