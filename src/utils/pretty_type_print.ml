@@ -77,13 +77,13 @@ and op_to_str s =
 
 and ty_to_str ty =
     match ty with
-    | Bool -> "Bool"
-    | Int -> "Int"
-    | Char -> "Char"
-    | Float -> "Float"
+    | Bool -> "bool"
+    | Int -> "int"
+    | Char -> "char"
+    | Float -> "float"
     | TconList(t) -> "["^ (ty_to_str t) ^ "]"
     | TconTuple(t1,t2) -> "(" ^ (ty_to_str t1) ^ "," ^ (ty_to_str t2) ^ ")"
-    | Tmaybe(t) -> "Maybe " ^ (ty_to_str t) ^ ")"
+    | Tmaybe(t) -> "maybe " ^ (ty_to_str t) ^ ")"
     | Tvar(t) -> t
     | Tarrow(t1,t2) -> (nestarrow t1) ^ " -> " ^ (ty_to_str t2)
     | Tforall(_,t) -> ty_to_str t
