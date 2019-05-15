@@ -369,7 +369,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                | TconList (TconList _) -> 4
                                | TconList (TconTuple _) -> 5
                                | TconList (Tmaybe _) -> 6
-                               | ty -> print_endline ("couldnt make list comp of "^(ty_to_str ty)); -1
+                               | ty -> -1
                     in
                     (*let num_vars = 
                         let rec num_list lst = (match lst with
