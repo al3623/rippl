@@ -1,0 +1,5 @@
+is_prime = fun n -> if 2 > n then false else 
+                (if true then true else false) 
+				
+main :: bool
+main = is_prime~1
