@@ -253,6 +253,15 @@ and get_closure_vars exp scope nested last_lam = match exp with
 
 		(StringSet.union sc1 sc2, App(st1, st2))
 
+	| Ite(e4, e5, e6) -> 
+
+		StringSet.iter (print_endline) scope;
+    	let (sc1, st1) = (get_closure_vars e4 scope nested false) in
+    	let (sc2, st2) = (get_closure_vars e5 scope nested false) in
+    	let (sc3, st3) = (get_closure_vars e6 scope nested false) in
+
+    	(StringSet.union sc1 (StringSet.union sc2 sc3), Ite(st1, st2, st3))
+
 	| Just(e1) ->
 		let (sc1, st1) = (get_closure_vars e1 scope nested false) in
 		(sc1, Just(st1))
@@ -512,7 +521,7 @@ let lift_decl curr_list d = match d with
             (*print_endline ("+++transformed comp++\n" ^ (ast_to_str wraplc_ast) ^ "\n+++++++++++");*)
             let (_, nl_ast) = find_lambdas false wraplc_ast in ();
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
-            let mang_ast = (*print_map 0;*) mangle_close nl_ast false false in
+            let mang_ast = print_map 0; mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
             let (lifted, l_decs) = lift mang_ast [] in
             (*print_map 0;*)
