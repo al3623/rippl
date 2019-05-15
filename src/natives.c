@@ -717,6 +717,7 @@ void *length_eval(struct Thunk *t) {
 
 void *head(struct Thunk *lthunk) {
 	struct List *list = invoke(lthunk);
+	
 	struct Thunk *data = (list->head)->data;	
 	void *value = invoke(data);
 	return value;
