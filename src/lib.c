@@ -50,6 +50,8 @@ struct Thunk from_just_init_thunk[1];
 
 struct Thunk int_to_float_init_thunk[1];
 
+struct Thunk ite_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
