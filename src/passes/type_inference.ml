@@ -36,7 +36,7 @@ let rec ftv = function
 let rec apply s = function
     | Tvar(n) -> 
 		(match SubstMap.find_opt n s with
-        | Some t -> (*(print_endline ("APPLY LOOKUP: "^n^":"^(ty_to_str t)));*)t
+        | Some t -> apply s t
         | None -> Tvar(n)
     )
     | Tarrow (t1, t2) -> Tarrow ( apply  s t1, apply s t2 )
@@ -398,6 +398,7 @@ let rec ti env expr =
 let rec typeUpdateEnv env = function
 	| ((a,Vdef(name,expr))::xs) ->
 		let (substs, ix, ty) = ti env expr in
+		printSubst substs;
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
@@ -435,7 +436,9 @@ let type_paired_program annotvdef_list =
 		(fun s1 -> fun s2 -> composeSubst s1 s2)
 		(List.hd substList) substList in
 	let annotIVdefs' = List.map
-		(fun (a, InferredVdef(n,(s,ix,ty))) -> 
-			(a,InferredVdef(n,(s,ix, apply allSubsts ty)))) annotIVdefs in
+		(fun (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
+		let finalUnion = mgu tya ty in
+		let fullUnion = composeSubst finalUnion allSubsts in
+			(Annot(na,tya),InferredVdef(n,(s,ix, apply fullUnion ty)))) annotIVdefs in
 		(allSubsts,annotIVdefs')
 
