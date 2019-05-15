@@ -79,7 +79,51 @@ let ite_init_thunk = L.define_global "ite_init_thunk" (L.const_null struct_thunk
 let int_to_float_init_thunk = L.define_global "int_to_float_init_thunk" (L.const_null
 	struct_thunk_type) the_module
 
-let _ = L.set_alignment 32 add_init_thunk
+let _ = L.set_alignment 32 add_init_thunk;
+		L.set_alignment 32 sub_init_thunk;
+		L.set_alignment 32 mult_init_thunk;
+		L.set_alignment 32 divi_init_thunk;
+		L.set_alignment 32 mod_init_thunk;
+		L.set_alignment 32 powe_init_thunk;
+		L.set_alignment 32 eq_init_thunk;
+		L.set_alignment 32 neq_init_thunk;
+		L.set_alignment 32 geq_init_thunk;
+		L.set_alignment 32 leq_init_thunk;
+		L.set_alignment 32 less_init_thunk;
+		L.set_alignment 32 greater_init_thunk;
+		L.set_alignment 32 neg_init_thunk;
+
+		L.set_alignment 32 addf_init_thunk;
+		L.set_alignment 32 subf_init_thunk;
+		L.set_alignment 32 multf_init_thunk;
+		L.set_alignment 32 divf_init_thunk;
+		L.set_alignment 32 powef_init_thunk;
+		L.set_alignment 32 eqf_init_thunk;
+		L.set_alignment 32 neqf_init_thunk;
+		L.set_alignment 32 geqf_init_thunk;
+		L.set_alignment 32 leqf_init_thunk;
+		L.set_alignment 32 lessf_init_thunk;
+		L.set_alignment 32 greaterf_init_thunk;
+		L.set_alignment 32 negf_init_thunk;
+
+		L.set_alignment 32 andb_init_thunk;
+		L.set_alignment 32 orb_init_thunk;
+		L.set_alignment 32 notb_init_thunk;
+
+		L.set_alignment 32 cons_init_thunk;
+		L.set_alignment 32 cat_init_thunk;
+		L.set_alignment 32 length_init_thunk;
+		L.set_alignment 32 head_init_thunk;
+		L.set_alignment 32 tail_init_thunk;
+		
+		L.set_alignment 32 first_init_thunk;
+		L.set_alignment 32 second_init_thunk;
+
+		L.set_alignment 32 is_none_init_thunk;
+		L.set_alignment 32 from_just_init_thunk;
+
+		L.set_alignment 32 int_to_float_init_thunk;
+		L.set_alignment 32 ite_init_thunk
 
 let l_char = L.const_int i8_t (Char.code '\n')
 
