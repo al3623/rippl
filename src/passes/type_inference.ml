@@ -404,7 +404,6 @@ let rec ti env expr =
 let rec typeUpdateEnv env = function
 	| ((a,Vdef(name,expr))::xs) ->
 		let (substs, ix, ty) = ti env expr in
-		printSubst substs;
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
