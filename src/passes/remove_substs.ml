@@ -41,8 +41,6 @@ let rec remove_subst_expr subst = function
 		List.map (remove_subst_clause subst) iclause_list),apply subst t)
 	| (_,IListRange(_,ix1,ix2),t) ->
 		(TListRange(remove_subst_expr subst ix1, remove_subst_expr subst ix2),apply subst t)
-	| (_,IInfList(_,ix1),t) ->
-		(TInfList (remove_subst_expr subst ix1),apply subst t)
     | (_,(IListLit(ix_list)),t) ->
 		(TListLit (List.map (remove_subst_expr subst) ix_list),apply subst t)
 	| (_,(IFirst),t) -> (TFirst,apply subst t) 

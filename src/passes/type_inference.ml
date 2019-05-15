@@ -157,7 +157,6 @@ let rec ti env expr =
 			(match e with 
 			| (ListComp _) as l -> ti env l
 			| (ListRange _) as l -> ti env l
-			| (InfList _) as l -> ti env l
 			| (ListLit _) as l -> ti env l
 			| (Var _) as l -> ti env l
 			| t -> raise (Failure( 
@@ -284,10 +283,6 @@ let rec ti env expr =
 				(subst1,tex1,apply fullsubst ty1), 
 				(subst2,tex2,apply fullsubst ty2))
 			, TconList Int)
-	| InfList e ->
-		let (subst, tex, ty) = ti env e in
-		let subst' = mgu (apply subst ty) Int in
-		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
 	| None -> let polyty = newTyVar "a" in
 		(nullSubst, INone, Tmaybe polyty)
 	| Just e -> let (s,ix,t) as ixpr = ti env e in
