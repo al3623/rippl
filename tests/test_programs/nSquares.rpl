@@ -1,2 +1,5 @@
 nSquares :: int -> [int]
 nSquares = fun n -> [x * x | x over [1...n]]
+
+main :: [int]
+main = nSquares~10
