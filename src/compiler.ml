@@ -111,9 +111,10 @@ let _ =
     let ls = Llvm.string_of_llmodule m in
     let file = base_no_path ^ ".byte" in
 	let home = Unix.getenv "HOME" in
-    let oc = open_out file in
+        if (not printTypes && not printLifted) then (let oc = open_out file 
+        in
 		fprintf oc "%s\n" ls;
-        close_out oc;
+                close_out oc;
 		if (command ("llc -relocation-model=pic " ^ file) != 0)
 			then raise (Failure "llc: non-zero exit code") 
 		else if (command 
@@ -121,4 +122,4 @@ let _ =
 			^ file ^".s -lall -lm  -o"
 			^ base_no_path ) != 0)
 			then raise (Failure "gcc: non-zero exit code")
-		else ()
+		else ()) else ()
