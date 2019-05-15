@@ -11,6 +11,20 @@ open Mymap
 module StringMap = Map.Make(String)
 
 let translate (decl_lst: (decl * typed_decl) list) =
+	let rec expon base pow = if pow = 0
+		then 1
+		else base * (expon base (pow -1))
+	in
+
+	let rec get_type_depth = function
+		| Int | Bool | Float | Char -> 1
+		| TconList t -> 1 + get_type_depth t
+		| Tmaybe t -> 1 + get_type_depth t
+		| TconTuple(t1,t2) -> let d1 = get_type_depth t1 in
+			let d2 = get_type_depth t2 in
+			if d2 > d1 then d2 else d1
+		| _ -> 1
+	in
 
     let rec throw_away_lambda = function
         | (TLambda(_, b), _) -> throw_away_lambda b
@@ -372,7 +386,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                                | TconList (TconList _) -> 4
                                | TconList (TconTuple _) -> 5
                                | TconList (Tmaybe _) -> 6
-                               | ty -> print_endline ("couldnt make list comp of "^(ty_to_str ty)); -1
+                               | ty -> -1
                     in
                     (*let num_vars = 
                         let rec num_list lst = (match lst with
@@ -477,12 +491,50 @@ let translate (decl_lst: (decl * typed_decl) list) =
 
     in
 
+	let rec write_type_array i ty arr = match ty with
+		| Int -> 
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 0) pos builder)
+		| Bool ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 1) pos builder)
+		| Char ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 2) pos builder)
+		| Float ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 3) pos builder)
+		| TconList (inner_ty) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 4) pos builder);
+			write_type_array (2 * i + 1) inner_ty arr
+		| TconTuple (inner_ty1, inner_ty2) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 5) pos builder);
+			write_type_array (2 * i + 1) inner_ty1 arr;
+			write_type_array (2 * i + 2) inner_ty2 arr
+		| Tmaybe (inner_ty) ->
+			let pos = L.build_gep arr [| L.const_int i32_t i |] "pos" builder in
+			ignore (L.build_store (L.const_int i32_t 6) pos builder);
+			write_type_array (2 * i + 2) inner_ty arr
+		| _ -> raise (Failure "main should be a concrete non-arrow type!")
+	
+			
+	
+
+
+
+	in
+
     let rec build_decl (tdecl: (decl * typed_decl)) =
         match tdecl with
             | (_, TypedVdef("main",texp)) ->
-                (* build expr *)
-                let v = build_expr texp builder StringMap.empty in
-                (* print expr if main*)
+                let type_depth = get_type_depth (snd texp) in
+				let ty_heap = L.build_array_alloca i32_t 
+					(L.const_int i32_t (expon 2 (type_depth - 1)) ) 
+					"ty_heap" builder in
+				write_type_array 0 (snd texp) ty_heap;
+				let v = build_expr texp builder StringMap.empty in
                 ignore (print_expr v (snd texp))
 			| (_, TypedVdef(name,(tex,Tarrow(_)))) as tup->
                 let _ = build_eval_func_body eval_decls tup in

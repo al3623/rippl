@@ -201,28 +201,31 @@ void printAny(void *thing, int ty) {
 	}
 }
 
-void printAnyThunk(struct Thunk *primThunk, int ty) {
+void printAnyThunk(struct Thunk *primThunk, int *types, int index) {
+	int ty = types[index];
 	void *thing = invoke(primThunk);
 	if (ty <= FLOAT) {
 		printPrim(thing, ty);
 	} else if (ty == LIST) {
-		printList(thing);
+		printList(thing, types, index);
 	} else if (ty == TUPLE) {
 		printTuple(thing);
 	} else if (ty == MAYBE) {
-		printMaybe(thing);
+		printMaybe(thing, types, index);
 	}
 }
 
-void printList(struct List *list) {
+void printList(struct List *list, int *types, int index) {
 	struct Node *curr = list->head;		
 	int type = list->content_type;
+
+	int nested_type_index = (2 * index) + 1;
 
         if (type != CHAR) 
             printf("[");
         while (curr != NULL) {
                 struct Thunk *ndata = curr->data;
-                printAnyThunk(ndata, type);
+                printAnyThunk(ndata, types, nested_type_index);
                 curr = curr->next;
                 if (curr && type != CHAR)
                     printf(", ");
@@ -341,25 +344,29 @@ void initNativeThunks() {
 	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
 }
 
-void printTuple(void *tup) {
+void printTuple(void *tup, int *types, int index) {
 	struct Tuple *t = tup;
-	int t1 = t->t1;
-	int t2 = t->t2;
+	int nested_type_index1 = (2 * index) + 1;
+	int nested_type_index2 = (2 * index) + 2;
+	int t1 = types[nested_type_index1];
+	int t2 = types[nested_type_index2];
 
 	printf("(");
-	printAnyThunk(t->first,t1);
+	printAnyThunk(t->first,types, nested_type_index1);
 	printf(", ");
-	printAnyThunk(t->second,t2);
+	printAnyThunk(t->second,types, nested_type_index2);
 	printf(")");
 }
 
-void printMaybe(void *mayb) {
+void printMaybe(void *mayb, int *types, int index) {
 	struct Maybe* m = mayb;
+	int nested_type_index1 = (2 * index) + 2;
+	m->ty = types[nested_type_index1];
 	if (m->is_none) {
 		printf("none");
 	} else {
 		printf("maybe ");
-		printAnyThunk(m->data,m->ty);
+		printAnyThunk(m->data, types, nested_type_index1);
 	}
 }
 /*

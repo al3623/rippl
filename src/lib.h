@@ -57,10 +57,10 @@ struct List {
 void printBool(char b);
 void printPrim(void *data, int ty);
 void printAny(void *thing, int ty);
-void printAnyThunk(struct Thunk *t, int ty);
-void printList(struct List *list);
-void printTuple(void *tup);
-void printMaybe(void *may);
+void printAnyThunk(struct Thunk *t, int *ty, int index);
+void printList(struct List *list, int *ty, int index);
+void printTuple(void *tup, int *ty, int index);
+void printMaybe(void *may, int *ty, int index);
 void printRangeList(struct Thunk *list);
 void printInfinteList(void *list);
 void printCompList(void *list);
