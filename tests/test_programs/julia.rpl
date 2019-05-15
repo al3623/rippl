@@ -15,14 +15,14 @@ encode = fun count ->
 
 
 iterate_julia :: int -> float -> float -> float -> float -> char
-iterate_julia = fun c -> fun b_z -> fun a_z -> fun b -> fun a ->
+iterate_julia = fun c -> fun b_c -> fun a_c -> fun b_z -> fun a_z ->
 	if (c > 200 )
 		then (encode~c)
-		else if ((norm_squared~(a_z *. a_z -. b_z *. b_z +. a)~
-				(2.0 *. a_z *. a_z +. b)) >. 4.0)
+		else if ((norm_squared~(a_z *. a_z -. b_z *. b_z +. a_c)~
+				(2.0 *. a_z *. a_z +. b_c)) >. 4.0)
 			then (encode~c)
-			else (iterate_julia~(c+1)~(2.0*.a_z*.b_z +. b)~
-				(a_z*.a_z -. b_z*.b_z +. a)~b~a)
+			else (iterate_julia~(c+1)~b_c~a_c~(2.0*.a_z*.b_z +. b_c)~
+				(a_z*.a_z -. b_z*.b_z +. a_c))
 
 
 every_other :: [a] -> [a]
@@ -31,22 +31,22 @@ every_other = fun list -> if len list <= 1
 					else (head list) cons (every_other~(tail (tail list)))
 
 iterate_real :: float -> float -> float -> [char]
-iterate_real = fun b0 -> fun a0 -> fun b ->
+iterate_real = fun b_c -> fun a_c -> fun b ->
 	let range = [(int_to_float x) /. 50.0 | x over [-100...50]] in
 	let realRange = every_other~range in
-	let realLine = [(iterate_julia~0~b0~a0~b~p) | p over realRange] in
+	let realLine = [(iterate_julia~0~b_c~a_c~b~p) | p over realRange] in
 	realLine cat ['\n']
 
 
 iterate_complex :: float -> float -> [char]
-iterate_complex = fun b0 -> fun a0 -> 
+iterate_complex = fun b_c -> fun a_c -> 
 	let range = [(int_to_float x) /. 50.0 | x over [-50...50]] in
 	let complexRange = every_other~range in
 	let iter_complex_rec = fun r ->
 		(if len r == 0
 			then " "
-			else (iterate_real~b0~a0~(head r)) cat (iter_complex_rec~(tail r)) )
+			else (iterate_real~b_c~a_c~(head r)) cat (iter_complex_rec~(tail r)) )
 	in iter_complex_rec~complexRange
 
-main :: [char]
-main = iterate_complex~0.26~0.0
+main :: int
+main = 0

@@ -705,6 +705,7 @@ int *length(struct Thunk *lthunk) {
 		curr = curr->next;
 	}
 	int *result = malloc(sizeof(int));
+        fprintf(stderr, "len: %d\n", count);
 	*result = count;
 	return result;
 }
