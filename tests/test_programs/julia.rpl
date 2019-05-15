@@ -31,7 +31,7 @@ every_other = fun list -> if len list <= 1
 
 iterate_real :: float -> float -> float -> [char]
 iterate_real = fun b_c -> fun a_c -> fun b ->
-	let range = [(int_to_float x) /. 50.0 | x over [-100...50]] in
+	let range = [(int_to_float x) /. 150.0 | x over [-300...150]] in
 	let realRange = every_other~range in
 	let realLine = [(iterate_julia~0~b_c~a_c~b~p) | p over realRange] in
 	realLine cat ['\n']
@@ -48,4 +48,4 @@ iterate_complex = fun b_c -> fun a_c ->
 	in iter_complex_rec~complexRange
 
 main :: [char]
-main = iterate_complex~0.0~0.0
+main = iterate_complex~(0.0)~(-.0.8)

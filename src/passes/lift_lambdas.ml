@@ -24,10 +24,7 @@ let print_map _ =
 (* If main has a lambda wrapping its code, remove the lamba *)
 let rec transform_main d_list m_found = match d_list with 
 	| Vdef (name, exp) :: ds1 -> (if name = "main" 
-		then (let new_expr = (match exp with
-		| Lambda (_,ret_expr) -> ret_expr
-		| _ -> exp) 
-		in (Vdef (name,new_expr)) :: ds1)
+		then (Vdef (name,exp) :: ds1)
 		else (Vdef (name,exp) :: transform_main ds1 false))
 	| other :: ds2 -> other :: transform_main ds2 false
 	| [] -> if m_found then [] else raise(Failure "main not found!")
