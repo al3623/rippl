@@ -47,11 +47,3 @@ main = let real = [(int_to_float x) /. 50.0 | x over [-100...50]] in
 	let real_range = everyOther~real in
 	let complex_range = everyOther~complex in
 	iter_real~real_range~complex_range
-{-
-	let range = [(int_to_float x) /. 100.0 | x over [-100...100]] in
-	let complexRange = everyOther~range in
-	let iterComplexRec = fun r ->
-		(if len r == 0
-			then " "
-			else (iterateReal~(head r)) cat (iterComplexRec~(tail r)) )
-	in iterComplexRec~complexRange -}

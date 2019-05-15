@@ -5,16 +5,18 @@
 #include "natives.h"
 
 struct Thunk *mapl(struct Thunk *list_thunk, struct Thunk *func, int ty) {
-	struct List *list = list_thunk->value;
-
+	struct List *list = invoke(list_thunk);
+	
 	struct Thunk *new_thunk = makeEmptyList(ty);
-	struct List *new = new_thunk->value;
+	struct List *new = invoke(new_thunk);
 
 	struct Node *curr = list->head;
 
 	while (curr) {
 		struct Thunk *data = (curr->data);
-		struct Thunk *newThunk = apply(func, data);
+		invoke(func);
+	
+		struct Thunk *newThunk = apply(func->value, data);
 
 		struct Node *newNode = malloc(sizeof(struct Node));
 		newNode->data = newThunk;

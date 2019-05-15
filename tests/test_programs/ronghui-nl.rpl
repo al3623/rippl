@@ -1,0 +1,11 @@
+main :: int
+main =  let a = fun x -> fun s -> (
+                let b = fun y -> (
+                        let d = fun w -> w + s 
+                        in d~(y + 1) )
+                in
+                let e = fun q -> b~(q + 1)
+                in e~(x + 1) )
+        in a~10~5
+
+
