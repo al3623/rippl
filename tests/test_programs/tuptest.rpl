@@ -1,0 +1,2 @@
+main :: [(int, int)]
+main = [(x, x) | x over [1,2,3], x > 2]
