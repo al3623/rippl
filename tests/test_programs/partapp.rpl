@@ -1,0 +1,4 @@
+add = fun x -> fun y -> x + y
+
+main :: int
+main = let add52 = add ~ 52 in add52 ~ 17
