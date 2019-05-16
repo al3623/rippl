@@ -1,9 +1,11 @@
+id = fun z -> let d = z in d
+
 make_arrow_list = fun a -> fun b ->
-	[(fun x -> x + a),(fun y -> y + b)]
+	[(fun x -> x + a ),(fun y -> y + b )]
 
 main :: a
 main =
         let a = 5 in
         let b = 6 in 
-        let funs = make_arrow_list~b~a in
-        (head tail funs)~64
+        let funs = id~(make_arrow_list~(id~b)~(id~a)) in
+        id~(just ((head tail funs)~64))
