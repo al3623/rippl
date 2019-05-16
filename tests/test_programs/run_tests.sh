@@ -14,6 +14,8 @@ do
 	then echo "failed test$var"
    	else  echo "passed test$var"
 	fi
+	
+	rm ./${file::-4}
 
 done
 
