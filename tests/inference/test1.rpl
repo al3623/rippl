@@ -1,1 +1,4 @@
 add = fun x -> fun y -> x + y
+
+main :: int
+main = add~60~9

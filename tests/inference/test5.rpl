@@ -4,3 +4,6 @@ collatz = fun x ->
 	else if (x % 2 == 0)
 		then (collatz~(x / 2))
 		else (collatz~(3 * x + 1))
+
+main :: int
+main = collatz~4

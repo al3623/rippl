@@ -2,4 +2,5 @@ id = fun x -> let y = x in y
 
 apply = fun a -> fun b -> (id~a, id~b)
 
-main = apply
+main :: (int,int)
+main = apply~1~1
