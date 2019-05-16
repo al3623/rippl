@@ -1,0 +1,12 @@
+main :: int
+main =  let a = fun x -> fun s -> (
+                # b takes s from closure since d takes s from closure
+                let b = fun y -> (
+                        # d takes s from closure
+                        let d = fun w -> w + s 
+                        in d~(y + 1) )
+                in
+                # e takes b from closure so it takes s, too
+                let e = fun q -> b~(q + 1)
+                in e~(x + 1) )
+        in a~61~5
