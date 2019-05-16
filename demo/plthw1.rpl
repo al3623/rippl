@@ -1,0 +1,12 @@
+{- Hans Montero
+   hjm2133
+   PLT Spring 2019
+   HW1 Q1
+ -}
+apply_n = fun f -> fun n -> fun x -> 
+        if n == 0 then x  
+        else apply_n~f~(n - 1)~(f~x)  
+
+main :: int
+main = 0
+
