@@ -32,7 +32,7 @@ everyOther = fun list -> if len list <= 1
 
 iterateReal :: float -> [char]
 iterateReal = fun b ->
-	let range = [(int_to_float x) /. 100.0 | x over [-200...100]] in
+	let range = [(int_to_float x) /. 110.0 | x over [-220...110]] in
 	let realRange = everyOther~range in
 	let realLine = [(iterateMandelbrot~0~0~0~b~p) | p over realRange] in
 	realLine cat ['\n']
