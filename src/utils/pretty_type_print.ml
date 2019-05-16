@@ -116,5 +116,5 @@ let rec print_annot_pairs lst = match lst with
 	| (Annot(n1, t), Vdef(n2, e)) :: tl ->
 		print_endline ("a_name: " ^ n1 ^ ", v_name: " ^ n2 ^ ", type:" ^ (ty_to_str t));
 		print_annot_pairs tl
-	| [] -> print_endline "done"
-	| _ -> print_endline "what" 
+	| [] -> raise(Failure "empty program")
+	| _ -> raise(Failure "expected annot vdef pairs") 
