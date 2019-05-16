@@ -5,12 +5,9 @@ open Parser
 open Check_main
 open Pair_annots
 open Pretty_type_print
-(*open Type_check*)
 open Lift_lambdas
 open Check_lists
-(*open Codegen*)
 open Printf
-(*open Type_inference*)
 open Remove_substs
 open Sys
 open String
