@@ -1,0 +1,5 @@
+main :: int
+main = 
+let a = 5 in
+let l = just((fun y -> y + a)) in
+(from_just l) ~ 5

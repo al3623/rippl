@@ -1,0 +1,6 @@
+main :: int
+main = 
+	let f1 = fun x ->
+		let f2 = fun y ->
+			let f3 = fun z -> x + y + z in
+		f3~1 in f2~2 in f1~10

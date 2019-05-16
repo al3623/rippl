@@ -1,0 +1,4 @@
+main :: [int]
+main =
+	let z = 69 in
+	[y | y over [1,2,3], a over [4,5,6], y != z] 
