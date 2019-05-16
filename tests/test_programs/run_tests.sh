@@ -1,6 +1,7 @@
 #!/bin/zsh
 #assert.sh
 
+
 for file in *.rpl
 do
 	rippl $file &> /dev/null
@@ -16,6 +17,6 @@ do
 	fi
 	
 	rm -rf ${file: : -4} &> /dev/null
-
+        rm -rf *.byte *.byte.s &> /dev/null
 done
 
