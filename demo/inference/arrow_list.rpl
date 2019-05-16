@@ -1,7 +1,7 @@
 make_arrow_list = fun a -> fun b ->
 	[(fun x -> x + a),(fun y -> y + b)]
 
-main :: int
+main :: a
 main =
         let a = 5 in
         let b = 6 in 

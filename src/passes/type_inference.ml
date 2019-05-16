@@ -88,6 +88,12 @@ let rec zip lst1 lst2 = match lst1, lst2 with
     | _, [] -> []
     | (x :: xs), (y :: ys) -> (x, y) :: (zip xs ys)
 
+let rec unzip = function
+	| (a,b)::xs -> let rest = unzip xs in
+		let resta = fst rest in
+		let restb = snd rest in
+		(a::resta,b::restb)
+	| [] -> ([],[])
 
 let rec map_from_list = function 
     | [] -> SubstMap.empty
@@ -160,9 +166,11 @@ let rec ti env expr =
 			| (ListLit _) as l -> ti env l
 			| (Var _) as l -> ti env l
 			| t -> raise (Failure( 
-			"list comprehension variable "^v^" is not defined over list")))
+			"list comprehension variable "^v^" is not defined over list "
+			^(ast_to_str t))))
 			in (match ty with
-				| TconList _ -> (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
+				| TconList _ -> (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)
+				| Tvar t -> (IListVBind(v,ixpr))::(ti_vbinds (applyenv s env) xs)	
 				| _ ->  raise (Failure( 
 			"list comprehension variable "^v^" is not defined over list")))
 
@@ -186,7 +194,11 @@ let rec ti env expr =
 		in collect mixed_list ([],[]) 
 	in
 	let rec tys_from_vbinds = function
-		| (IListVBind(_,(_,_,(TconList ty))))::xs -> ty::(tys_from_vbinds xs)
+		| (IListVBind(_,(_,_,(TconList ty))))::xs -> 
+			(ty,nullSubst)::(tys_from_vbinds xs)
+		| (IListVBind(_,(_,_,(Tvar ty))))::xs -> 
+			let oop = newTyVar "oop" 
+			in (oop, mgu (TconList oop) (Tvar ty))::(tys_from_vbinds xs)
 		| [] -> []
 		| _ -> raise 
 			(Failure "list comprehension variable is not defined over list")
@@ -232,8 +244,12 @@ let rec ti env expr =
 		let (s,ix,ty) as ixpr = ti env e in
 		let (vbinds,filters) = collect_vbinds_filters clauses in
 		let (ivbinds,ifilters) =(ti_vbinds env vbinds,ti_filters env filters) in
-		let vbind_tys = tys_from_vbinds ivbinds in
-		let vsubsts = substs_from_vbinds ivbinds in
+		let (vbind_tys,vbind_substs) = unzip (tys_from_vbinds ivbinds) in
+		let polyvbind_substs =	List.fold_left
+			(fun s1 -> fun s2 -> composeSubst s1 s2)
+			(List.hd vbind_substs) vbind_substs in
+		let vsubsts = composeSubst polyvbind_substs 
+			(substs_from_vbinds ivbinds) in
 		let fsubsts = substs_from_filters ifilters in 
 		let filter_tys = tys_from_filters ifilters in 
 		let filtsubst = composeSubst fsubsts (List.fold_left 
