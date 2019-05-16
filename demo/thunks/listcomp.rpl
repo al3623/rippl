@@ -5,5 +5,5 @@ is_prime = fun n -> if n < 2 then false else
                 let d = [ z | z over lst, (divides~n~z) ] in
                 if head d == n then true else false
 
-main :: [int]
+main :: a
 main = [n | n over [2...99], is_prime~n ]

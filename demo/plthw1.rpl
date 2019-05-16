@@ -8,6 +8,7 @@ mult = fun j -> fun k -> j * k
 apply_n = fun f -> fun n -> fun x -> 
         if n == 0 then x  
         else apply_n~f~(n - 1)~(f~x)  
+
 expon = fun a -> fun b -> 
         if b < 0 then -1
         else apply_n~(mult~a)~b~1
