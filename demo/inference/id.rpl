@@ -1,4 +1,0 @@
-listid = fun l -> [(fun x -> x)~e | e over l]
-
-main :: a
-main = listid~[1...10]
