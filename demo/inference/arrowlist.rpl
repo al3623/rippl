@@ -1,5 +1,5 @@
 make_arrow_list = fun a -> fun b ->
-	[(fun x -> x + a),(fun y -> y + b)]
+	[(fun x -> x),(fun y -> y)]
 
 main :: int
 main =
