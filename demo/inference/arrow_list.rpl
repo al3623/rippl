@@ -6,4 +6,4 @@ main =
         let a = 5 in
         let b = 6 in 
         let funs = make_arrow_list~5~6 in
-        (head tail funs)~5
+        (head tail funs)~64

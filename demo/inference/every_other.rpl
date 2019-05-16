@@ -1,7 +1,0 @@
-every_other = fun l ->
-	if len l <= 0
-	then l
-	else (head l) cons (every_other~(tail tail l))
-
-main :: [int]
-main = every_other~[1...10]
