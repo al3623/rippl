@@ -1,7 +1,0 @@
-map = fun f -> fun list -> if len list == 0
-		then []
-		else f~(head list) cons (map~f~(tail list))
-
-main :: a
-main = let l = map~(fun x -> x+3)~[2,5,66] in [ (y,y/3) | y over l, y > 10 ] 
-
