@@ -1,0 +1,3 @@
+main :: int
+main = let list = [1/x | x over [-1...2], x < 3]
+	in head (tail list) # will cause an error due to filter
