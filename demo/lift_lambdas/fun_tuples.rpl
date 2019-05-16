@@ -1,7 +1,8 @@
-main :: [a]
+main :: [int]
 main = 
-        let i = 69 in
-        let j = 420 in
-        let fun_tuples = [((fun q -> fun y -> y + x + q)~j, z) | x over [1, 2, 3, i], z over [4, 5, 6], x!=i] in
+        let bad1 = 69 in
+        let bad2 = 420 in
+        let fun_tuples = [ ((fun q -> q + x), z) | 
+                x over [bad1, 1, 2, 3, bad2], z over [4, 5, 6], (x != bad1 and x != bad2)] in
         let eval_tuples = [ (first t) ~ (sec t) | t over fun_tuples] in
         eval_tuples
