@@ -442,6 +442,16 @@ and lift_helperc cl c = match c with
 		let (body1, dlist1) = lift e1 (snd cl) in
 		((Filter(body1) :: (fst cl)), dlist1)
 
+let rec get_last lst = match lst with
+	| [el] -> el
+	| hd :: tl -> get_last tl
+	| _ -> raise(Failure "can't get last of empty list")
+
+let rec rest_list lst = match lst with
+	| [el] -> []
+	| hd :: tl -> (hd :: (rest_list tl))
+	| _ -> []
+
 let lift_decl curr_list d = match d with
     | Vdef(n, e) ->
             let wraplc_ast = transform_comps e in
@@ -450,9 +460,17 @@ let lift_decl curr_list d = match d with
             (*print_endline ("-------findlam------\n" ^ (ast_to_str nl_ast) ^ "\n--------");*)
             let mang_ast = (*print_map 0;*) mangle_close nl_ast false false in
             (*print_endline ("++++++++mangled+++++++\n" ^ (ast_to_str mang_ast) ^ "\n+++++++++++");*)
-            let (lifted, l_decs) = lift mang_ast [] in
+            let (corpse, l_decs) = lift mang_ast [] in
             (*print_map 0;*)
-            l_decs @ curr_list @ [Vdef(n, lifted)]
+            if List.length curr_list = 0 then (l_decs @ [Vdef(n, corpse)]) else (
+	            let last_elem = get_last curr_list in
+	            let rest_list = rest_list curr_list in
+	            (match last_elem with
+	            	| Annot(an, _) -> 
+	            		if an = n then (rest_list @ l_decs @ [last_elem] @ [Vdef(n, corpse)])
+	            		else (curr_list @ l_decs @ [Vdef(n, corpse)])
+	            	| _ -> curr_list @ l_decs @ [Vdef(n, corpse)]))
+
     | annot -> curr_list @ [annot]
 
 let get_top_sc plist = 
