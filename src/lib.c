@@ -50,6 +50,8 @@ struct Thunk from_just_init_thunk[1];
 
 struct Thunk int_to_float_init_thunk[1];
 
+struct Thunk ite_init_thunk[1];
+
 struct Thunk *makeInt(int x) {
 	int *i = malloc(sizeof(int));
 	*i = x;
@@ -263,62 +265,64 @@ struct Thunk *makeIte(struct Thunk *cond_thunk, struct Thunk *then_thunk,
 
 void initNativeThunks() {
 	// Integer operations
-	init_thunk(add_init_thunk, &add_eval, 2);
-	init_thunk(sub_init_thunk, &sub_eval, 2);
-	init_thunk(mult_init_thunk, &mult_eval, 2);
-	init_thunk(divi_init_thunk, &divi_eval, 2);
-	init_thunk(mod_init_thunk, &mod_eval, 2);
-	init_thunk(powe_init_thunk, &powe_eval, 2);
-	init_thunk(eq_init_thunk, &eq_eval, 2);
-	init_thunk(neq_init_thunk, &neq_eval, 2);
-	init_thunk(geq_init_thunk, &geq_eval, 2);
-	init_thunk(leq_init_thunk, &leq_eval, 2);
-	init_thunk(powe_init_thunk, &powe_eval, 2);
-	init_thunk(eq_init_thunk, &eq_eval, 2);
-	init_thunk(neq_init_thunk, &neq_eval, 2);
-	init_thunk(geq_init_thunk, &geq_eval, 2);
-	init_thunk(less_init_thunk, &less_eval, 2);
-	init_thunk(greater_init_thunk, &greater_eval, 2);
-	init_thunk(neg_init_thunk, &neg_eval, 1);
+	init_thunk(add_init_thunk, &add_eval, 2, 0);
+	init_thunk(sub_init_thunk, &sub_eval, 2, 0);
+	init_thunk(mult_init_thunk, &mult_eval, 2, 0);
+	init_thunk(divi_init_thunk, &divi_eval, 2, 0);
+	init_thunk(mod_init_thunk, &mod_eval, 2, 0);
+	init_thunk(powe_init_thunk, &powe_eval, 2, 0);
+	init_thunk(eq_init_thunk, &eq_eval, 2, 0);
+	init_thunk(neq_init_thunk, &neq_eval, 2, 0);
+	init_thunk(geq_init_thunk, &geq_eval, 2, 0);
+	init_thunk(leq_init_thunk, &leq_eval, 2, 0);
+	init_thunk(powe_init_thunk, &powe_eval, 2, 0);
+	init_thunk(eq_init_thunk, &eq_eval, 2, 0);
+	init_thunk(neq_init_thunk, &neq_eval, 2, 0);
+	init_thunk(geq_init_thunk, &geq_eval, 2, 0);
+	init_thunk(less_init_thunk, &less_eval, 2, 0);
+	init_thunk(greater_init_thunk, &greater_eval, 2, 0);
+	init_thunk(neg_init_thunk, &neg_eval, 1, 0);
 
 	// Float operations
-	init_thunk(addf_init_thunk, &addf_eval, 2);
-	init_thunk(subf_init_thunk, &subf_eval, 2);
-	init_thunk(multf_init_thunk, &multf_eval, 2);
-	init_thunk(divf_init_thunk, &divf_eval, 2);
-	init_thunk(powef_init_thunk, &powef_eval, 2);
-	init_thunk(eqf_init_thunk, &eqf_eval, 2);
-	init_thunk(neqf_init_thunk, &neqf_eval, 2);
-	init_thunk(geqf_init_thunk, &geqf_eval, 2);
-	init_thunk(leqf_init_thunk, &leqf_eval, 2);
-	init_thunk(powef_init_thunk, &powef_eval, 2);
-	init_thunk(eqf_init_thunk, &eqf_eval, 2);
-	init_thunk(neqf_init_thunk, &neqf_eval, 2);
-	init_thunk(geqf_init_thunk, &geqf_eval, 2);
-	init_thunk(lessf_init_thunk, &lessf_eval, 2);
-	init_thunk(greaterf_init_thunk, &greaterf_eval, 2);
-	init_thunk(negf_init_thunk, &negf_eval, 1);
+	init_thunk(addf_init_thunk, &addf_eval, 2, 0);
+	init_thunk(subf_init_thunk, &subf_eval, 2, 0);
+	init_thunk(multf_init_thunk, &multf_eval, 2, 0);
+	init_thunk(divf_init_thunk, &divf_eval, 2, 0);
+	init_thunk(powef_init_thunk, &powef_eval, 2, 0);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2, 0);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2, 0);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2, 0);
+	init_thunk(leqf_init_thunk, &leqf_eval, 2, 0);
+	init_thunk(powef_init_thunk, &powef_eval, 2, 0);
+	init_thunk(eqf_init_thunk, &eqf_eval, 2, 0);
+	init_thunk(neqf_init_thunk, &neqf_eval, 2, 0);
+	init_thunk(geqf_init_thunk, &geqf_eval, 2, 0);
+	init_thunk(lessf_init_thunk, &lessf_eval, 2, 0);
+	init_thunk(greaterf_init_thunk, &greaterf_eval, 2, 0);
+	init_thunk(negf_init_thunk, &negf_eval, 1, 0);
 
 	// Boolean operations
-	init_thunk(andb_init_thunk, &andb_eval, 2);
-	init_thunk(orb_init_thunk, &orb_eval, 2);
-	init_thunk(notb_init_thunk, &notb_eval, 1);
+	init_thunk(andb_init_thunk, &andb_eval, 2, 0);
+	init_thunk(orb_init_thunk, &orb_eval, 2, 0);
+	init_thunk(notb_init_thunk, &notb_eval, 1, 0);
 
 	// List operations
-	init_thunk(cons_init_thunk, &cons_eval, 2);
-	init_thunk(cat_init_thunk, &cat_eval, 2);
-	init_thunk(length_init_thunk, &length_eval, 1);
-	init_thunk(head_init_thunk, &head_eval, 1);
-	init_thunk(tail_init_thunk, &tail_eval, 1);
+	init_thunk(cons_init_thunk, &cons_eval, 2, 0);
+	init_thunk(cat_init_thunk, &cat_eval, 2, 0);
+	init_thunk(length_init_thunk, &length_eval, 1, 0);
+	init_thunk(head_init_thunk, &head_eval, 1, 0);
+	init_thunk(tail_init_thunk, &tail_eval, 1, 0);
 
 	// Tuple operations
-	init_thunk(first_init_thunk, &first_eval, 1);
-	init_thunk(second_init_thunk, &second_eval, 1);
+	init_thunk(first_init_thunk, &first_eval, 1, 0);
+	init_thunk(second_init_thunk, &second_eval, 1, 0);
 
-	init_thunk(is_none_init_thunk, &is_none_eval, 1);
-	init_thunk(from_just_init_thunk, &from_just_eval, 1);
+	init_thunk(is_none_init_thunk, &is_none_eval, 1, 0);
+	init_thunk(from_just_init_thunk, &from_just_eval, 1, 0);
 
-	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1);
+	init_thunk(int_to_float_init_thunk, &int_to_float_eval,1, 0);
+
+	init_thunk(ite_init_thunk, &ite_eval,3, 1);
 }
 
 void printTuple(void *tup, int *types, int index) {
@@ -342,7 +346,7 @@ void printMaybe(void *mayb, int *types, int index) {
 	if (m->is_none) {
 		printf("none");
 	} else {
-		printf("maybe ");
+		printf("just ");
 		printAnyThunk(m->data, types, nested_type_index1);
 	}
 }

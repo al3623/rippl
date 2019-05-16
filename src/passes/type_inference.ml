@@ -157,7 +157,6 @@ let rec ti env expr =
 			(match e with 
 			| (ListComp _) as l -> ti env l
 			| (ListRange _) as l -> ti env l
-			| (InfList _) as l -> ti env l
 			| (ListLit _) as l -> ti env l
 			| (Var _) as l -> ti env l
 			| t -> raise (Failure( 
@@ -284,10 +283,6 @@ let rec ti env expr =
 				(subst1,tex1,apply fullsubst ty1), 
 				(subst2,tex2,apply fullsubst ty2))
 			, TconList Int)
-	| InfList e ->
-		let (subst, tex, ty) = ti env e in
-		let subst' = mgu (apply subst ty) Int in
-		(subst', IInfList(subst', (subst,tex,ty)), TconList Int)
 	| None -> let polyty = newTyVar "a" in
 		(nullSubst, INone, Tmaybe polyty)
 	| Just e -> let (s,ix,t) as ixpr = ti env e in
@@ -404,7 +399,6 @@ let rec ti env expr =
 let rec typeUpdateEnv env = function
 	| ((a,Vdef(name,expr))::xs) ->
 		let (substs, ix, ty) = ti env expr in
-		printSubst substs;
 		let newTy = generalize env ty in
 		let oldTy = 
                 (match TyEnvMap.find_opt name env with
@@ -442,9 +436,14 @@ let type_paired_program annotvdef_list =
 		(fun s1 -> fun s2 -> composeSubst s1 s2)
 		(List.hd substList) substList in
 	let annotIVdefs' = List.map
-		(fun (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
-		let finalUnion = mgu tya ty in
-		let fullUnion = composeSubst finalUnion allSubsts in
-			(Annot(na,tya),InferredVdef(n,(s,ix, apply fullUnion ty)))) annotIVdefs in
+		(fun x -> match x with 
+                    (Annot(na,tya), InferredVdef(n,(s,ix,ty))) -> 
+		        let finalUnion = mgu tya ty in
+		        let fullUnion = composeSubst finalUnion allSubsts in
+		        (Annot(na,tya),
+                                InferredVdef(n,(s,ix, apply fullUnion ty)))
+                    |_ -> raise (Failure("no"));
+                ) annotIVdefs in
 		(allSubsts,annotIVdefs')
+                   
 

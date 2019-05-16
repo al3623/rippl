@@ -1,0 +1,3 @@
+main :: int
+main = let list = [1/x | x over [-1...2]]
+	in head (tail list) # evaluates second element of list

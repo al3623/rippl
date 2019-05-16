@@ -1,0 +1,52 @@
+{-
+norm_squared :: float -> float -> float
+norm_squared = fun a -> fun b-> a ^. 2.0 +. b ^. 2.0
+
+encode :: int -> char
+encode = fun count ->
+	if count == 0
+		then 'D'
+		else if count < 10
+			then 'C'
+			else if count < 50
+				then 'B'
+				else if count < 200
+					then 'A'
+					else ' '
+
+
+iterate_julia :: int -> float -> float -> float -> float -> char
+iterate_julia = fun c -> fun b_c -> fun a_c -> fun b_z -> fun a_z ->
+	if (c > 200 )
+		then (encode~c)
+		else if ((norm_squared~(a_z *. a_z -. b_z *. b_z +. a_c)~
+				(2.0 *. a_z *. a_z +. b_c)) >. 4.0)
+			then (encode~c)
+			else (iterate_julia~(c+1)~b_c~a_c~(2.0*.a_z*.b_z +. b_c)~
+				(a_z*.a_z -. b_z*.b_z +. a_c))
+-}
+every_other :: [a] -> [a]
+every_other = fun list -> if len list <= 1 
+					then list
+					else (head list) cons (every_other~(tail (tail list)))
+
+iterate_real :: float -> float -> float -> [(float,float)]
+iterate_real = fun b_c -> fun a_c -> fun b ->
+	let range = [(int_to_float x) /. 50.0 | x over [-100...50]] in
+	let realRange = every_other~range in
+	let realLine = [(p,b) | p over realRange] in
+        realLine
+
+
+iterate_complex :: float -> float -> [(float,float)]
+iterate_complex = fun b_c -> fun a_c -> 
+	let range = [(int_to_float x) /. 50.0 | x over [-50...50]] in
+	let complexRange = every_other~range in
+	let iter_complex_rec = fun r ->
+		(if len r == 0
+			then []
+			else (iterate_real~b_c~a_c~(head r)) cat (iter_complex_rec~(tail r)) )
+	in iter_complex_rec~complexRange
+
+main :: [(float,float)]
+main = iterate_complex~0.0~0.0

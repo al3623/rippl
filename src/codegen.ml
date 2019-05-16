@@ -22,7 +22,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
 		| Tmaybe t -> 1 + get_type_depth t
 		| TconTuple(t1,t2) -> let d1 = get_type_depth t1 in
 			let d2 = get_type_depth t2 in
-			if d2 > d1 then d2 else d1
+			(if d2 > d1 then d2 else d1) + 1
 		| _ -> 1
 	in
 
@@ -142,11 +142,12 @@ let translate (decl_lst: (decl * typed_decl) list) =
         let eval_fn = fst (StringMap.find eval_name eval_decls) in
         let num_args = L.const_int i32_t argc in
         let thunk_name = "$$" ^ lmd.tlname in
+        let is_ite = L.const_int i32_t 0 in 
 
         let f_init_thunk = L.define_global (thunk_name ^ "_init_thunk") 
             (L.const_null struct_thunk_type) the_module in
 
-        let _ = L.build_call initThunk [| f_init_thunk ; eval_fn; num_args |] 
+        let _ = L.build_call initThunk [| f_init_thunk ; eval_fn; num_args ; is_ite |] 
             "initThunk" builder in ()
         
     in
@@ -280,7 +281,7 @@ let translate (decl_lst: (decl * typed_decl) list) =
                        | TconList (TconList _) -> 4
                        | TconList (TconTuple _) -> 5
                        | TconList (Tmaybe _) -> 6
-                       | ty -> print_endline ("couldnt make list of "^(ty_to_str ty)); -1
+                       | ty -> -1
                 in
                 let emptylist = L.build_call makeEmptyList [| L.const_int i32_t ty_code |]
                 "empty" builder in
@@ -307,12 +308,13 @@ let translate (decl_lst: (decl * typed_decl) list) =
                 let lv2 = build_expr t2 builder scope in
                 L.build_call apply [| lv1; lv2 |] "apply" builder
 
-            | TIte(cond, then_ex, else_ex) ->
-                let cond_ = build_expr cond builder scope in
-                let then_ = build_expr then_ex builder scope in
-                let else_ = build_expr else_ex builder scope in
-                L.build_call makeIte [| cond_; then_; else_ |] "ifthenelse" builder
-
+            | TIte(cond, then_ex, else_ex) -> let cv = build_expr cond builder scope in 
+                let tv = build_expr then_ex builder scope in
+                let ev = build_expr else_ex builder scope in 
+                let lv = L.build_call apply [| ite_init_thunk ; cv |] "apply" builder in 
+                let lv1 = L.build_call apply [| lv ; tv |] "apply" builder in
+                L.build_call apply [| lv1 ; ev |] "apply" builder
+                
             | TAdd -> add_init_thunk
             | TSub -> sub_init_thunk       
             | TMult -> mult_init_thunk

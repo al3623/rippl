@@ -21,7 +21,9 @@ module StringSet = Set.Make(String)
 let print_decls d = match d with
         | Vdef(n, e) -> print_endline (n ^ " = " 
 			^ (Pretty_type_print.ast_to_str (e)) ^ "\n");
-        | _ -> print_endline "annots"
+        | Annot(s, t) -> print_endline (s ^ " :: " 
+			^ (Pretty_type_print.ty_to_str (t)) ^ "\n")
+ 
         
 let rec remove_path str =
 	let slash = index_opt str '/' in

@@ -30,6 +30,7 @@
 %left IN
 %left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %right RARROW
+%nonassoc MAYBE
 %left ELSE
 
 %left ASSIGN
@@ -68,6 +69,7 @@ ty:
     | LBRACK ty RBRACK              { TconList($2) }
     | LPAREN ty COMMA ty RPAREN     { TconTuple($2,$4) }
     | IDENT                         { Tvar($1) }
+	| MAYBE ty						{ Tmaybe($2) }
     | ty RARROW ty                  { Tarrow($1,$3) }
 
 annotation:
@@ -86,7 +88,6 @@ expr:
     /* | expr expr                { App($1,$2) } */
     | expr APP expr                   { App($1,$3) }
     | IDENT                       { Var($1) }
-    | WILDCARD                    { WildCard }
     
     | lists                         { $1 }
 
@@ -162,7 +163,6 @@ literals:
 lists:
 	| LBRACK prim_list RBRACK { ListLit($2) }
 	| LBRACK list_range RBRACK { $2 }
-	| LBRACK inf_list RBRACK { $2 }
 	| LBRACK list_comp RBRACK { $2 }
 
 prim_list:
@@ -172,9 +172,6 @@ prim_list:
 
 list_range:
 	| expr LRANGE expr 		{ ListRange($1,$3) }
-
-inf_list:
-	| expr LRANGE			{ InfList($1) }
 
 list_comp:
 	| expr BAR clauses		{ ListComp($1,$3) }
