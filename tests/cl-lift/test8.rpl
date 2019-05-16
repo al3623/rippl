@@ -1,0 +1,7 @@
+main :: int
+main =
+	(fun x -> 
+		fun z ->
+			fun w -> 
+				x * w * z)~1~2~4
+

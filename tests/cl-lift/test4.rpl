@@ -1,0 +1,4 @@
+main :: [int]
+main =
+	let a = 5 in
+	[a+y | y over [1,2,3]]

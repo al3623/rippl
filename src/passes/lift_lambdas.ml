@@ -379,7 +379,7 @@ let rec mangle_close e nested tl_seen = match e with
 		ListLit(ml)
 	| ListComp(e1, cl) ->
 		let ml = List.rev(List.fold_left (fun lst lc -> (mangle_closec lc nested tl_seen) :: lst ) [] cl) in
-		ListComp(mangle_close e1 nested false, ml)
+		ListComp(mangle_close e1 nested tl_seen, ml)
 	| other -> other
 
 and mangle_closec c nested tl_seen = match c with

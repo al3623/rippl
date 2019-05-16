@@ -1,0 +1,5 @@
+main :: int
+main = 
+	let a = 5 in
+	let f1 = fun a -> a + 5 in
+	f1~10

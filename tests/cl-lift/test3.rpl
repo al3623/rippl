@@ -1,0 +1,6 @@
+main :: [int]
+main =
+	let a = 5 in
+	let f1 = fun x ->
+		x + a in
+	[f1~y | y over [1,2,3]]

@@ -4,11 +4,11 @@ is_prime = fun n -> if n < 2 then false else
                 let d = [ z | z over lst, (divides~n~z) ] in
                 if head d == n then true else false
 
-                    {-hollis = fun x -> let hans = 0 in
+hollis = fun x -> let hans = 0 in
 	let amanda = 6 in
-	let da = [a+b | a over [hans...amanda], b over[], is_prime~(b) ]
-	in da-}
+	let da = [a+b | a over [hans...amanda], b over[1...x], is_prime~(a+b) ]
+	in da
 
-main :: bool
-main =# hollis~0
-        is_prime~1
+main :: [int]
+main = hollis~5
+        

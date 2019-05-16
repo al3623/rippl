@@ -28,7 +28,8 @@
 %token <string> IDENT
 
 %left IN
-%left OR AND NOT EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
+%left OR AND NOT
+%left EQ EQF NEQ NEQF LESS LESSF GREATER GREATERF LEQ LEQF GEQF GEQ
 %right RARROW
 %nonassoc MAYBE
 %left ELSE
@@ -137,7 +138,7 @@ expr:
     | LPAREN expr RPAREN %prec PAREN {$2}
 	
 	/* TUPLES */
-	| LPAREN expr COMMA expr RPAREN { Tuple($2,$4) }
+	| LPAREN expr COMMA expr                        RPAREN { Tuple($2,$4) }
 	| FIRST expr					{ App(First, $2) }
 	| SEC expr						{ App(Sec, $2) }
 
