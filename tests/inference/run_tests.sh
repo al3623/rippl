@@ -1,14 +1,12 @@
 #!/bin/bash
 #assert.sh
 
-num_tests=$(ls -1q test* | wc -l)
-
-for var in `seq 1 1 $num_tests`
+for file in *.rpl
 do
-	rippl -t test$var.rpl &> /dev/null
+	rippl $file -t &> /dev/null
 	if [ $? -ne 0 ]  
-	then echo "failed test$var"
-   	else  echo "passed test$var"
+	then echo -e "\e[39mfailed \e[91m$file"
+   	else  echo -e "\e[39mpassed \e[92m$file"
 	fi
 done
 
