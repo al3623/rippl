@@ -1,0 +1,2 @@
+main :: int
+main = from_just (just 5)
