@@ -1,1 +1,2 @@
+main :: [char]
 main = "Hello World!! xD"
