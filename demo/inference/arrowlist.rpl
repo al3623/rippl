@@ -1,9 +1,0 @@
-make_arrow_list = fun a -> fun b ->
-	[(fun x -> x),(fun y -> y)]
-
-main :: int
-main =
-        let a = 5 in
-        let b = 6 in 
-        let funs = make_arrow_list~5~6 in
-        (head tail funs)~5
