@@ -16,7 +16,7 @@ let rec ast_to_str exp =
     (* Lists *)
     | ListLit((Ast.CharLit c) :: tl) -> 
 		"\"" ^ (char_list_to_str ((Ast.CharLit c) :: tl)) ^ "\""
-	| Just(e) -> "just "^(ast_to_str exp)
+	| Just(e) -> "just "^(ast_to_str e)
     | ListLit(alist) -> "[" ^ (list_to_str alist) ^ "]"
     | ListRange(e1, e2) -> "[" ^ (ast_to_str e1) ^ "..." ^ (ast_to_str e2) ^ "]"
     | ListComp(e, c) -> "[" ^ (ast_to_str e) ^ "|" ^ (clauses_to_str c) ^ "]"
