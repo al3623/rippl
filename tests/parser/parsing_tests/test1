@@ -1,3 +1,0 @@
-rippl = 5+9*8^3/66-44/1
-tomato = if vegetable then false else if red and round then true else false 
-var = let x = 9 in let v = x in x + v
