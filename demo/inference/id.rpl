@@ -1,6 +1,0 @@
-id :: a -> b
-id = fun x -> let y = x 
-	in y
-
-main :: a
-main = id~id~id~id~id~id~1
