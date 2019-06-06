@@ -80,9 +80,7 @@ assign:
     | IDENT ASSIGN expr              { Assign($1, $3) }
 
 expr:
-        
     /* SYNTACTIC EXPRESSIONS */
-    
     | IF expr THEN expr ELSE expr { Ite($2,$4,$6) }
     | LET assign IN expr            { Let($2,$4) }
     | FUN IDENT RARROW expr        { Lambda($2,$4) }
@@ -110,22 +108,22 @@ expr:
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
 	| expr MOD expr			{ App (App(Mod, $1), $3) }
 
-	| RPAREN OR LPAREN          { Or }
-    | RPAREN AND LPAREN         { And }
+	| LPAREN OR RPAREN          { Or }
+    | LPAREN AND RPAREN         { And }
     /* TODO: No partially applied not */
-	| RPAREN EQ LPAREN          { Eq }
-    | RPAREN EQF LPAREN         { EqF }
-    | RPAREN NEQ LPAREN         { Neq }
-    | RPAREN NEQF LPAREN        { NeqF }
-    | RPAREN LESS LPAREN        { Less }
-    | RPAREN LESSF LPAREN       { LessF }
-    | RPAREN GREATER LPAREN     { Greater }
-    | RPAREN GREATERF LPAREN    { GreaterF }
-    | RPAREN LEQ LPAREN         { Leq }
-    | RPAREN LEQF LPAREN        { LeqF }
-    | RPAREN GEQ LPAREN         { Geq }
-    | RPAREN GEQF LPAREN        { GeqF }
-	| RPAREN MOD LPAREN			{ Mod }
+	| LPAREN EQ RPAREN          { Eq }
+    | LPAREN EQF RPAREN         { EqF }
+    | LPAREN NEQ RPAREN         { Neq }
+    | LPAREN NEQF RPAREN        { NeqF }
+    | LPAREN LESS RPAREN        { Less }
+    | LPAREN LESSF RPAREN       { LessF }
+    | LPAREN GREATER RPAREN     { Greater }
+    | LPAREN GREATERF RPAREN    { GreaterF }
+    | LPAREN LEQ RPAREN         { Leq }
+    | LPAREN LEQF RPAREN        { LeqF }
+    | LPAREN GEQ RPAREN         { Geq }
+    | LPAREN GEQF RPAREN        { GeqF }
+	| LPAREN MOD RPAREN			{ Mod }
 
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
@@ -141,16 +139,16 @@ expr:
     | MINUS expr %prec UMINUS { App(Neg, $2) }
     | MINUSF expr %prec UMINUSF { App(NegF, $2) }
 
-	| RPAREN PLUS LPAREN 		{ Add }
-    | RPAREN MINUS LPAREN       { Sub }
-    | RPAREN TIMES LPAREN       { Mult }
-    | RPAREN DIVIDE LPAREN      { Div }
-    | RPAREN PLUSF LPAREN       { AddF }
-    | RPAREN MINUSF LPAREN      { SubF }
-    | RPAREN TIMESF LPAREN      { MultF }
-    | RPAREN DIVIDEF LPAREN     { DivF }
-    | RPAREN POW LPAREN         { Pow }
-    | RPAREN POWF LPAREN        { PowF }
+	| LPAREN PLUS RPAREN 		{ Add }
+    | LPAREN MINUS RPAREN       { Sub }
+    | LPAREN TIMES RPAREN       { Mult }
+    | LPAREN DIVIDE RPAREN      { Div }
+    | LPAREN PLUSF RPAREN       { AddF }
+    | LPAREN MINUSF RPAREN      { SubF }
+    | LPAREN TIMESF RPAREN      { MultF }
+    | LPAREN DIVIDEF RPAREN     { DivF }
+    | LPAREN POW RPAREN         { Pow }
+    | LPAREN POWF RPAREN        { PowF }
 	/* TODO:No partially applied unary minuses yet */
 
     /* LIST OPERATIONS */
@@ -162,7 +160,7 @@ expr:
 
 	| LPAREN CONS RPAREN        { Cons }
     /* TODO: No partially applied head, tail, len */
-	| RPAREN CAT RPAREN         { Cat }
+	| LPAREN CAT RPAREN         { Cat }
 
     /* LITERALS */
     | literals              { $1 }
