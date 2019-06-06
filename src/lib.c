@@ -131,23 +131,6 @@ struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end) {
 	return init_thunk_literal(list);
 }
 
-struct Thunk *makeInfinite(int start) {
-	struct List *list = malloc(sizeof(struct List));
-
-	list->content_type = INT;
-	list->type = INFINITE;
-	list->start = start;
-	list->end = -1;
-	list->last_eval = 0;
-	list->curr_index = start;
-
-	struct Thunk *data = makeInt(start);
-	list->head = makeNode(data);	
-	
-	list->last_eval = list->head;
-	return init_thunk_literal(list);
-}
-
 struct Node *makeNode(struct Thunk *data_thunk) {
 	struct Node *new = malloc(sizeof(struct Node));
 
@@ -168,7 +151,7 @@ void explodeRangeList(void *list) {
 void evalNextNode(void *list) {
 	struct List *llist = (struct List *)list;
 	
-	if (llist->type == RANGE || llist->type == INFINITE) {
+	if (llist->type == RANGE) {
 		llist->curr_index++;
 		struct Thunk *data = makeInt(llist->curr_index);
 		struct Node *newNode = makeNode(data);

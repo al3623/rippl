@@ -178,17 +178,6 @@ let makeemptylist ty name =
 	[| L.const_int i32_t ty |]
 	name builder
 
-let makeInfinite_t : L.lltype =
-	L.function_type (L.pointer_type struct_thunk_type)
-	[| i32_t |]
-let makeInfinite : L.llvalue =
-	L.declare_function "makeInfinite" makeInfinite_t the_module
-let makeinfinite start name = match start with
-	| (TIntLit s, _) -> 
-		L.build_call makeInfinite
-		[| L.const_int i32_t s |] 
-		name builder
-	| _ -> raise (Failure "type error in infinite list")
 
 let makeRangeList_t : L.lltype =
 	L.function_type (L.pointer_type struct_thunk_type)

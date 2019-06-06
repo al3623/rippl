@@ -13,7 +13,6 @@
 #define MAYBE		6
 
 #define RANGE		0
-#define INFINITE	1
 #define COMP		2
 #define LITLIST		3
 
@@ -65,7 +64,6 @@ struct Thunk *makeChar(char x);
 struct Thunk *makeFloat(float x);
 struct Node *makeNode(struct Thunk *data);
 struct Thunk *makeEmptyList(int ty);
-struct Thunk *makeInfinite(int start);
 struct Thunk *makeRangeList(struct Thunk *start, struct Thunk *end);
 struct Thunk *makeTuple(struct Thunk *data1, struct Thunk *data2, int t1, int t2);
 struct Thunk *makeMaybe(struct Thunk *data, int ty);
