@@ -110,6 +110,23 @@ expr:
     | expr GEQF expr        { App (App(GeqF, $1), $3) }
 	| expr MOD expr			{ App (App(Mod, $1), $3) }
 
+	| RPAREN OR LPAREN          { Or }
+    | RPAREN AND LPAREN         { And }
+    /* TODO: No partially applied not */
+	| RPAREN EQ LPAREN          { Eq }
+    | RPAREN EQF LPAREN         { EqF }
+    | RPAREN NEQ LPAREN         { Neq }
+    | RPAREN NEQF LPAREN        { NeqF }
+    | RPAREN LESS LPAREN        { Less }
+    | RPAREN LESSF LPAREN       { LessF }
+    | RPAREN GREATER LPAREN     { Greater }
+    | RPAREN GREATERF LPAREN    { GreaterF }
+    | RPAREN LEQ LPAREN         { Leq }
+    | RPAREN LEQF LPAREN        { LeqF }
+    | RPAREN GEQ LPAREN         { Geq }
+    | RPAREN GEQF LPAREN        { GeqF }
+	| RPAREN MOD LPAREN			{ Mod }
+
     /* MATH OPERATIONS */
     | expr PLUS expr        { App (App(Add, $1), $3) }
     | expr MINUS expr       { App (App (Sub, $1), $3) }
@@ -124,12 +141,28 @@ expr:
     | MINUS expr %prec UMINUS { App(Neg, $2) }
     | MINUSF expr %prec UMINUSF { App(NegF, $2) }
 
+	| RPAREN PLUS LPAREN 		{ Add }
+    | RPAREN MINUS LPAREN       { Sub }
+    | RPAREN TIMES LPAREN       { Mult }
+    | RPAREN DIVIDE LPAREN      { Div }
+    | RPAREN PLUSF LPAREN       { AddF }
+    | RPAREN MINUSF LPAREN      { SubF }
+    | RPAREN TIMESF LPAREN      { MultF }
+    | RPAREN DIVIDEF LPAREN     { DivF }
+    | RPAREN POW LPAREN         { Pow }
+    | RPAREN POWF LPAREN        { PowF }
+	/* TODO:No partially applied unary minuses yet */
+
     /* LIST OPERATIONS */
     | expr CONS expr        { App (App(Cons, $1), $3) }
     | HEAD expr             { App(Head, $2) }
     | TAIL expr             { App (Tail, $2) }
     | expr CAT expr         { App (App(Cat, $1), $3)}
     | LEN expr              { App (Len, $2)}
+
+	| LPAREN CONS RPAREN        { Cons }
+    /* TODO: No partially applied head, tail, len */
+	| RPAREN CAT RPAREN         { Cat }
 
     /* LITERALS */
     | literals              { $1 }
