@@ -12,10 +12,12 @@ Hans Montero (Prime Minister)
 
 **Requirements**
 
-- ocaml 4.01.0
-- opam 2.0.3
-- llvm 8.0.0 (installed with opam and on machine using brew/apt/..)
-- A passion for code
+- gcc 7.4.0 or clang 6.0.0 
+- llvm 6.0.0
+- ocaml 4.05.0
+- zsh 5.4.2
+- opam 1.2.2
+- ocamlbuild 0.12.0
 
 
 
