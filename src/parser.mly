@@ -110,7 +110,6 @@ expr:
 
 	| LPAREN OR RPAREN          { Or }
     | LPAREN AND RPAREN         { And }
-    /* TODO: No partially applied not */
 	| LPAREN EQ RPAREN          { Eq }
         | LPAREN NOT RPAREN     { Not }
     | LPAREN EQF RPAREN         { EqF }
@@ -150,7 +149,6 @@ expr:
     | LPAREN DIVIDEF RPAREN     { DivF }
     | LPAREN POW RPAREN         { Pow }
     | LPAREN POWF RPAREN        { PowF }
-	/* TODO:No partially applied unary minuses yet */
 
     /* LIST OPERATIONS */
     | expr CONS expr        { App (App(Cons, $1), $3) }
@@ -160,7 +158,6 @@ expr:
     | LEN expr              { App (Len, $2)}
 
 	| LPAREN CONS RPAREN        { Cons }
-    /* TODO: No partially applied head, tail, len */
 	| LPAREN CAT RPAREN         { Cat }
         | LPAREN HEAD RPAREN    { Head }
         | LPAREN TAIL RPAREN    { Tail }
