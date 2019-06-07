@@ -112,6 +112,7 @@ expr:
     | LPAREN AND RPAREN         { And }
     /* TODO: No partially applied not */
 	| LPAREN EQ RPAREN          { Eq }
+        | LPAREN NOT RPAREN     { Not }
     | LPAREN EQF RPAREN         { EqF }
     | LPAREN NEQ RPAREN         { Neq }
     | LPAREN NEQF RPAREN        { NeqF }
@@ -161,6 +162,9 @@ expr:
 	| LPAREN CONS RPAREN        { Cons }
     /* TODO: No partially applied head, tail, len */
 	| LPAREN CAT RPAREN         { Cat }
+        | LPAREN HEAD RPAREN    { Head }
+        | LPAREN TAIL RPAREN    { Tail }
+        | LPAREN LEN RPAREN     { Len }
 
     /* LITERALS */
     | literals              { $1 }
