@@ -4,7 +4,7 @@ Recursively Inferred Pure functional Programming Language
 
 Da Hua Chen (Riddler)
 
-Hollis Lehv (Gallblader)
+Hollis Lehv (Gallbladder)
 
 Amanda Liu (Language Yoda)
 
