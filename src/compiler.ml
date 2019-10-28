@@ -65,7 +65,8 @@ let rec parse_flags = function
 		then (t,true,p)
 		else if flag = "-p"
 		then (t,l,true)
-		else raise (Failure "Usage: <.rpl file> [-t, -l, -p]") 
+        else (eprintf "Usage: <.rpl file> [-t, -l, -p]"; ignore (exit 0); 
+        (false,false,false)
 	| [] -> (false, false, false)
 
 let _ =
@@ -75,7 +76,7 @@ let _ =
 	(
 	if length > 4 
 		then ()
-		else raise (Failure "Usage: <.rpl file> [-t, -l, -p]")
+        else (eprintf "Usage: <.rpl file> [-t, -l, -p]"; ignore (exit 0); ())
 	);
 	let base = sub input 0 (length-4) in
 	let base_no_path = remove_path base in
@@ -85,7 +86,8 @@ let _ =
 
 	let _ = if extension = "rpl" 
 			then ()
-			else raise (Failure "Usage: <.rpl file> [-t, -l, -p]") in
+            else (eprintf "Usage: <.rpl file> [-t, -l, -p]"; ignore(exit 0); ()) 
+    in
 
 	let file_contents = read_full_file input in
     
