@@ -66,7 +66,7 @@ let rec parse_flags = function
 		else if flag = "-p"
 		then (t,l,true)
         else (eprintf "Usage: <.rpl file> [-t, -l, -p]"; ignore (exit 0); 
-        (false,false,false)
+        (false,false,false))
 	| [] -> (false, false, false)
 
 let _ =
